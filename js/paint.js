@@ -69,19 +69,43 @@ document.querySelector(".rubber").addEventListener("click", function(e) {
 //rubber
 
 //shapes
-console.log(document.querySelector("svg.shapes-controller"));
+
 document
   .querySelector(".shapes-controller")
   .addEventListener("click", function() {
-    console.log(123);
     document
       .querySelector(".dropdown-shapes-wrapper")
       .classList.toggle("dropdown-shapes-wrapper-active");
   });
 
+function beginRect(e) {
+  let x1 = e.clientX;
+  let y1 = e.clientY - 150;
+
+  canvas.onmousemove = function(e) {
+    let x = e.clientX - x1;
+    let y = e.clientY - y1 - 150;
+
+    c.clearRect(x1, y1, x, y);
+    c.strokeRect(x1, y1, x, y);
+  };
+  canvas.onmouseup = function() {
+    canvas.onmousemove = null;
+  };
+}
+
+document.querySelector(".square").addEventListener("click", function() {
+  this.classList.toggle("active");
+  if (this.classList.contains("active")) {
+    canvas.addEventListener("mousedown", beginRect);
+  } else {
+    canvas.removeEventListener("mousedown", beginRect);
+  }
+});
+
 //shapes
 
 document.body.onresize = function() {
-  canvas.style.width = document.documentElement.clientWidth;
-  canvas.style.height = document.documentElement.clientHeight - 150;
+  canvas.width = document.documentElement.clientWidth;
+  canvas.height = document.documentElement.clientHeight - 150;
 };

@@ -1,7 +1,11 @@
+html {
+  height: 100%; }
+
 body {
   background: white;
-  margin: 10px;
-  margin: 0; }
+  height: 100%;
+  margin: 0;
+  overflow: hidden; }
 
 ul {
   margin: 0;
@@ -16,7 +20,7 @@ header {
   header nav {
     display: flex;
     background: #eeeeee;
-    min-height: 150px; }
+    height: 150px; }
     header nav .tools-wrapper .tools ul .active {
       border: 1px solid black;
       display: block;
@@ -49,9 +53,17 @@ header {
         background: #eee;
         border: 1px solid black;
         display: none; }
+        header nav .shapes-wrapper .dropdown-shapes-wrapper .square {
+          border: 1px solid red;
+          width: 20px;
+          height: 20px;
+          cursor: pointer; }
+        header nav .shapes-wrapper .dropdown-shapes-wrapper .square.active {
+          background: red; }
       header nav .shapes-wrapper .dropdown-shapes-wrapper-active {
         display: block; }
 
-.canvas-wrapper .rubber-canvas-active {
-  margin: 0;
-  cursor: url(../img/rubber-cursor.cur), pointer; }
+.canvas-wrapper {
+  height: calc(100% - 150px); }
+  .canvas-wrapper .rubber-canvas-active {
+    cursor: url(../img/rubber-cursor.cur), pointer; }

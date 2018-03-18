@@ -1,7 +1,10 @@
+html
+	height: 100%
 body
 	background: white
-	margin: 10px
+	height: 100%
 	margin: 0
+	overflow: hidden
 
 ul
 	margin: 0
@@ -16,7 +19,7 @@ header
 	nav
 		display: flex
 		background: #eeeeee
-		min-height: 150px
+		height: 150px
 		.tools-wrapper
 			.tools
 				ul
@@ -53,6 +56,13 @@ header
 				background: #eee
 				border: 1px solid black
 				display: none	
+				.square
+					border: 1px solid red
+					width: 20px
+					height: 20px
+					cursor: pointer	
+				.square.active
+					background: red					  	
 			.dropdown-shapes-wrapper-active
 				display: block		
 
@@ -60,6 +70,6 @@ header
 
 	  						
 .canvas-wrapper
+	height: calc(100% - 150px)
 	.rubber-canvas-active
-		margin: 0
 		cursor: url(../img/rubber-cursor.cur) , pointer
