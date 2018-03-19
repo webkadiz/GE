@@ -2,6 +2,7 @@ html {
   height: 100%; }
 
 body {
+  font-size: 1.1em;
   background: white;
   height: 100%;
   margin: 0;
@@ -45,6 +46,7 @@ header {
       header nav .shapes-wrapper .shapes-controller:hover {
         cursor: pointer; }
       header nav .shapes-wrapper .dropdown-shapes-wrapper {
+        z-index: 1000;
         position: absolute;
         top: 100%;
         left: 0;
@@ -63,7 +65,11 @@ header {
       header nav .shapes-wrapper .dropdown-shapes-wrapper-active {
         display: block; }
 
+.canvas-wrapper.rubber-canvas-active {
+  cursor: url(../img/rubber-cursor.cur), pointer; }
+
 .canvas-wrapper {
+  position: relative;
   height: calc(100% - 150px); }
-  .canvas-wrapper .rubber-canvas-active {
-    cursor: url(../img/rubber-cursor.cur), pointer; }
+  .canvas-wrapper .canvas {
+    position: absolute; }
