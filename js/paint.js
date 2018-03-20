@@ -97,67 +97,71 @@ function create_textarea(x, y) {
   textarea.classList.add("canvas-textarea-text");
 
   canvas_wrapper.appendChild(textarea);
+
+  return textarea;
 }
 
-counter = 0;
 function text_click(e) {
   let x = e.clientX;
   let y = e.clientY - widthHeader;
   let x1 = 0;
   let y1 = 0;
-  if (counter == 0) {
-    create_textarea(x, y);
-    counter++;
+
+  create_textarea(x, y);
+
+  textarea = document.querySelectorAll(".canvas-textarea-text");
+
+  for (let i = 0; i < textarea.length; i++) {
+    if (textarea[i]) {
+      textarea[i].onblur = function() {
+        event_textarea(textarea[i]);
+      };
+    }
   }
 
-  textarea = document.querySelector(".canvas-textarea-text");
-  if (textarea) {
-    textarea.onblur = function() {
-      let text = textarea.value;
-      let new_canvas = document.createElement("canvas");
+  function event_textarea(textarea) {
+    let text = textarea.value;
+    let new_canvas = document.createElement("canvas");
 
-      let x = 0;
-      let y = 30;
+    let x = 0;
+    let y = 30;
 
-      new_canvas.classList.add("canvas");
-      new_canvas.classList.add("canvas-text");
-      new_canvas.style.left = textarea.style.left;
-      new_canvas.style.top = textarea.style.top;
+    new_canvas.classList.add("canvas");
+    new_canvas.classList.add("canvas-text");
+    new_canvas.style.left = textarea.style.left;
+    new_canvas.style.top = textarea.style.top;
 
-      canvas_wrapper.appendChild(new_canvas);
-      c = new_canvas.getContext("2d");
+    canvas_wrapper.appendChild(new_canvas);
+    c = new_canvas.getContext("2d");
 
-      text = text.split("\n");
-      let width = c.measureText(text[0]).width;
-      for (let i = 0; i < text.length; i++) {
-        if (width < c.measureText(text[i]).width)
-          width = c.measureText(text[i]).width;
-      }
-      new_canvas.width = width * 2.2;
-      new_canvas.height = text.length * 30;
-      console.log(width);
-      for (let i = 0; i < text.length; i++) {
-        c.font = "400 22px sans-serif";
-        c.fillText(text[i], x, y);
-        y += 30;
-      }
+    text = text.split("\n");
+    let width = c.measureText(text[0]).width;
+    for (let i = 0; i < text.length; i++) {
+      if (width < c.measureText(text[i]).width)
+        width = c.measureText(text[i]).width;
+    }
+    new_canvas.width = width * 2.2;
+    new_canvas.height = text.length * 30;
+    for (let i = 0; i < text.length; i++) {
+      c.font = "400 22px sans-serif";
+      c.fillText(text[i], x, y);
+      y += 30;
+    }
 
-      textarea_remember = canvas_wrapper.removeChild(textarea);
-      console.log(textarea_remember.value);
-      document
-        .querySelector(".canvas-text")
-        .addEventListener("dblclick", function() {
-          console.log(234);
-          canvas_wrapper.removeChild(this);
-          create_textarea(
-            parseInt(new_canvas.style.left),
-            parseInt(new_canvas.style.top)
-          );
-          console.log(textarea_remember.value);
-          document.querySelector(".canvas-textarea-text").value =
-            textarea_remember.value;
-        });
-    };
+    textarea_remember = canvas_wrapper.removeChild(textarea);
+    new_canvas.addEventListener("mousedown", function() {
+      canvas_wrapper.removeChild(this);
+
+      let textarea = create_textarea(
+        parseInt(new_canvas.style.left),
+        parseInt(new_canvas.style.top)
+      );
+      console.log(textarea);
+      textarea.onblur = function() {
+        event_textarea(textarea);
+      };
+      textarea.value = textarea_remember.value;
+    });
   }
 }
 
@@ -165,13 +169,41 @@ document.querySelector(".text-badge").addEventListener("click", function(e) {
   e.preventDefault();
   this.classList.toggle("active");
   if (this.classList.contains("active")) {
-    canvas_wrapper.addEventListener("mousedown", text_click);
+    canvas_wrapper.addEventListener("dblclick", text_click);
   } else {
-    canvas_wrapper.removeEventListener("mousedown", text_click);
+    canvas_wrapper.removeEventListener("dblclick", text_click);
   }
 });
 
 //text
+
+//pouring
+
+function fill(e) {
+  let target = e.target;
+
+  c = target.getContext("2d");
+
+  if (target.classList.contains("canvas")) {
+    c.fillStyle = "blue";
+    c.fillRect(0, 0, target.width, target.height);
+    console.log(123);
+  }
+}
+
+document.querySelector(".pouring-badge").addEventListener("click", function(e) {
+  e.preventDefault();
+
+  this.classList.toggle("active");
+
+  if (this.classList.contains("active")) {
+    canvas_wrapper.addEventListener("mousedown", fill);
+  } else {
+    canvas_wrapper.removeEventListener("mousedown", fill);
+  }
+});
+
+//pouring
 
 //shapes
 
@@ -218,6 +250,7 @@ function beginRect(e) {
     new_c.strokeRect(0, 0, x, y);
   };
   canvas_wrapper.onmouseup = function(e) {
+    console.log(123123);
     new_canvas.width = x;
     new_canvas.height = y;
     new_c.strokeRect(0, 0, x, y);
@@ -231,6 +264,7 @@ document.querySelector(".square").addEventListener("click", function() {
     canvas_wrapper.addEventListener("mousedown", beginRect);
   } else {
     canvas_wrapper.removeEventListener("mousedown", beginRect);
+    canvas_wrapper.onmouseup = null;
   }
 });
 
