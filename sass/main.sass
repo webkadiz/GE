@@ -1,6 +1,10 @@
+
+$vk_color : #EDEEF0	
+	
 html
 	height: 100%
 body
+	font-family: sans-serif
 	font-size: 1.1em
 	background: white
 	height: 100%
@@ -22,24 +26,39 @@ header
 		background: #eeeeee
 		height: 150px
 		.tools-wrapper
+			padding: 20px
+			display: flex
+			align-items: center
 			.tools
+				ul:first-child
+					margin-bottom: 10px
 				ul
-					.active
-						border: 1px solid black
-						display: block
-						width: 30px
-						height: 30px
-						background: linear-gradient( #F1C40F , #F39C12 )
+					display: flex
+					li
+						a
+							margin-right: 15px
+							display: block
+							padding: 5px
+							width: 30px
+							height: 30px
+							border-radius: 5px
+							&:hover
+								background: $vk_color
+								cursor: pointer
+						a.active					
+							background: linear-gradient( #F1C40F , #F39C12 )
 		.shapes-wrapper
+			padding: 10px
 			display: flex
 			flex-direction: column
+			justify-content: space-between
 			align-items: center
 			position: relative
 			.shapes		
 				display: flex
+				margin-bottom: 10px
 				justify-content: center
 				align-items: center
-				margin: 10px
 				width: 60px
 				height: 60px
 				border: 3px solid black
@@ -75,7 +94,16 @@ header
 .canvas-wrapper
 	position: relative
 	height: calc(100% - 150px)
+	textarea
+		position: absolute
+		font-size: 22px
+		font-weight: 400
+		&:focus
+			outline: none
 	#canvas
+		position: absolute
+		left: 0
+		top: 0
 	#canvas.rubber-canvas-active	
 	.canvas
 		position: absolute	 	
