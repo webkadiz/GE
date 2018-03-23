@@ -4,8 +4,33 @@ var c = canvas.getContext("2d");
 var counter = 0;
 const widthHeader = 150;
 
+let path = [];
+
 canvas.width = document.documentElement.clientWidth;
 canvas.height = document.documentElement.clientHeight - 150;
+
+function path_remove() {
+  c.clearRect(0, 0, canvas.width, canvas.height);
+
+  let path_delete = path.pop();
+
+  counter = path.length;
+
+  for (let i = 0; i < path.length; i++) {
+    c.stroke(path[i]);
+  }
+
+  console.log(counter);
+  console.log(path);
+}
+
+document.addEventListener("keyup", function(e) {
+  //console.log(e.keyCode == 17 && e.ctrlKey);
+  console.log(e.keyCode);
+  if (e.keyCode == 90 && e.ctrlKey) {
+    path_remove();
+  }
+});
 
 function moveToPencilWrapper(e) {
   let target = e.target;
@@ -14,8 +39,11 @@ function moveToPencilWrapper(e) {
 
   c = target.getContext("2d");
 
+  path.push(new Path2D());
+  console.log(counter);
+  console.log(path[0]);
   c.beginPath();
-  c.moveTo(x, y);
+  path[counter].moveTo(x, y);
 
   canvas_wrapper.onmousemove = function(e) {
     let current_target = e.target;
@@ -26,15 +54,16 @@ function moveToPencilWrapper(e) {
     console.log(current_target !== target);
     if (current_target !== target) {
       target = current_target;
-      c.beginPath();
-      c.moveTo(x, y);
+      path[counter].beginPath();
+      path[counter].moveTo(x, y);
     }
 
-    c.lineTo(x, y);
-    c.stroke();
+    path[counter].lineTo(x, y);
+    c.stroke(path[counter]);
   };
   canvas_wrapper.onmouseup = function() {
     canvas_wrapper.onmousemove = null;
+    counter++;
   };
 }
 
