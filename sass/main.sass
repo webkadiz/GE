@@ -77,12 +77,12 @@ header
 				background: #eee
 				border: 1px solid black
 				display: none	
-				.square
+				.square-badge
 					border: 1px solid red
 					width: 20px
 					height: 20px
 					cursor: pointer	
-				.square.active
+				.square-badge.active
 					background: red					  	
 			.dropdown-shapes-wrapper-active
 				display: block		
@@ -102,11 +102,13 @@ header
 		&:focus
 			outline: none
 	#canvas
+		display: block
 		position: absolute
 		left: 0
 		top: 0
 	#canvas.rubber-canvas-active	
 	.canvas
+		display: block
 		position: absolute	 	
 
 	

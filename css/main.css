@@ -72,12 +72,12 @@ header {
         background: #eee;
         border: 1px solid black;
         display: none; }
-        header nav .shapes-wrapper .dropdown-shapes-wrapper .square {
+        header nav .shapes-wrapper .dropdown-shapes-wrapper .square-badge {
           border: 1px solid red;
           width: 20px;
           height: 20px;
           cursor: pointer; }
-        header nav .shapes-wrapper .dropdown-shapes-wrapper .square.active {
+        header nav .shapes-wrapper .dropdown-shapes-wrapper .square-badge.active {
           background: red; }
       header nav .shapes-wrapper .dropdown-shapes-wrapper-active {
         display: block; }
@@ -96,8 +96,10 @@ header {
     .canvas-wrapper textarea:focus {
       outline: none; }
   .canvas-wrapper #canvas {
+    display: block;
     position: absolute;
     left: 0;
     top: 0; }
   .canvas-wrapper .canvas {
+    display: block;
     position: absolute; }
