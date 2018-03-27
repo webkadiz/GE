@@ -1,15 +1,23 @@
 
-$vk_color : #EDEEF0	
+$vk_color: #e1e5eb	
+$settings_color: #34495E
+$link_color: #285473
+$apply_color: #16A085
 	
 html
+
 	height: 100%
+	overflow: scroll
 body
+	background: #eee
+	box-sizing: border-box
 	font-family: sans-serif
 	font-size: 1.1em
-	background: white
 	height: 100%
 	margin: 0
-	overflow: hidden
+	z-index: -1000
+	position: relative
+
 
 ul
 	margin: 0
@@ -18,13 +26,68 @@ ul
 
 header
 	margin: 0
+	background: #eeeeee
+	height: 171px
+	.options 
+		height: 40px
+		ul
+			height: 100%
+			border-bottom: 1px solid #000
+			display: flex	
+			li
+				color: $link_color
+				position: relative
+				&:hover
+					.options-dropdown
+				 		display: block
+					.options-badge
+			 			color: #fff
+			 			cursor: pointer
+			 			background: gold
+			 			svg
+				 			transform: rotate(180deg)
+
+			li:first-child
+				margin-left: 20px
+		&-dropdown
+			border: 1px solid black
+			z-index: 1000
+			display: none	
+			position: absolute
+			left: 0
+			top: 100%
+			background: #eee
+			a
+				font-size: 17px
+				white-space: pre
+				color: $link_color
+				text-decoration: none
+				background: #eee
+				padding: 10px	
+				display: block
+				&:hover
+					background: $vk_color
+					
+		&-badge
+			padding: 4px 10px
+			margin-right: 10px
+			transition: .3s
+			display: flex
+			align-items: center
+			
+			svg
+				margin-left: 5px
+				transition: .2s transform
+			
+
 	nav > div
 		background: #3498db
 		margin-right: 10px	
-	nav
-		display: flex
-		background: #eeeeee
-		height: 150px
+	nav.main-nav
+		border-bottom: 1px solid #000
+		margin-top: 1px
+		display: flex 
+		height: 129px
 		.tools-wrapper
 			padding: 20px
 			display: flex
@@ -36,6 +99,7 @@ header
 					display: flex
 					li
 						a
+							text-align: center
 							margin-right: 15px
 							display: block
 							padding: 5px
@@ -43,7 +107,7 @@ header
 							height: 30px
 							border-radius: 5px
 							&:hover
-								background: $vk_color
+								background: #eee
 								cursor: pointer
 						a.active					
 							background: linear-gradient( #F1C40F , #F39C12 )
@@ -77,23 +141,30 @@ header
 				background: #eee
 				border: 1px solid black
 				display: none	
-				.square-badge
+				div
 					border: 1px solid red
 					width: 20px
 					height: 20px
 					cursor: pointer	
-				.square-badge.active
+				div.active
 					background: red					  	
 			.dropdown-shapes-wrapper-active
-				display: block		
+				display: flex		
 
 
 
 .canvas-wrapper.rubber-canvas-active	
 	cursor: url(../img/rubber-cursor.cur) , pointer	 						
 .canvas-wrapper
+	zoom: 1
+	background: #fff
+	left: 0
+	top: 0
+	bottom: 0
+	right: 0
+	margin: auto
+	display: block
 	position: relative
-	height: calc(100% - 150px)
 	textarea
 		position: absolute
 		font-size: 22px
@@ -105,10 +176,97 @@ header
 		display: block
 		position: absolute
 		left: 0
-		top: 0
-	#canvas.rubber-canvas-active	
+		top: 0	
 	.canvas
 		display: block
 		position: absolute	 	
+
+
+.close-wrapper
+	position: absolute
+	left: 0
+	right: 0
+	top: 0
+	height: 35px
+	background: #fff
+	.close
+		position: absolute
+		padding: 0
+		background: transparent
+		border: none
+		right: 10px
+		top: 0
+		margin: auto
+		bottom: 0
+		width: 25px
+		height: 25px
+		&:focus
+			outline: none
+		&:hover
+			cursor: pointer
+			&::before  
+				background: black
+			&::after
+				@extend .close:hover::before
+		&::before
+			transition: .4s
+			position: absolute
+			content: ''
+			display: block
+			width: 100%
+			height: 3px
+			background: $settings_color
+			transform: rotate(45deg)
+		&::after
+			@extend .close::before
+			transform: rotate(-45deg)
+		
+		
+		
+.apply
+	position: absolute
+	right: 40px
+	bottom: 25px
+	height: 35px
+	transition: .3s
+	font-size: 22px
+	padding: 5px
+	border: none
+	border-radius: 3px
+	color: white
+	background: $apply_color
+	&:active
+		transform: scale(0.95)
+	&:focus
+		outline: none
+	&:hover
+		background: darken($apply_color, 10%)
+		cursor: pointer	
+
+.settings-window-size
+	border: 1px solid $settings_color
+	font-size: 25px
+	border-radius: 3px
+	display: none
+	background: $settings_color
+	position: absolute
+	padding: 75px 40px
+
+	.size-wrapper
+		display: flex
+		margin-bottom: 15px
+		justify-content: space-between
+		input	
+			display: block
+			padding: 5px
+			border-radius: 3px
+			border: none
+			&:focus
+				outline: none
+		label
+			margin-right: 10px
+			display: block
+			color: white	
+	
 
 	

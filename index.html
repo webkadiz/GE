@@ -6,12 +6,41 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>Paint Online</title>
+	<link rel="stylesheet" href="./css/animate.css">
 	<link rel="stylesheet" href="./css/main.css">
+
 </head>
 
 <body>
 
 	<header>
+		<nav class="options">
+			<ul>
+				<li>
+					<div class="options-badge">
+						файл
+						<i class="fas fa-angle-up"></i>
+					</div>
+					<div class="options-dropdown"></div>
+				</li>
+				<li>
+					<div class="options-badge">
+						окно
+						<i class="fas fa-angle-up"></i>
+					</div>
+					<div class="options-dropdown">
+						<a href="" class="options-window-size">размеры холста</a>
+					</div>
+				</li>
+				<li>
+					<div class="options-badge">
+						вид
+						<i class="fas fa-angle-up"></i>
+					</div>
+					<div class="options-dropdown"></div>
+				</li>
+			</ul>
+		</nav>
 		<nav class="main-nav">
 			<div class="clipboard-wrapper"></div>
 			<div class="select-wrapper"></div>
@@ -220,6 +249,11 @@
 								</svg>
 							</a>
 						</li>
+						<li>
+							<a href="" class="move-badge">
+								<i class="fas fa-expand-arrows-alt"></i>
+							</a>
+						</li>
 					</ul>
 				</div>
 			</div>
@@ -263,6 +297,9 @@
 				</div>
 				<div class="dropdown-shapes-wrapper">
 					<div class="square-badge"></div>
+					<div class="line-badge">
+						<img src="img/line.png" alt="">
+					</div>
 				</div>
 			</div>
 			<div class="size-wrapper"></div>
@@ -273,6 +310,24 @@
 	<div class="canvas-wrapper">
 		<canvas id="canvas"></canvas>
 	</div>
+
+
+	<div class="settings-window-size animated">
+		<div class="close-wrapper">
+			<button class="close"></button>
+		</div>
+
+		<div class="size-wrapper">
+			<label for="width">Ширина</label>
+			<input type="text" name="width">
+		</div>
+		<div class="size-wrapper">
+			<label for="height">Высота </label>
+			<input type="text" name="height">
+		</div>
+		<button class="apply">применить</button>
+	</div>
+
 
 
 	<script defer src="https://use.fontawesome.com/releases/v5.0.8/js/solid.js" integrity="sha384-+Ga2s7YBbhOD6nie0DzrZpJes+b2K1xkpKxTFFcx59QmVPaSA8c7pycsNaFwUK6l"
