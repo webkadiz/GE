@@ -3,7 +3,7 @@ html {
   overflow: scroll; }
 
 body {
-  background: #eee;
+  background: #282828;
   box-sizing: border-box;
   font-family: sans-serif;
   font-size: 1.1em;
@@ -19,21 +19,22 @@ ul {
 
 header {
   margin: 0;
-  background: #eeeeee;
+  background: #73716f;
   height: 171px; }
   header .options ul {
+    background: #73716f;
     height: 100%;
-    border-bottom: 1px solid #000;
+    border-bottom: 1px solid MINTCREAM;
     display: flex; }
     header .options ul li {
-      color: #285473;
+      color: white;
       position: relative; }
       header .options ul li:hover .options-dropdown {
         display: block; }
       header .options ul li:hover .options-badge {
-        color: #fff;
+        color: black;
         cursor: pointer;
-        background: #285473; }
+        background: MINTCREAM; }
         header .options ul li:hover .options-badge svg {
           transform: rotate(180deg); }
     header .options ul li:first-child {
@@ -66,7 +67,7 @@ header {
       margin-left: 5px;
       transition: .2s transform; }
   header nav > div {
-    background: #3498db;
+    background: SILVER;
     margin-right: 10px; }
   header nav.main-nav {
     border-bottom: 1px solid #000;
@@ -218,13 +219,13 @@ header {
   border: none;
   border-radius: 3px;
   color: white;
-  background: #16A085; }
+  background: #73716f; }
   .apply:active {
     transform: scale(0.95); }
   .apply:focus {
     outline: none; }
   .apply:hover {
-    background: #107360;
+    background: #595856;
     cursor: pointer; }
 
 .settings-window-size {
@@ -233,7 +234,7 @@ header {
   font-size: 25px;
   border-radius: 3px;
   display: none;
-  background: #34495E;
+  background: #282828;
   position: absolute;
   padding: 75px 40px; }
   .settings-window-size .size-wrapper {

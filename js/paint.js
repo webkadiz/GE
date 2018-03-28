@@ -607,6 +607,7 @@ function fill(e) {
           item.fillStyle.push(
             "#" + (~~(Math.random() * 16777000)).toString(16)
           );
+
           item.fill = true;
           all_path.push({
             target: item,
@@ -617,6 +618,7 @@ function fill(e) {
             fill_pop: true,
             fillStyle: item.fillStyle
           });
+
           item.context.stroke(item.path);
           item.context.fillStyle = item.fillStyle[item.fillStyle.length - 1];
           item.context.fill(item.path);

@@ -1,15 +1,18 @@
 
+$canvas_color: #282828
+$header_color: #73716f
 $vk_color: #e1e5eb	
 $settings_color: #34495E
 $link_color: #285473
 $apply_color: #16A085
+
 	
 html
 
 	height: 100%
 	overflow: scroll
 body
-	background: #eee
+	background: $canvas_color
 	box-sizing: border-box
 	font-family: sans-serif
 	font-size: 1.1em
@@ -26,23 +29,24 @@ ul
 
 header
 	margin: 0
-	background: #eeeeee
+	background: $header_color
 	height: 171px
 	.options 
 		ul
+			background: $header_color
 			height: 100%
-			border-bottom: 1px solid #000
+			border-bottom: 1px solid MINTCREAM
 			display: flex	
 			li
-				color: $link_color
+				color: white
 				position: relative
 				&:hover
 					.options-dropdown
 				 		display: block
 					.options-badge
-			 			color: #fff
+			 			color: black
 			 			cursor: pointer
-			 			background: $link_color
+			 			background: MINTCREAM
 			 			svg
 				 			transform: rotate(180deg)
 
@@ -80,7 +84,7 @@ header
 			
 
 	nav > div
-		background: #3498db
+		background: SILVER
 		margin-right: 10px	
 	nav.main-nav
 		border-bottom: 1px solid #000
@@ -240,13 +244,13 @@ header
 	border: none
 	border-radius: 3px
 	color: white
-	background: $apply_color
+	background: $header_color
 	&:active
 		transform: scale(0.95)
 	&:focus
 		outline: none
 	&:hover
-		background: darken($apply_color, 10%)
+		background: darken($header_color, 10%)
 		cursor: pointer	
 
 .settings-window-size
@@ -255,7 +259,7 @@ header
 	font-size: 25px
 	border-radius: 3px
 	display: none
-	background: $settings_color
+	background: $canvas_color
 	position: absolute
 	padding: 75px 40px
 	.size-wrapper
