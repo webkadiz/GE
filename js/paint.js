@@ -1,5 +1,6 @@
 let canvas = document.querySelector("#canvas"); //главный канвас
 let canvas_wrapper = document.querySelector(".canvas-wrapper"); //обертка канвасов
+let zoom_wrapper = document.querySelector(".zoom-wrapper"); // обертка которая помогает реализовать zoom
 let c = canvas.getContext("2d"); //контекст главного канваса
 let counter = 0; // просто счетчик если понадобится
 let prev_target; // предыдущая нажатая иконка , в обработчике на .main-nav - шапка painta
@@ -8,7 +9,9 @@ let new_canvas;
 let new_c;
 let script = document.querySelector("script"); // последний script на странице
 const widthHeader = 171; // константная ширина шапки
-let zoom = 1;
+let zoom = 1; // множитель зума
+let bias_left = 0;
+let bias_top = 0;
 
 let clear_coords = []; // координаты пройденные с помощью ластика
 let arr_textarea = [];
@@ -184,6 +187,9 @@ document.querySelector(".main-nav").onclick = function(e) {
   }
 };
 
+let divide = 1;
+let multiply_increase = 1.05;
+let multiply_lower = 0.95;
 document.addEventListener("keydown", function(e) {
   if ((e.keyCode == 90 && e.ctrlKey) || (e.keyCode == 90 && e.metaKey)) {
     path_remove();
@@ -192,12 +198,26 @@ document.addEventListener("keydown", function(e) {
   // увеличение масштаба
   if (e.keyCode == 187 && e.ctrlKey && e.altKey) {
     canvas_wrapper.style.zoom = parseFloat(canvas_wrapper.style.zoom) + 0.05;
-    zoom -= 0.055;
+    if (
+      document.documentElement.scrollWidth >
+      document.documentElement.clientWidth
+    ) {
+      zoom =
+        document.documentElement.clientWidth /
+        document.documentElement.scrollWidth;
+    } else {
+      zoom =
+        document.documentElement.clientWidth /
+        canvas_wrapper.parentElement.clientWidth;
+    }
   }
   // уменьшение масштаба
   if (e.keyCode == 189 && e.ctrlKey && e.altKey) {
     canvas_wrapper.style.zoom = parseFloat(canvas_wrapper.style.zoom) - 0.05;
-    zoom += 0.055;
+
+    zoom =
+      document.documentElement.clientWidth /
+      canvas_wrapper.parentElement.clientWidth;
   }
 });
 
@@ -276,14 +296,17 @@ function path_remove() {
 function move_canvas(e) {
   let target = e.target;
   if (e.target == canvas) {
-    target = canvas_wrapper;
+    target = zoom_wrapper;
   }
   if (temp_target == target) {
-    let x = e.clientX;
-    let y = e.clientY;
+    let x = e.pageX * zoom;
+    let y = e.pageY * zoom;
+
     if (temp_target == canvas) {
-      temp_target = canvas_wrapper;
+      temp_target = zoom_wrapper;
     }
+
+    console.log(zoom_wrapper);
     let begin_x = parseInt(temp_target.style.left) || 0;
     let begin_y = parseInt(temp_target.style.top) || 0;
 
@@ -298,9 +321,13 @@ function move_canvas(e) {
     });
 
     canvas_wrapper.onmousemove = function(e) {
-      let new_x = e.clientX - x;
-      let new_y = e.clientY - y;
-      //console.log(temp_target == this);
+      let new_x = e.pageX * zoom - x;
+      let new_y = e.pageY * zoom - y;
+      console.log(temp_target);
+      if (temp_target == zoom_wrapper) {
+        bias_left = (parseFloat(temp_target.style.left) || 0) * zoom;
+        bias_top = (parseFloat(temp_target.style.top) || 0) * zoom;
+      }
       temp_target.style.left = begin_x + new_x + "px";
       temp_target.style.top = begin_y + new_y + "px";
 
@@ -327,8 +354,11 @@ function move_canvas(e) {
 // рисование карандашом
 function draw_pencil(e) {
   let target = e.target;
-  let x = e.clientX * zoom - (parseInt(target.style.left) || 0);
-  let y = e.clientY * zoom - widthHeader - (parseInt(target.style.top) || 0);
+  let x = e.pageX * zoom - bias_left - (parseInt(target.style.left) || 0);
+  let y =
+    (e.pageY - widthHeader) * zoom -
+    bias_top -
+    (parseInt(target.style.top) || 0);
 
   c = target.getContext("2d");
 
@@ -352,14 +382,12 @@ function draw_pencil(e) {
 
   canvas_wrapper.onmousemove = function(e) {
     let current_target = e.target;
-    let x = e.clientX * zoom - (parseInt(current_target.style.left) || 0);
+    let x =
+      e.pageX * zoom - bias_left - (parseInt(current_target.style.left) || 0);
     let y =
-      e.clientY * zoom -
-      widthHeader -
+      (e.pageY - widthHeader) * zoom -
+      bias_top -
       (parseInt(current_target.style.top) || 0);
-
-    console.log(e.clientX);
-    console.log(e.clientX * zoom);
 
     c = current_target.getContext("2d");
 
@@ -396,20 +424,20 @@ function draw_pencil(e) {
 
 // ластик
 function moveToRubber(e) {
-  let x = e.clientX;
-  let y = e.clientY - widthHeader;
+  let x = e.pageX;
+  let y = e.pageY - widthHeader;
   let arr_coords = [];
 
   canvas_wrapper.onmousemove = function(e) {
-    let x = e.clientX;
-    let y = e.clientY;
+    let x = e.pageX;
+    let y = e.pageY;
     let target = document.elementFromPoint(x + 8, y + 8);
     let coords = {};
     let all_coords = {};
 
     c = target.getContext("2d");
-    x = e.clientX - (parseInt(target.style.left) || 0);
-    y = e.clientY - widthHeader - (parseInt(target.style.top) || 0);
+    x = e.pageX - (parseInt(target.style.left) || 0);
+    y = e.pageY - widthHeader - (parseInt(target.style.top) || 0);
 
     coords = {
       x: x,
@@ -463,8 +491,8 @@ function create_textarea(x, y) {
 
 //вставка поля ввода или canvasa в документ
 function text_click(e) {
-  let x = e.clientX;
-  let y = e.clientY - widthHeader;
+  let x = e.pageX;
+  let y = e.pageY - widthHeader;
   let x1 = 0;
   let y1 = 0;
 
@@ -553,8 +581,8 @@ function text_click(e) {
 //заливка
 
 function fill(e) {
-  let x = e.clientX - (parseInt(e.target.style.left) || 0);
-  let y = e.clientY - (parseInt(e.target.style.top) || 0) - widthHeader;
+  let x = e.pageX - (parseInt(e.target.style.left) || 0);
+  let y = e.pageY - (parseInt(e.target.style.top) || 0) - widthHeader;
 
   let bool = false;
   let arr_new_path = [];
@@ -647,8 +675,8 @@ function create_canvas(x1, y1, ...value_class) {
 // рисование прямоугольника
 
 function beginRect(e) {
-  let x1 = e.clientX;
-  let y1 = e.clientY - widthHeader;
+  let x1 = e.pageX;
+  let y1 = e.pageY - widthHeader;
   let y = 0;
   let x = 0;
   let current_path = {};
@@ -673,16 +701,16 @@ function beginRect(e) {
   canvas_wrapper.appendChild(new_canvas);
 
   canvas_wrapper.onmousemove = function(e) {
-    x = e.clientX - x1;
-    y = e.clientY - widthHeader - y1;
+    x = e.pageX - x1;
+    y = e.pageY - widthHeader - y1;
 
-    if (e.clientX < x1) {
-      new_canvas.style.left = e.clientX + "px";
-      x = x1 - e.clientX;
+    if (e.pageX < x1) {
+      new_canvas.style.left = e.pageX + "px";
+      x = x1 - e.pageX;
     }
-    if (e.clientY - widthHeader < y1) {
-      new_canvas.style.top = e.clientY - widthHeader + "px";
-      y = y1 - (e.clientY - widthHeader);
+    if (e.pageY - widthHeader < y1) {
+      new_canvas.style.top = e.pageY - widthHeader + "px";
+      y = y1 - (e.pageY - widthHeader);
     }
 
     new_canvas.width = x;
@@ -706,8 +734,8 @@ function beginRect(e) {
 
 //рисуем линию
 function draw_line(e) {
-  let x1 = e.clientX;
-  let y1 = e.clientY - widthHeader;
+  let x1 = e.pageX;
+  let y1 = e.pageY - widthHeader;
   let x, y, begin_x, begin_y, end_x, end_y;
 
   create_canvas(x1, y1, "canvas-line");
@@ -732,36 +760,36 @@ function draw_line(e) {
   new_c.beginPath();
 
   canvas_wrapper.onmousemove = function(e) {
-    x = e.clientX - x1;
-    y = e.clientY - y1 - widthHeader;
+    x = e.pageX - x1;
+    y = e.pageY - y1 - widthHeader;
 
-    if (e.clientX < x1) {
-      new_canvas.style.left = e.clientX + "px";
-      x = x1 - e.clientX;
+    if (e.pageX < x1) {
+      new_canvas.style.left = e.pageX + "px";
+      x = x1 - e.pageX;
     }
-    if (e.clientY - widthHeader < y1) {
-      new_canvas.style.top = e.clientY - widthHeader + "px";
-      y = y1 - (e.clientY - widthHeader);
+    if (e.pageY - widthHeader < y1) {
+      new_canvas.style.top = e.pageY - widthHeader + "px";
+      y = y1 - (e.pageY - widthHeader);
     }
-    if (e.clientY - widthHeader > y1 && e.clientX > x1) {
+    if (e.pageY - widthHeader > y1 && e.pageX > x1) {
       begin_x = 0;
       begin_y = 0;
       end_x = x;
       end_y = y;
     }
-    if (e.clientY - widthHeader < y1 && e.clientX > x1) {
+    if (e.pageY - widthHeader < y1 && e.pageX > x1) {
       begin_x = 0;
       begin_y = y;
       end_x = x;
       end_y = 0;
     }
-    if (e.clientY - widthHeader > y1 && e.clientX < x1) {
+    if (e.pageY - widthHeader > y1 && e.pageX < x1) {
       begin_x = x;
       begin_y = 0;
       end_x = 0;
       end_y = y;
     }
-    if (e.clientY - widthHeader < y1 && e.clientX < x1) {
+    if (e.pageY - widthHeader < y1 && e.pageX < x1) {
       begin_x = x;
       begin_y = y;
       end_x = 0;
@@ -806,14 +834,14 @@ document
   .querySelector(".close-wrapper")
   .addEventListener("mousedown", function(e) {
     let target = this.parentElement;
-    let x = e.clientX;
-    let y = e.clientY;
+    let x = e.pageX;
+    let y = e.pageY;
     let begin_x = parseInt(target.style.left) || 0;
     let begin_y = parseInt(target.style.top) || 0;
 
     document.onmousemove = function(e) {
-      let new_x = e.clientX - x;
-      let new_y = e.clientY - y;
+      let new_x = e.pageX - x;
+      let new_y = e.pageY - y;
 
       target.style.left = begin_x + new_x + "px";
       target.style.top = begin_y + new_y + "px";
