@@ -159,33 +159,28 @@ header
 
 
 .zoom-wrapper
-	position: relative
-.canvas-wrapper.rubber-canvas-active	
-	cursor: url(../img/rubber-cursor.cur) , pointer	 						
-.canvas-wrapper
-	zoom: 1
-	background: #fff
+	display: inline-block
 	left: 0
 	top: 0
-	bottom: 0
-	right: 0
-	display: block
 	position: relative
-	textarea
-		position: absolute
-		font-size: 22px
-		font-weight: 400
-		border: 1px dashed black
-		&:focus
-			outline: none
-	#canvas
+	.canvas-wrapper.rubber-canvas-active	
+		cursor: url(../img/rubber-cursor.cur) , pointer	 						
+	.canvas-wrapper
+		zoom: 1
+		background: #fff
 		display: block
-		position: absolute
-		left: 0
-		top: 0	
-	.canvas
-		display: block
-		position: absolute	 	
+		textarea
+			position: absolute
+			font-size: 22px
+			font-weight: 400
+			border: 1px dashed black
+			&:focus
+				outline: none
+		#canvas
+			display: block	
+		.canvas
+			display: block
+			position: absolute	 	
 
 
 .close-wrapper
