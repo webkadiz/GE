@@ -27,6 +27,8 @@ ul
 	padding: 0
 	list-style: none
 
+
+
 header
 	margin: 0
 	background: $header_color
@@ -69,21 +71,32 @@ header
 				padding: 10px	
 				display: block
 				&:hover
-					background: $vk_color
-					
+					background: $vk_color	
 		&-badge
 			line-height: 40px
 			padding: 0px 10px
 			transition: .3s
 			display: flex
 			align-items: center
-			
 			svg
 				margin-left: 5px
 				transition: .2s transform
-			
 
-	nav > div
+
+header
+	.title-canvas-wrapper
+		display: none
+		height: 30px
+		background: $canvas_color	
+		border-bottom: 1px solid MINTCREAM
+		padding-left: 20px
+		.title-canvas
+			color: white
+			display: inline
+			margin-right: 10px
+
+header
+	nav.main-nav > div
 		background: SILVER
 		margin-right: 10px	
 	nav.main-nav
@@ -159,10 +172,11 @@ header
 
 
 .zoom-wrapper
-	display: inline-block
 	left: 0
 	top: 0
 	position: relative
+	display: none
+	
 	.canvas-wrapper.rubber-canvas-active	
 		cursor: url(../img/rubber-cursor.cur) , pointer	 						
 	.canvas-wrapper
@@ -257,7 +271,7 @@ header
 	background: $canvas_color
 	position: absolute
 	padding: 75px 40px
-	.size-wrapper
+	.input-wrapper
 		display: flex
 		margin-bottom: 15px
 		justify-content: space-between
@@ -274,4 +288,5 @@ header
 			color: white	
 	
 
-	
+.settings-new-file
+	@extend .settings-window-size

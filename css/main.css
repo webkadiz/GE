@@ -66,82 +66,95 @@ header {
     header .options-badge svg {
       margin-left: 5px;
       transition: .2s transform; }
-  header nav > div {
-    background: SILVER;
+
+header .title-canvas-wrapper {
+  display: none;
+  height: 30px;
+  background: #282828;
+  border-bottom: 1px solid MINTCREAM;
+  padding-left: 20px; }
+  header .title-canvas-wrapper .title-canvas {
+    color: white;
+    display: inline;
     margin-right: 10px; }
-  header nav.main-nav {
-    border-bottom: 1px solid #000;
+
+header nav.main-nav > div {
+  background: SILVER;
+  margin-right: 10px; }
+
+header nav.main-nav {
+  border-bottom: 1px solid #000;
+  display: flex;
+  height: 129px; }
+  header nav.main-nav .tools-wrapper {
+    padding: 20px;
     display: flex;
-    height: 129px; }
-    header nav.main-nav .tools-wrapper {
-      padding: 20px;
-      display: flex;
-      align-items: center; }
-      header nav.main-nav .tools-wrapper .tools ul:first-child {
-        margin-bottom: 10px; }
-      header nav.main-nav .tools-wrapper .tools ul {
-        display: flex; }
-        header nav.main-nav .tools-wrapper .tools ul li a {
-          text-align: center;
-          margin-right: 15px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 5px;
-          width: 30px;
-          height: 30px;
-          border-radius: 5px; }
-          header nav.main-nav .tools-wrapper .tools ul li a svg {
-            font-size: 1.1em; }
-          header nav.main-nav .tools-wrapper .tools ul li a:hover {
-            background: #eee;
-            cursor: pointer; }
-        header nav.main-nav .tools-wrapper .tools ul li a.active {
-          background: linear-gradient(#F1C40F, #F39C12); }
-    header nav.main-nav .shapes-wrapper {
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      position: relative; }
-      header nav.main-nav .shapes-wrapper .shapes {
+    align-items: center; }
+    header nav.main-nav .tools-wrapper .tools ul:first-child {
+      margin-bottom: 10px; }
+    header nav.main-nav .tools-wrapper .tools ul {
+      display: flex; }
+      header nav.main-nav .tools-wrapper .tools ul li a {
+        text-align: center;
+        margin-right: 15px;
         display: flex;
-        margin-bottom: 10px;
-        justify-content: center;
         align-items: center;
-        width: 60px;
-        height: 60px;
-        border: 3px solid black; }
-      header nav.main-nav .shapes-wrapper .text {
-        display: block; }
-      header nav.main-nav .shapes-wrapper .shapes-controller:hover {
-        cursor: pointer; }
-      header nav.main-nav .shapes-wrapper .dropdown-shapes-wrapper {
-        z-index: 1000;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 200px;
-        height: 150px;
-        background: #eee;
-        border: 1px solid black;
-        display: none; }
-        header nav.main-nav .shapes-wrapper .dropdown-shapes-wrapper div {
-          border: 1px solid red;
-          width: 20px;
-          height: 20px;
+        justify-content: center;
+        padding: 5px;
+        width: 30px;
+        height: 30px;
+        border-radius: 5px; }
+        header nav.main-nav .tools-wrapper .tools ul li a svg {
+          font-size: 1.1em; }
+        header nav.main-nav .tools-wrapper .tools ul li a:hover {
+          background: #eee;
           cursor: pointer; }
-        header nav.main-nav .shapes-wrapper .dropdown-shapes-wrapper div.active {
-          background: red; }
-      header nav.main-nav .shapes-wrapper .dropdown-shapes-wrapper-active {
-        display: flex; }
+      header nav.main-nav .tools-wrapper .tools ul li a.active {
+        background: linear-gradient(#F1C40F, #F39C12); }
+  header nav.main-nav .shapes-wrapper {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    position: relative; }
+    header nav.main-nav .shapes-wrapper .shapes {
+      display: flex;
+      margin-bottom: 10px;
+      justify-content: center;
+      align-items: center;
+      width: 60px;
+      height: 60px;
+      border: 3px solid black; }
+    header nav.main-nav .shapes-wrapper .text {
+      display: block; }
+    header nav.main-nav .shapes-wrapper .shapes-controller:hover {
+      cursor: pointer; }
+    header nav.main-nav .shapes-wrapper .dropdown-shapes-wrapper {
+      z-index: 1000;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 200px;
+      height: 150px;
+      background: #eee;
+      border: 1px solid black;
+      display: none; }
+      header nav.main-nav .shapes-wrapper .dropdown-shapes-wrapper div {
+        border: 1px solid red;
+        width: 20px;
+        height: 20px;
+        cursor: pointer; }
+      header nav.main-nav .shapes-wrapper .dropdown-shapes-wrapper div.active {
+        background: red; }
+    header nav.main-nav .shapes-wrapper .dropdown-shapes-wrapper-active {
+      display: flex; }
 
 .zoom-wrapper {
-  display: inline-block;
   left: 0;
   top: 0;
-  position: relative; }
+  position: relative;
+  display: none; }
   .zoom-wrapper .canvas-wrapper.rubber-canvas-active {
     cursor: url(../img/rubber-cursor.cur), pointer; }
   .zoom-wrapper .canvas-wrapper {
@@ -221,7 +234,7 @@ header {
     background: #595856;
     cursor: pointer; }
 
-.settings-window-size {
+.settings-window-size, .settings-new-file {
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
   border: 1px solid blue;
   font-size: 25px;
@@ -230,18 +243,18 @@ header {
   background: #282828;
   position: absolute;
   padding: 75px 40px; }
-  .settings-window-size .size-wrapper {
+  .settings-window-size .input-wrapper, .settings-new-file .input-wrapper {
     display: flex;
     margin-bottom: 15px;
     justify-content: space-between; }
-    .settings-window-size .size-wrapper input {
+    .settings-window-size .input-wrapper input, .settings-new-file .input-wrapper input {
       display: block;
       padding: 5px;
       border-radius: 3px;
       border: none; }
-      .settings-window-size .size-wrapper input:focus {
+      .settings-window-size .input-wrapper input:focus, .settings-new-file .input-wrapper input:focus {
         outline: none; }
-    .settings-window-size .size-wrapper label {
+    .settings-window-size .input-wrapper label, .settings-new-file .input-wrapper label {
       margin-right: 10px;
       display: block;
       color: white; }

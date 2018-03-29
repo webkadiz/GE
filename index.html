@@ -21,7 +21,9 @@
 						файл
 						<i class="fas fa-angle-up"></i>
 					</div>
-					<div class="options-dropdown"></div>
+					<div class="options-dropdown">
+						<a href="" class="options-new-file">новый файл</a>
+					</div>
 				</li>
 				<li>
 					<div class="options-badge">
@@ -41,6 +43,9 @@
 				</li>
 			</ul>
 		</nav>
+
+		<nav class="title-canvas-wrapper"></nav>
+
 		<nav class="main-nav">
 			<div class="clipboard-wrapper"></div>
 			<div class="select-wrapper"></div>
@@ -307,9 +312,9 @@
 		</nav>
 	</header>
 
-	<div class="zoom-wrapper" style="display: inline-block">
+	<div class="zoom-wrapper">
 		<div class="canvas-wrapper">
-			<canvas id="canvas"></canvas>
+			<canvas class="main-canvas"></canvas>
 		</div>
 	</div>
 
@@ -319,11 +324,32 @@
 			<button class="close"></button>
 		</div>
 
-		<div class="size-wrapper">
+		<div class="input-wrapper">
 			<label for="width">Ширина</label>
 			<input type="text" name="width">
 		</div>
-		<div class="size-wrapper">
+		<div class="input-wrapper">
+			<label for="height">Высота </label>
+			<input type="text" name="height">
+		</div>
+		<button class="apply">применить</button>
+	</div>
+
+	<div class="settings-new-file animated">
+		<div class="close-wrapper">
+			<button class="close"></button>
+		</div>
+
+
+		<div class="input-wrapper">
+			<label for="width">Название</label>
+			<input type="text" name="width">
+		</div>
+		<div class="input-wrapper">
+			<label for="width">Ширина</label>
+			<input type="text" name="width">
+		</div>
+		<div class="input-wrapper">
 			<label for="height">Высота </label>
 			<input type="text" name="height">
 		</div>
