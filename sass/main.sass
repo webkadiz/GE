@@ -10,7 +10,8 @@ $apply_color: #16A085
 html
 
 	height: 100%
-	overflow: scroll
+	// overflow-x: hidden
+
 body
 	background: $canvas_color
 	box-sizing: border-box
@@ -30,9 +31,13 @@ ul
 
 
 header
+	left: 0
+	right: 0
+	position: fixed
 	margin: 0
 	background: $header_color
 	height: 171px
+	z-index: 1000
 	.options 
 		ul
 			background: $header_color
@@ -91,9 +96,28 @@ header
 		border-bottom: 1px solid MINTCREAM
 		padding-left: 20px
 		.title-canvas
+			padding: 0px 5px 0px 10px
+			transition: .3s
 			color: white
 			display: inline
-			margin-right: 10px
+			cursor: pointer
+			span
+				color: rgba(255 ,255 ,255, .6)
+				margin-left: 5px
+			&:hover
+				background: MINTCREAM
+				color: black
+				span
+						color: rgba(0 , 0 ,0, .6)
+
+header
+	.title-canvas-wrapper
+		.title-canvas.active
+			@extend .title-canvas
+			background: MINTCREAM
+			color: black 
+			span
+				color: rgba(0 , 0 ,0, .6)
 
 header
 	nav.main-nav > div
@@ -171,6 +195,14 @@ header
 				display: flex		
 
 
+
+.wrapper
+
+	position: relative
+	top: 170px
+	left: 0
+
+
 .zoom-wrapper
 	left: 0
 	top: 0
@@ -190,7 +222,7 @@ header
 			border: 1px dashed black
 			&:focus
 				outline: none
-		#canvas
+		.main-canvas
 			display: block	
 		.canvas
 			display: block
@@ -263,13 +295,14 @@ header
 		cursor: pointer	
 
 .settings-window-size
+	z-index: 100000
 	box-shadow: 0px 0px 15px rgba(0 , 0 ,0 , .3)
 	border: 1px solid blue
 	font-size: 25px
 	border-radius: 3px
 	display: none
 	background: $canvas_color
-	position: absolute
+	position: fixed
 	padding: 75px 40px
 	.input-wrapper
 		display: flex

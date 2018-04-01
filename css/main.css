@@ -1,6 +1,5 @@
 html {
-  height: 100%;
-  overflow: scroll; }
+  height: 100%; }
 
 body {
   background: #282828;
@@ -18,9 +17,13 @@ ul {
   list-style: none; }
 
 header {
+  left: 0;
+  right: 0;
+  position: fixed;
   margin: 0;
   background: #73716f;
-  height: 171px; }
+  height: 171px;
+  z-index: 1000; }
   header .options ul {
     background: #73716f;
     height: 100%;
@@ -73,10 +76,26 @@ header .title-canvas-wrapper {
   background: #282828;
   border-bottom: 1px solid MINTCREAM;
   padding-left: 20px; }
-  header .title-canvas-wrapper .title-canvas {
+  header .title-canvas-wrapper .title-canvas, header .title-canvas-wrapper .title-canvas.active {
+    padding: 0px 5px 0px 10px;
+    transition: .3s;
     color: white;
     display: inline;
-    margin-right: 10px; }
+    cursor: pointer; }
+    header .title-canvas-wrapper .title-canvas span, header .title-canvas-wrapper .title-canvas.active span {
+      color: rgba(255, 255, 255, 0.6);
+      margin-left: 5px; }
+    header .title-canvas-wrapper .title-canvas:hover {
+      background: MINTCREAM;
+      color: black; }
+      header .title-canvas-wrapper .title-canvas:hover span {
+        color: rgba(0, 0, 0, 0.6); }
+
+header .title-canvas-wrapper .active.title-canvas {
+  background: MINTCREAM;
+  color: black; }
+  header .title-canvas-wrapper .active.title-canvas span {
+    color: rgba(0, 0, 0, 0.6); }
 
 header nav.main-nav > div {
   background: SILVER;
@@ -150,6 +169,11 @@ header nav.main-nav {
     header nav.main-nav .shapes-wrapper .dropdown-shapes-wrapper-active {
       display: flex; }
 
+.wrapper {
+  position: relative;
+  top: 170px;
+  left: 0; }
+
 .zoom-wrapper {
   left: 0;
   top: 0;
@@ -168,7 +192,7 @@ header nav.main-nav {
       border: 1px dashed black; }
       .zoom-wrapper .canvas-wrapper textarea:focus {
         outline: none; }
-    .zoom-wrapper .canvas-wrapper #canvas {
+    .zoom-wrapper .canvas-wrapper .main-canvas {
       display: block; }
     .zoom-wrapper .canvas-wrapper .canvas {
       display: block;
@@ -235,13 +259,14 @@ header nav.main-nav {
     cursor: pointer; }
 
 .settings-window-size, .settings-new-file {
+  z-index: 100000;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
   border: 1px solid blue;
   font-size: 25px;
   border-radius: 3px;
   display: none;
   background: #282828;
-  position: absolute;
+  position: fixed;
   padding: 75px 40px; }
   .settings-window-size .input-wrapper, .settings-new-file .input-wrapper {
     display: flex;
