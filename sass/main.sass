@@ -96,10 +96,11 @@ header
 		border-bottom: 1px solid MINTCREAM
 		padding-left: 20px
 		.title-canvas
+			height: 100%
 			padding: 0px 5px 0px 10px
 			transition: .3s
 			color: white
-			display: inline
+			display: inline-block
 			cursor: pointer
 			span
 				color: rgba(255 ,255 ,255, .6)
@@ -201,6 +202,20 @@ header
 	position: relative
 	top: 170px
 	left: 0
+	.coords-x-wrapper
+		position: absolute
+		left: 0
+		top: 0
+		height: 20px
+		width: 100%
+		background: black
+	.coords-y-wrapper
+		position: absolute
+		left: 0
+		top: 0
+		background: black
+		height: 100%
+		width: 20px	
 
 
 .zoom-wrapper
