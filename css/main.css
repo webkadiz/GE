@@ -77,7 +77,8 @@ header .title-canvas-wrapper {
   border-bottom: 1px solid MINTCREAM;
   padding-left: 20px; }
   header .title-canvas-wrapper .title-canvas, header .title-canvas-wrapper .title-canvas.active {
-    height: 100%;
+    height: 30px;
+    line-height: 30px;
     padding: 0px 5px 0px 10px;
     transition: .3s;
     color: white;
@@ -175,6 +176,8 @@ header nav.main-nav {
   top: 170px;
   left: 0; }
   .wrapper .coords-x-wrapper {
+    display: flex;
+    color: white;
     position: absolute;
     left: 0;
     top: 0;
@@ -184,9 +187,9 @@ header nav.main-nav {
   .wrapper .coords-y-wrapper {
     position: absolute;
     left: 0;
-    top: 0;
+    top: 20px;
     background: black;
-    height: 100%;
+    height: calc(100% - 20px);
     width: 20px; }
 
 .zoom-wrapper {

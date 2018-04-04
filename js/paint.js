@@ -7,6 +7,9 @@ let script = document.querySelector("script"); // последний script на
 
 // переменные канваса
 let wrapper = document.querySelector(".wrapper"); //конечный wrapper
+let wrapper_coords_x = document.querySelector(".coords-x-wrapper");
+let wrapper_coords_y = document.querySelector(".coords-y-wrapper");
+
 let zoom_wrapper; // обертка которая помогает реализовать zoom
 let canvas_wrapper; //обертка канвасов
 let canvas; //главный канвас
@@ -130,6 +133,41 @@ let arr_settings = [
           wrapper_add_height + zoom_wrapper.clientWidth + "px";
 
         new Centering_Element().top(zoom_wrapper, 0, wrapper);
+      }
+
+      let j = 0;
+      for (let i = get_left(zoom_wrapper); i >= 100; i -= 100) {
+        let temp = i % 100;
+        let width = temp + 100;
+
+        let coords = document.createElement("div");
+        coords.style.width = width + "px";
+        coords.textContent = -i;
+        wrapper_coords_x.appendChild(coords);
+
+        i = i - temp;
+
+        j++;
+      }
+
+      let length = parseFloat(wrapper.style.width) - get_left(zoom_wrapper);
+      console.log(length);
+      let begin = 0;
+
+      for (let i = length; i >= 100; i -= 100) {
+        let temp = i % 100;
+        let width = temp + 100;
+
+        let coords = document.createElement("div");
+        coords.style.width = width + "px";
+        coords.textContent = begin;
+        wrapper_coords_x.appendChild(coords);
+
+        begin += 100;
+
+        i = i - temp;
+
+        j++;
       }
 
       get_zoom();
