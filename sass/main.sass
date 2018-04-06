@@ -204,20 +204,26 @@ header
 	top: 170px
 	left: 0
 	.coords-x-wrapper
+		font-size: 10px
+		line-height: 30px
 		display: flex
 		color: white
-		position: absolute
+		position: fixed
 		left: 0
 		top: 0
 		height: 20px
 		width: 100%
 		background: black
+		div:not(:first-child)
+			text-indent: 2px
+			box-sizing: border-box
+			border-left: 1px solid $header_color
 	.coords-y-wrapper
 		position: absolute
 		left: 0
-		top: 20px
+		top: 0
 		background: black
-		height: calc(100% - 20px)
+		height: 100%
 		width: 20px	
 
 

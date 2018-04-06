@@ -135,39 +135,54 @@ let arr_settings = [
         new Centering_Element().top(zoom_wrapper, 0, wrapper);
       }
 
-      let j = 0;
-      for (let i = get_left(zoom_wrapper); i >= 100; i -= 100) {
-        let temp = i % 100;
-        let width = temp + 100;
+      let coords = document.createElement("div");
+      let width = 100;
+      coords.style.width = 20 + "px";
+      console.log(get_left(zoom_wrapper) - 20);
 
-        let coords = document.createElement("div");
+      wrapper_coords_x.appendChild(coords);
+
+      for (let i = get_left(zoom_wrapper) - 20; i >= 100; i -= 100) {
+        let remainder = i % 10;
+        coords = document.createElement("div");
+
+        if (i % 100 != 0) {
+          let width = i % 100;
+
+          let coords = document.createElement("div");
+
+          coords.style.width = width + "px";
+          wrapper_coords_x.appendChild(coords);
+
+          i = i - i % 100;
+        }
         coords.style.width = width + "px";
-        coords.textContent = -i;
+        coords.textContent = i;
         wrapper_coords_x.appendChild(coords);
-
-        i = i - temp;
-
-        j++;
       }
 
-      let length = parseFloat(wrapper.style.width) - get_left(zoom_wrapper);
+      let length = wrapper.clientWidth - get_left(zoom_wrapper);
+
       console.log(length);
-      let begin = 0;
 
-      for (let i = length; i >= 100; i -= 100) {
-        let temp = i % 100;
-        let width = temp + 100;
+      console.log(length + get_left(zoom_wrapper));
+      console.log(wrapper.clientWidth);
 
-        let coords = document.createElement("div");
-        coords.style.width = width + "px";
-        coords.textContent = begin;
-        wrapper_coords_x.appendChild(coords);
+      for (let i = 0; i < length; i += 100) {
+        if (length - i < 100) {
+          let width = length % 100;
 
-        begin += 100;
+          let coords = document.createElement("div");
 
-        i = i - temp;
-
-        j++;
+          coords.style.width = width + "px";
+          coords.textContent = i;
+          wrapper_coords_x.appendChild(coords);
+        } else {
+          coords = document.createElement("div");
+          coords.style.width = width + "px";
+          coords.textContent = i;
+          wrapper_coords_x.appendChild(coords);
+        }
       }
 
       get_zoom();
