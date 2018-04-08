@@ -10,7 +10,7 @@ $apply_color: #16A085
 html
 
 	height: 100%
-	// overflow-x: hidden
+	overflow: hidden
 
 body
 	background: $canvas_color
@@ -199,32 +199,49 @@ header
 
 
 .wrapper
-
+	z-index: 1
 	position: relative
 	top: 170px
 	left: 0
+	overflow: scroll
 	.coords-x-wrapper
 		font-size: 10px
 		line-height: 30px
 		display: flex
 		color: white
-		position: fixed
-		left: 0
-		top: 0
-		height: 20px
-		width: 100%
-		background: black
-		div:not(:first-child)
-			text-indent: 2px
-			box-sizing: border-box
-			border-left: 1px solid $header_color
-	.coords-y-wrapper
 		position: absolute
 		left: 0
 		top: 0
+		z-index: 1000
+		height: 20px
+		width: 100%
+		background: black
+		.coords
+			width: calc(100% - 20px)
+			display: flex
+			div
+				flex-shrink: 0
+				height: 20px
+				text-indent: 2px
+				box-sizing: border-box
+				border-left: 1px solid $header_color
+	.coords-y-wrapper
+		position: absolute
+		z-index: 100
+		font-size: 10px
+		left: 0
+		top: 0
+		color: white
 		background: black
 		height: 100%
 		width: 20px	
+		.coords
+			div
+				white-space: pre-wrap
+				text-align: center
+				box-sizing: border-box
+				border-top: 1px solid $header_color
+				width: 20px
 
 
 .zoom-wrapper
