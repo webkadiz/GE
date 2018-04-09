@@ -173,6 +173,7 @@ header nav.main-nav {
       display: flex; }
 
 .wrapper {
+  display: none;
   z-index: 1;
   position: relative;
   top: 170px;
@@ -190,10 +191,10 @@ header nav.main-nav {
     height: 20px;
     width: 100%;
     background: black; }
-    .wrapper .coords-x-wrapper .coords {
+    .wrapper .coords-x-wrapper .coords-x {
       width: calc(100% - 20px);
       display: flex; }
-      .wrapper .coords-x-wrapper .coords div {
+      .wrapper .coords-x-wrapper .coords-x div {
         flex-shrink: 0;
         height: 20px;
         text-indent: 2px;
@@ -209,7 +210,7 @@ header nav.main-nav {
     background: black;
     height: 100%;
     width: 20px; }
-    .wrapper .coords-y-wrapper .coords div {
+    .wrapper .coords-y-wrapper .coords-y div {
       white-space: pre-wrap;
       text-align: center;
       box-sizing: border-box;

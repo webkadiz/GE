@@ -10,6 +10,7 @@ let wrapper = document.querySelector(".wrapper"); //конечный wrapper
 let wrapper_coords_x = document.querySelector(".coords-x-wrapper");
 let wrapper_coords_y = document.querySelector(".coords-y-wrapper");
 
+let actual_canvas;
 let template_canvas; // шаблон для всех канвасов
 let zoom_wrapper; // обертка которая помогает реализовать zoom
 let canvas_wrapper; //обертка канвасов
@@ -24,13 +25,13 @@ let counter = 0; // просто счетчик если понадобится
 let prev_target; // предыдущая нажатая иконка , в обработчике на .main-nav - шапка painta
 let temp_target; // предыдущий канвас , используется в функции move_canvas
 let prev_title;
-let prev_zoom_wrapper = {};
+let prev_zoom_wrapper_width;
 
 // все статические высоты
 const wrapper_add_size = 400;
 const height_title_file = 30; // константная высота менюшки с файлами
 const height_menu = 171; //константная высота менюшки
-const wrapper_coords = 20;
+const wrapper_coords_w_h = 20; // ширина и высоты системы координат
 let height_header = 171; //  ширина шапки
 let wrapper_height_tools = 20;
 let wrapper_width_tools = 20;
@@ -64,11 +65,7 @@ let arr_settings = [
     appear_func: function() {
       let elem = document.querySelector("." + this.class_settings);
 
-      let value = new Init_Value(
-        this.class_settings,
-        this.class_value,
-        this.value_name
-      );
+      let value = new Init_Value(this.class_settings, this.class_value, this.value_name);
 
       elem.style.display = "block";
       elem.classList.remove("zoomOut");
@@ -90,14 +87,11 @@ let arr_settings = [
       height_header = height_menu + height_title_file;
 
       title.style.display = "block";
+      wrapper.style.display = "block";
 
       zoom_wrapper.style.display = "none";
 
-      let value = new Init_Value(
-        this.class_settings,
-        this.class_value,
-        this.value_name
-      ).init();
+      let value = new Init_Value(this.class_settings, this.class_value, this.value_name).init();
 
       // новый титл в шапке
       let new_title = document.createElement("div");
@@ -132,7 +126,12 @@ let arr_settings = [
 
       new Centering_Element().all_elem(zoom_wrapper, wrapper);
 
-      new Init_Wrapper().check().init_coords();
+      try {
+        wrapper_coords_x.querySelector(".coords-x").remove();
+        wrapper_coords_y.querySelector(".coords-y").remove();
+      } catch (e) {}
+
+      new Init_Wrapper(new_main_canvas).check().init_coords();
 
       get_zoom();
       get_bias();
@@ -148,11 +147,7 @@ let arr_settings = [
     appear_func: function() {
       let elem = document.querySelector("." + this.class_settings);
 
-      let value = new Init_Value(
-        this.class_settings,
-        this.class_value,
-        this.value_name
-      );
+      let value = new Init_Value(this.class_settings, this.class_value, this.value_name);
 
       value.width.value = canvas.width;
       value.height.value = canvas.height;
@@ -165,11 +160,7 @@ let arr_settings = [
     },
 
     service_func: function() {
-      let value = new Init_Value(
-        this.class_settings,
-        this.class_value,
-        this.value_name
-      ).init();
+      let value = new Init_Value(this.class_settings, this.class_value, this.value_name).init();
 
       new Init_Canvas(zoom_wrapper).init_size(value.width, value.height);
 
@@ -239,108 +230,130 @@ let arr_class = [
 
 // блок объявления классов
 
-let obj_coords_x = {};
-
 class Init_Wrapper {
-  init_coords() {
-    let width_breakdown = 50;
+  constructor(canvas) {
+    this.canvas = canvas;
+  }
+  create_coords_block(where_add, param_size_begin, size_decision, breakdown) {
+    let save_size_begin = param_size_begin;
+    let size_begin = param_size_begin;
+    let size_end;
+    let size_end_counter = 0;
+    let size_value = breakdown;
+    let wrapper_div = document.createElement("div");
+    let first_iter = true;
 
-    let wrapper_coords = document.createElement("div");
-    wrapper_coords.classList.add("coords");
+    while (size_begin >= breakdown) {
+      let text = "";
+      if (size_begin % breakdown == 0) {
+        if (size_decision == "height") {
+          Array.prototype.forEach.call(String(size_begin), item => (text += item + "\n"));
+        } else if (size_decision == "width") {
+          text = size_begin;
+        }
 
-    this.create_coords_div(wrapper_coords_y, "height", 20);
-
-    let coords = document.createElement("div");
-    let height = width_breakdown;
-
-    for (
-      let i = get_top(zoom_wrapper) - wrapper_height_tools;
-      i >= width_breakdown;
-      i -= width_breakdown
-    ) {
-      let remainder = i % 10;
-      coords = document.createElement("div");
-
-      if (i % width_breakdown != 0) {
-        let height = i % width_breakdown;
-
-        this.create_coords_div(wrapper_coords, "height", height);
-
-        i = i - i % width_breakdown;
-      }
-      coords.style.height = height + "px";
-
-      Array.prototype.forEach.call(
-        String(i),
-        item => (coords.textContent += item + "\n")
-      );
-
-      wrapper_coords.appendChild(coords);
-    }
-
-    let length = wrapper.scrollHeight - get_top(zoom_wrapper);
-
-    for (let i = 0; i < length; i += width_breakdown) {
-      if (length - i < width_breakdown) {
-        let height = length % width_breakdown;
-
-        this.create_coords_div(wrapper_coords, "height", height);
+        size_value = breakdown;
+        size_begin -= breakdown;
       } else {
-        coords = document.createElement("div");
-        coords.style.height = height + "px";
-
-        Array.prototype.forEach.call(
-          String(i),
-          item => (coords.textContent += item + "\n")
-        );
-
-        wrapper_coords.appendChild(coords);
+        size_value = size_begin % breakdown;
+        size_begin -= size_value;
       }
+
+      this.create_coords_div(where_add, size_decision, size_value, text);
     }
+
+    if (size_decision == "height") {
+      size_end = wrapper.scrollHeight - save_size_begin;
+    } else if (size_decision == "width") {
+      size_end = wrapper.scrollWidth - save_size_begin;
+    }
+
+    while (size_end_counter < size_end) {
+      let text = "";
+
+      if (size_decision == "height") {
+        Array.prototype.forEach.call(String(size_end_counter), item => (text += item + "\n"));
+      } else if (size_decision == "width") {
+        text = size_end_counter;
+      }
+
+      if (size_end - size_end_counter < breakdown) {
+        size_value = size_end % breakdown;
+
+        this.create_coords_div(where_add, size_decision, size_value);
+      } else {
+        this.create_coords_div(where_add, size_decision, size_value, text);
+      }
+
+      size_end_counter += breakdown;
+    }
+  }
+  init_coords() {
+    let width = 50,
+      height = 50,
+      width_breakdown = 50,
+      wrapper_coords,
+      length;
+
+    // инициализация координат по оси Y
+    wrapper_coords = document.createElement("div");
+
+    this.canvas.coords_y = wrapper_coords;
+
+    wrapper_coords.classList.add("coords-y");
+
+    length = wrapper.scrollHeight - get_top(zoom_wrapper);
+
+    this.create_coords_block(
+      wrapper_coords,
+      get_top(zoom_wrapper) - wrapper_height_tools,
+      "height",
+      width_breakdown
+    );
+
+    // for (let i = 0; i < length; i += width_breakdown) {
+    //   if (length - i < width_breakdown) {
+    //     let height = length % width_breakdown;
+
+    //     this.create_coords_div(wrapper_coords, "height", height);
+    //   } else {
+    //     let text = "";
+
+    //     Array.prototype.forEach.call(String(i), item => (text += item + "\n"));
+
+    //     this.create_coords_div(wrapper_coords, "height", height, text);
+    //   }
+    // }
     wrapper_coords_y.appendChild(wrapper_coords);
 
+    // инициализация координат по оси X
+
     wrapper_coords = document.createElement("div");
-    wrapper_coords.classList.add("coords");
 
-    this.coords_y = wrapper_coords;
+    this.canvas.coords_x = wrapper_coords;
 
-    let width = width_breakdown;
-
-    // добавляем квадратик в начала div координат
-    this.create_coords_div(wrapper_coords_x, "width", 20);
-
-    for (
-      let i = get_left(zoom_wrapper) - 20;
-      i >= width_breakdown;
-      i -= width_breakdown
-    ) {
-      let remainder = i % 10;
-
-      if (i % width_breakdown != 0) {
-        let width = i % width_breakdown;
-
-        this.create_coords_div(wrapper_coords, "width", width);
-
-        i = i - i % width_breakdown;
-      }
-      this.create_coords_div(wrapper_coords, "width", width, i);
-    }
+    wrapper_coords.classList.add("coords-x");
 
     length = wrapper.scrollWidth - get_left(zoom_wrapper);
 
-    for (let i = 0; i < length; i += width_breakdown) {
-      if (length - i < width_breakdown) {
-        let width = length % width_breakdown;
+    this.create_coords_block(
+      wrapper_coords,
+      get_left(zoom_wrapper) - wrapper_width_tools,
+      "width",
+      width_breakdown
+    );
 
-        this.create_coords_div(wrapper_coords, "width", width);
-      } else {
-        this.create_coords_div(wrapper_coords, "width", width, i);
+    // for (let i = 0; i < length; i += width_breakdown) {
+    //   if (length - i < width_breakdown) {
+    //     let width = length % width_breakdown;
 
-        if (i == 0) {
-          obj_coords_x.first = coords;
-        }
-      }
-    }
+    //     this.create_coords_div(wrapper_coords, "width", width);
+    //   } else if (i == 0) {
+    //     this.canvas.zero_coords_elem = this.create_coords_div(wrapper_coords, "width", width, i);
+    //   } else {
+    //     this.create_coords_div(wrapper_coords, "width", width, i);
+    //   }
+    // }
 
     wrapper_coords_x.appendChild(wrapper_coords);
 
@@ -348,25 +361,21 @@ class Init_Wrapper {
   }
 
   change_coords() {
-    let arr_coords_x = wrapper_coords_x.querySelectorAll(".coords div");
+    let arr_coords_x = wrapper_coords_x.querySelectorAll(".coords-x div"),
+      coords_x = wrapper_coords_x.querySelector(".coords-x"),
+      coefficient = zoom_wrapper.clientWidth / prev_zoom_wrapper_width; // коэффициент
 
-    let coords_x = wrapper_coords_x.lastElementChild;
-
-    let coefficient = zoom_wrapper.clientWidth / prev_zoom_wrapper.width;
-
+    //изменили ширину каждой координаты в зависимости от коэффициента
     arr_coords_x.forEach(item => {
       item.style.width = get_width(item) * coefficient + "px";
     });
-
-    let middle_width = get_width(
-      arr_coords_x[Math.round(arr_coords_x.length / 2)]
-    );
-
-    let zero_left = obj_coords_x.first.getBoundingClientRect().left;
-
-    let wrapper_left = zoom_wrapper.getBoundingClientRect().left;
-
-    let difference;
+    //ширина всех координат, кроме двух крайних
+    let middle_width = get_width(arr_coords_x[Math.round(arr_coords_x.length / 2)]),
+      //отступы слева
+      zero_left = actual_canvas.zero_coords_elem.getBoundingClientRect().left,
+      wrapper_left = zoom_wrapper.getBoundingClientRect().left,
+      //разница отступов
+      difference;
 
     if (coefficient > 1) {
       difference = zero_left - wrapper_left;
@@ -404,8 +413,8 @@ class Init_Wrapper {
 
       last.innerHTML = "";
     } else {
+      //коэффициент меньше нуля,уменьшение
       difference = wrapper_left - zero_left;
-      //коэффициент меньше нуля
 
       let first = arr_coords_x[0];
       let last = arr_coords_x[arr_coords_x.length - 1];
@@ -416,13 +425,7 @@ class Init_Wrapper {
         while (difference > middle_width) {
           text += 50;
 
-          this.create_coords_div(
-            coords_x,
-            "width",
-            middle_width,
-            text,
-            arr_coords_x[1]
-          );
+          this.create_coords_div(coords_x, "width", middle_width, text, arr_coords_x[1]);
 
           difference -= middle_width;
         }
@@ -430,13 +433,7 @@ class Init_Wrapper {
         if (difference + get_width(first) > middle_width) {
           text += 50;
 
-          this.create_coords_div(
-            coords_x,
-            "width",
-            middle_width,
-            text,
-            arr_coords_x[1]
-          );
+          this.create_coords_div(coords_x, "width", middle_width, text, arr_coords_x[1]);
 
           difference -= middle_width - get_width(first);
 
@@ -451,8 +448,7 @@ class Init_Wrapper {
       }
 
       let excess_width =
-        get_width(wrapper_coords_x) -
-        (wrapper.scrollLeft + last.getBoundingClientRect().right);
+        get_width(wrapper_coords_x) - (wrapper.scrollLeft + last.getBoundingClientRect().right);
 
       text = parseFloat(last.previousElementSibling.textContent);
 
@@ -493,6 +489,8 @@ class Init_Wrapper {
     } else {
       where_add.appendChild(temp_div);
     }
+
+    return temp_div;
   }
 
   event_scroll() {
@@ -507,11 +505,9 @@ class Init_Wrapper {
       get_left(zoom_wrapper) < wrapper_width_tools &&
       get_top(zoom_wrapper) < wrapper_height_tools
     ) {
-      wrapper_coords_x.style.width =
-        zoom_wrapper.clientWidth + wrapper_add_size + "px";
+      wrapper_coords_x.style.width = zoom_wrapper.clientWidth + wrapper_add_size + "px";
 
-      wrapper_coords_y.style.height =
-        zoom_wrapper.clientHeight + wrapper_add_size + "px";
+      wrapper_coords_y.style.height = zoom_wrapper.clientHeight + wrapper_add_size + "px";
 
       new Centering_Element().const_center(
         zoom_wrapper,
@@ -519,13 +515,11 @@ class Init_Wrapper {
         wrapper_add_size / 2
       );
     } else if (get_left(zoom_wrapper) < wrapper_width_tools) {
-      wrapper_coords_x.style.width =
-        zoom_wrapper.clientWidth + wrapper_add_size + "px";
+      wrapper_coords_x.style.width = zoom_wrapper.clientWidth + wrapper_add_size + "px";
 
       new Centering_Element().top(zoom_wrapper, wrapper_add_size / 2, wrapper);
     } else if (get_top(zoom_wrapper) < wrapper_height_tools) {
-      wrapper_coords_y.style.height =
-        zoom_wrapper.clientHeight + wrapper_add_size + "px";
+      wrapper_coords_y.style.height = zoom_wrapper.clientHeight + wrapper_add_size + "px";
 
       new Centering_Element().left(zoom_wrapper, wrapper_add_size / 2, wrapper);
     } else {
@@ -539,9 +533,7 @@ class Init_Wrapper {
 class Init_Value {
   constructor(class_settings, selector_value, name_value) {
     this.class_settings = class_settings;
-    this.value = document.querySelectorAll(
-      "." + class_settings + selector_value
-    );
+    this.value = document.querySelectorAll("." + class_settings + selector_value);
     this.name_value = name_value;
 
     this.name_value.forEach((item, i) => {
@@ -587,6 +579,7 @@ class Init_Canvas {
     path = this.path;
     arr_context = this.arr_context;
 
+    actual_canvas = this;
     zoom_wrapper = this.zoom_wrapper;
     canvas_wrapper = this.canvas_wrapper;
     canvas = this.canvas;
@@ -600,6 +593,16 @@ class Init_Canvas {
 
     this.canvas.width = width;
     this.canvas.height = height;
+    return this;
+  }
+  init_coords() {
+    try {
+      wrapper_coords_x.querySelector(".coords-x").remove();
+      wrapper_coords_y.querySelector(".coords-y").remove();
+    } catch (e) {}
+    wrapper_coords_x.appendChild(this.coords_x);
+    wrapper_coords_y.appendChild(this.coords_y);
+
     return this;
   }
   block() {
@@ -629,9 +632,7 @@ class Init_Canvas {
 
 Init_Canvas.counter = 0; // счетчик канвасов
 
-template_canvas = new Init_Canvas(
-  document.querySelector(".zoom-wrapper")
-).init();
+template_canvas = new Init_Canvas(document.querySelector(".zoom-wrapper")).init();
 
 new Init_Wrapper().event_scroll();
 
@@ -670,7 +671,8 @@ title.addEventListener("click", function(e) {
       new Init_Canvas(arr_canvas[i])
         .init()
         .block()
-        .add_title_class();
+        .add_title_class()
+        .init_coords();
 
       get_zoom();
       get_bias();
@@ -683,9 +685,7 @@ title.addEventListener("click", function(e) {
   if (target.tagName == "SPAN") {
     target = target.closest(".title-canvas");
     for (let i = 0; i < arr_canvas.length; i++) {
-      if (
-        target.getAttribute("data-canvas-name") == arr_canvas[i].canvas_name
-      ) {
+      if (target.getAttribute("data-canvas-name") == arr_canvas[i].canvas_name) {
         arr_canvas[i].title.remove();
         arr_canvas[i].zoom_wrapper.remove();
 
@@ -695,19 +695,22 @@ title.addEventListener("click", function(e) {
           new Init_Canvas(arr_canvas[i])
             .init()
             .block()
-            .add_title_class();
+            .add_title_class()
+            .init_coords();
         } else if (arr_canvas[i - 1]) {
           console.log(123);
           new Init_Canvas(arr_canvas[i - 1])
             .init()
             .block()
-            .add_title_class();
+            .add_title_class()
+            .init_coords();
         } else {
           header.style.height = height_menu + "px";
           wrapper.style.top = height_menu + "px";
           height_header = height_menu;
 
           title.style.display = "none";
+          wrapper.style.display = "none";
         }
 
         get_zoom();
@@ -740,10 +743,7 @@ document.querySelector(".main-nav").onclick = function(e) {
 
   function check() {
     if (prev_target) {
-      canvas_wrapper.removeEventListener(
-        prev_target.arr_class.event,
-        prev_target.arr_class.func
-      );
+      canvas_wrapper.removeEventListener(prev_target.arr_class.event, prev_target.arr_class.func);
       if (prev_target.arr_class.service_func) {
         prev_target.arr_class.service_func(prev_target.arr_class.string);
       }
@@ -782,16 +782,12 @@ document.querySelector(".main-nav").onclick = function(e) {
 
 document.addEventListener("keydown", function(e) {
   if ((e.keyCode == 90 && e.ctrlKey) || (e.keyCode == 90 && e.metaKey)) {
-    console.log(123);
     path_remove();
   }
 
   // увеличение масштаба
   if (e.keyCode == 187 && e.ctrlKey && e.altKey) {
-    prev_zoom_wrapper = {
-      width: zoom_wrapper.clientWidth,
-      left: get_left(zoom_wrapper)
-    };
+    prev_zoom_wrapper_width = zoom_wrapper.clientWidth;
 
     canvas_wrapper.style.zoom = parseFloat(canvas_wrapper.style.zoom) + 0.05;
 
@@ -804,10 +800,7 @@ document.addEventListener("keydown", function(e) {
   }
   // уменьшение масштаба
   if (e.keyCode == 189 && e.ctrlKey && e.altKey) {
-    prev_zoom_wrapper = {
-      width: zoom_wrapper.clientWidth,
-      left: get_left(zoom_wrapper)
-    };
+    prev_zoom_wrapper_width = zoom_wrapper.clientWidth;
 
     canvas_wrapper.style.zoom = parseFloat(canvas_wrapper.style.zoom) - 0.05;
 
@@ -874,13 +867,7 @@ function path_remove() {
     }
     if (item.shape == "text") {
       let temp = item.text_value;
-      draw_text(
-        temp.text,
-        item.context,
-        temp.line_height,
-        temp.font_size,
-        temp.font
-      );
+      draw_text(temp.text, item.context, temp.line_height, temp.font_size, temp.font);
     }
 
     item.context.stroke(item.path);
@@ -1087,10 +1074,7 @@ function text_click(e) {
   let x1 = 0;
   let y1 = 0;
 
-  if (
-    !e.target.classList.contains("canvas-text") &&
-    e.target.tagName != "TEXTAREA"
-  ) {
+  if (!e.target.classList.contains("canvas-text") && e.target.tagName != "TEXTAREA") {
     create_textarea(x, y);
   }
 
@@ -1143,8 +1127,7 @@ function text_click(e) {
     text = text.split("\n");
     let width = new_c.measureText(text[0]).width;
     for (let i = 0; i < text.length; i++) {
-      if (width < new_c.measureText(text[i]).width)
-        width = new_c.measureText(text[i]).width;
+      if (width < new_c.measureText(text[i]).width) width = new_c.measureText(text[i]).width;
     }
 
     new_canvas.width = width * (parseInt(font_size) / 10);
@@ -1188,9 +1171,7 @@ function fill(e) {
     arr_new_path.forEach(item => {
       if (!item.shape) {
         if (item.context.isPointInPath(item.path, x, y)) {
-          item.fillStyle.push(
-            "#" + (~~(Math.random() * 16777000)).toString(16)
-          );
+          item.fillStyle.push("#" + (~~(Math.random() * 16777000)).toString(16));
 
           item.fill = true;
           all_path.push({
@@ -1234,13 +1215,11 @@ function fill(e) {
 
 //shapes
 
-document
-  .querySelector(".shapes-controller")
-  .addEventListener("click", function() {
-    document
-      .querySelector(".dropdown-shapes-wrapper")
-      .classList.toggle("dropdown-shapes-wrapper-active");
-  });
+document.querySelector(".shapes-controller").addEventListener("click", function() {
+  document
+    .querySelector(".dropdown-shapes-wrapper")
+    .classList.toggle("dropdown-shapes-wrapper-active");
+});
 
 // рисование прямоугольника
 
