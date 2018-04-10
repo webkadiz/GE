@@ -282,7 +282,16 @@ class Init_Wrapper {
 
         this.create_coords_div(where_add, size_decision, size_value);
       } else {
-        this.create_coords_div(where_add, size_decision, size_value, text);
+        if (first_iter) {
+          actual_canvas.zero_coords_elem = this.create_coords_div(
+            where_add,
+            size_decision,
+            size_value,text
+          );
+          first_iter = false;
+        } else {
+          this.create_coords_div(where_add, size_decision, size_value, text);
+        }
       }
 
       size_end_counter += breakdown;
