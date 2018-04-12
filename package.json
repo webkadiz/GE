@@ -16,6 +16,6 @@
     "gulp-livereload": "^3.8.1"
   },
   "prettier": {
-    "printWidth": 100
+    "printWidth": 120
   }
 }
