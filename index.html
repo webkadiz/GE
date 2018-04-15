@@ -14,6 +14,7 @@
 <body>
 
 	<header>
+		<!-- самая верхняя менюшка с инструментами -->
 		<nav class="options">
 			<ul>
 				<li>
@@ -43,7 +44,8 @@
 				</li>
 			</ul>
 		</nav>
-
+		
+		<!-- менюшка в которой отображаются все созданные canvas -->
 		<nav class="title-canvas-wrapper"></nav>
 
 		<nav class="main-nav">
@@ -311,7 +313,8 @@
 			<div class="color-menu-wrapper"></div>
 		</nav>
 	</header>
-
+	
+	<!-- обертка в которую добавляются созданные canvas -->
 	<div class="wrapper">
 		<div class="coords-x-wrapper">
 			<div style="height: 20px ; width: 20px"></div>
@@ -321,6 +324,7 @@
 		</div>
 	</div>
 
+	<!-- шаблон для создания новых canvas -->
 	<div class="zoom-wrapper">
 		<div class="canvas-wrapper">
 			<canvas class="main-canvas"></canvas>
@@ -330,7 +334,7 @@
 
 
 
-
+  <!-- div с настройками изменения размера текущего canvas -->
 	<div class="settings-window-size animated">
 		<div class="close-wrapper">
 			<button class="close"></button>
@@ -347,12 +351,11 @@
 		<button class="apply">применить</button>
 	</div>
 
+	<!-- div с настройками создания нового canvas -->
 	<div class="settings-new-file animated">
 		<div class="close-wrapper">
 			<button class="close"></button>
 		</div>
-
-
 		<div class="input-wrapper">
 			<label for="width">Название</label>
 			<input type="text" name="width">

@@ -1,3 +1,5 @@
+"use strict";
+
 // переменные DOM-елементов
 let html = document.documentElement; // html
 let header = document.querySelector("header"); // шапка
@@ -228,30 +230,75 @@ class Init_Wrapper {
   constructor(canvas) {
     this.canvas = canvas;
     this.where_add;
+    this.first;
+    this.last;
+    this.arr_coords;
+    this.decision;
+    this.get_size;
     return this;
   }
-  create_coords_block(left_or_top, size_decision, breakdown, size_tools) {
-    let size_left_or_top = left_or_top;
-    let size_begin = left_or_top - size_tools;
+  set init_value(options) {
+    try {
+      this.where_add = options.elem || this.where_add;
+      this.first = options.elem.firstElementChild || this.where_add.firstElementChild;
+      this.last = options.elem.lastElementChild || this.where_add.lastElementChild;
+      this.arr_coords = options.elem.children || this.where_add.children;
+      this.decision = options.decision || this.decision;
+      this.get_size = options.get_size || this.get_size;
+    } catch (e) {}
+  }
+
+  init_coords() {
+    let width_breakdown = 50;
+    let wrapper_coords;
+    // инициализация координат по оси Y
+
+    wrapper_coords = document.createElement("div");
+
+    wrapper_coords.classList.add("coords-y");
+
+    this.canvas.coords_y = wrapper_coords; //приклепляем к канвасу div-координат-y
+
+    this.init_value = { elem: wrapper_coords };
+
+    this.create_coords_block(get_top(zoom_wrapper), "height", width_breakdown, wrapper_top_tools);
+
+    wrapper_coords_y.appendChild(wrapper_coords);
+
+    // инициализация координат по оси X
+
+    wrapper_coords = document.createElement("div");
+
+    wrapper_coords.classList.add("coords-x");
+
+    this.canvas.coords_x = wrapper_coords; //приклепляем к канвасу div-координат-x
+
+    this.init_value = { elem: wrapper_coords };
+
+    this.create_coords_block(get_left(zoom_wrapper), "width", width_breakdown, wrapper_left_tools);
+
+    wrapper_coords_x.appendChild(wrapper_coords);
+
+    return this;
+  }
+
+  create_coords_block(size, size_decision, breakdown, size_tools) {
+    let size_begin = size - size_tools;
     let size_end;
     let size_end_counter = 0;
     let size_value = breakdown;
     let first_iter = true;
 
     if (size_decision == "height") {
-      size_end = wrapper.scrollHeight - size_left_or_top;
+      size_end = wrapper.scrollHeight - size;
     } else if (size_decision == "width") {
-      size_end = wrapper.scrollWidth - size_left_or_top;
+      size_end = wrapper.scrollWidth - size;
     }
 
     while (size_begin >= breakdown) {
       let text = "";
       if (size_begin % breakdown == 0) {
-        if (size_decision == "height") {
-          Array.prototype.forEach.call(String(size_begin), item => (text += item + "\n"));
-        } else if (size_decision == "width") {
-          text = size_begin;
-        }
+        text = size_begin;
 
         size_value = breakdown;
         size_begin -= breakdown;
@@ -266,11 +313,7 @@ class Init_Wrapper {
     while (size_end_counter < size_end) {
       let text = "";
 
-      if (size_decision == "height") {
-        Array.prototype.forEach.call(String(size_end_counter), item => (text += item + "\n"));
-      } else if (size_decision == "width") {
-        text = size_end_counter;
-      }
+      text = size_end_counter;
 
       if (size_end - size_end_counter < breakdown) {
         size_value = size_end % breakdown;
@@ -293,179 +336,6 @@ class Init_Wrapper {
       size_end_counter += breakdown;
     }
   }
-  init_coords() {
-    let width_breakdown = 50;
-    let wrapper_coords;
-    // инициализация координат по оси Y
-
-    wrapper_coords = document.createElement("div");
-
-    wrapper_coords.classList.add("coords-y");
-
-    this.canvas.coords_y = wrapper_coords; //приклепляем к канвасу div-координат-y
-
-    this.where_add = wrapper_coords;
-
-    this.create_coords_block(get_top(zoom_wrapper), "height", width_breakdown, wrapper_top_tools);
-
-    wrapper_coords_y.appendChild(wrapper_coords);
-
-    // инициализация координат по оси X
-
-    wrapper_coords = document.createElement("div");
-
-    wrapper_coords.classList.add("coords-x");
-
-    this.canvas.coords_x = wrapper_coords; //приклепляем к канвасу div-координат-x
-
-    this.where_add = wrapper_coords;
-
-    this.create_coords_block(get_left(zoom_wrapper), "width", width_breakdown, wrapper_left_tools);
-
-    wrapper_coords_x.appendChild(wrapper_coords);
-
-    return this;
-  }
-  check_coords(decision, coords) {
-    let this_coords = coords;
-    let difference_width_begin;
-    let difference_width_end;
-    let this_func_size;
-
-    let first = coords[0];
-    let last = coords[coords.length - 1];
-    let text_begin = parseFloat(first.nextElementSibling.textContent.replace(/\n/g, "")) || 0;
-    let text_end = parseFloat(last.previousElementSibling.textContent.replace(/\n/g, "")) || 0;
-
-    if (decision == "width") {
-      difference_width_begin =
-        actual_canvas.zero_coords_elem_x.getBoundingClientRect().left - zoom_wrapper.getBoundingClientRect().left;
-
-      this_func_size = get_width;
-    } else if (decision == "height") {
-      difference_width_begin =
-        actual_canvas.zero_coords_elem_y.getBoundingClientRect().top - zoom_wrapper.getBoundingClientRect().top;
-
-      this_func_size = get_height;
-    }
-
-    let middle_width = this_func_size(coords[Math.round(coords.length / 2)]);
-
-    if (difference_width_begin > 0) {
-      while (difference_width_begin > this_func_size(first)) {
-        difference_width_begin -= this_func_size(first);
-
-        let temp = first.nextElementSibling;
-
-        first.remove();
-
-        first = temp;
-      }
-
-      first.style[decision] = this_func_size(first) - difference_width_begin + "px";
-
-      first.innerHTML = "";
-
-      //check end
-      if (decision == "width") {
-        difference_width_end = wrapper.scrollWidth - this_func_size(wrapper_coords_x);
-      } else if (decision == "height") {
-        difference_width_end = wrapper.scrollHeight - this_func_size(wrapper_coords_y);
-      }
-
-      while (difference_width_end > this_func_size(last)) {
-        difference_width_end -= this_func_size(last);
-
-        let temp = last.previousElementSibling;
-
-        last.remove();
-
-        last = temp;
-      }
-
-      last.style[decision] = this_func_size(last) - difference_width_end + "px";
-
-      last.innerHTML = "";
-    } else {
-      //difference_width_begin < 0
-      difference_width_begin = Math.abs(difference_width_begin);
-
-      while (difference_width_begin > middle_width) {
-        text_begin += 50;
-
-        if (decision == "height") {
-          text_begin = Array.prototype.reduce.call(
-            String(text_begin),
-            (res, item) => {
-              text_begin += item + "\n";
-              return res + item + "\n";
-            },
-            ""
-          );
-        }
-
-        this.create_coords_div(decision, middle_width, text_begin, coords[1]);
-
-        difference_width_begin -= middle_width;
-      }
-
-      if (difference_width_begin + this_func_size(first) > middle_width) {
-        text_begin += 50;
-
-        // if (decision == "height") {
-
-        //   text_begin = Array.prototype.reduce.call(
-        //     String(text_begin),
-        //     (res, item) => {
-        //       text_begin += item + "\n";
-        //       return res + item + "\n";
-        //     },
-        //     ""
-        //   );
-        // }
-
-        this.create_coords_div(decision, middle_width, text_begin, coords[1]);
-
-        difference_width_begin -= middle_width - this_func_size(first);
-
-        first.style[decision] = difference_width_begin + "px";
-        first.innerHTML = "";
-      } else {
-        first.style[decision] = this_func_size(first) + difference_width_begin + "px";
-        first.innerHTML = "";
-      }
-
-      //check end
-
-      if (decision == "width") {
-        difference_width_end =
-          this_func_size(wrapper_coords_x) - (wrapper.scrollLeft + last.getBoundingClientRect().right);
-      } else if (decision == "height") {
-        difference_width_end =
-          this_func_size(wrapper_coords_y) - (wrapper.scrollTop + last.getBoundingClientRect().bottom);
-      }
-
-      if (this_func_size(last) + difference_width_end > middle_width) {
-        difference_width_end -= middle_width - this_func_size(last);
-
-        last.style[decision] = middle_width + "px";
-        last.textContent = text_end + 50;
-        text_end += 50;
-
-        while (difference_width_end > middle_width) {
-          text_end += 50;
-
-          this.create_coords_div(decision, middle_width, text_end);
-
-          difference_width_end -= middle_width;
-        }
-
-        this.create_coords_div(decision, difference_width_end);
-      } else {
-        last.style[decision] = this_func_size(last) + difference_width_end + "px";
-      }
-    }
-  }
 
   change_coords() {
     let arr_coords_x = actual_canvas.coords_x.children,
@@ -473,36 +343,140 @@ class Init_Wrapper {
       coefficient_x = zoom_wrapper.clientWidth / actual_canvas.prev_zoom_wrapper_width, // коэффициент-x
       coefficient_y = zoom_wrapper.clientHeight / actual_canvas.prev_zoom_wrapper_height; // коэффициент-y
 
-    this.where_add = actual_canvas.coords_x; // устанавливаем div , куда добавлять элементы
-
+    // устанавливаем div , куда добавлять элементы
+    this.init_value = {
+      elem: actual_canvas.coords_x,
+      decision: "width",
+      get_size: get_width
+    };
     //изменили ширину каждой координаты в зависимости от коэффициента
     Array.prototype.forEach.call(arr_coords_x, item => {
       item.style.width = get_width(item) * coefficient_x + "px";
     });
 
-    this.check_coords("width", arr_coords_x);
+    this.check_coords();
 
-    this.where_add = actual_canvas.coords_y;
+    this.init_value = {
+      elem: actual_canvas.coords_y,
+      decision: "height",
+      get_size: get_height
+    };
 
     Array.prototype.forEach.call(arr_coords_y, item => {
       item.style.height = get_height(item) * coefficient_y + "px";
     });
 
-    this.check_coords("height", arr_coords_y);
+    this.check_coords();
   }
 
-  create_coords_div(flag, size, text = "", before_elem) {
+  check_coords() {
+    let difference_width_begin;
+    let difference_width_end;
+
+    let text_begin = parseFloat(this.first.nextElementSibling.textContent.replace(/\n/g, "")) || 0;
+    let text_end = parseFloat(this.last.previousElementSibling.textContent.replace(/\n/g, "")) || 0;
+
+    if (this.decision == "width") {
+      difference_width_begin =
+        actual_canvas.zero_coords_elem_x.getBoundingClientRect().left - zoom_wrapper.getBoundingClientRect().left;
+    } else if (this.decision == "height") {
+      difference_width_begin =
+        actual_canvas.zero_coords_elem_y.getBoundingClientRect().top - zoom_wrapper.getBoundingClientRect().top;
+    }
+
+    if (difference_width_begin > 0) {
+      //check start
+      this.check_positive(difference_width_begin, this.first);
+
+      if (this.decision == "width") {
+        difference_width_end = wrapper.scrollWidth - get_width(wrapper_coords_x);
+      } else if (this.decision == "height") {
+        difference_width_end = wrapper.scrollHeight - get_height(wrapper_coords_y);
+      }
+
+      //check end
+      this.check_positive(difference_width_end, this.last);
+    } else {
+      //difference_width_begin < 0
+      difference_width_begin = Math.abs(difference_width_begin);
+
+      // check_start
+      this.check_negative(difference_width_begin, this.first, text_begin, true);
+
+      if (this.decision == "width") {
+        difference_width_end = wrapper_coords_x.getBoundingClientRect().right - this.last.getBoundingClientRect().right;
+      } else if (this.decision == "height") {
+        difference_width_end =
+          wrapper_coords_y.getBoundingClientRect().bottom - this.last.getBoundingClientRect().bottom;
+      }
+      //check end
+      this.check_negative(difference_width_end, this.last, text_end, false);
+    }
+  }
+
+  check_positive(difference, elem) {
+    while (difference > this.get_size(elem)) {
+      difference -= this.get_size(elem);
+
+      let temp = elem.nextElementSibling || elem.previousElementSibling;
+
+      elem.remove();
+
+      elem = temp;
+    }
+
+    elem.style[this.decision] = this.get_size(elem) - difference + "px";
+
+    elem.innerHTML = "";
+  }
+
+  check_negative(difference, elem, text, flag) {
+    let middle_width = this.get_size(this.arr_coords[Math.round(this.arr_coords.length / 2)]);
+
+    if (this.get_size(elem) + difference > middle_width) {
+      difference -= middle_width - this.get_size(elem);
+
+      text += 50;
+
+      elem.remove();
+
+      this.create_coords_div(this.decision, middle_width, text, flag);
+
+      while (difference > middle_width) {
+        text += 50;
+
+        this.create_coords_div(this.decision, middle_width, text, flag);
+
+        difference -= middle_width;
+      }
+
+      this.create_coords_div(this.decision, difference, "", flag);
+    } else {
+      elem.style[this.decision] = this.get_size(elem) + difference + "px";
+      elem.innerHTML = "";
+    }
+  }
+
+  create_coords_div(flag, size, text = "", add_begin) {
     let temp_div = document.createElement("div");
 
-    temp_div.textContent = text;
     if (flag == "width") {
       temp_div.style.width = size + "px";
     } else if (flag == "height") {
       temp_div.style.height = size + "px";
+      text = Array.prototype.reduce.call(
+        String(text),
+        (res, item) => {
+          return res + item + "\n";
+        },
+        ""
+      );
     }
 
-    if (before_elem) {
-      this.where_add.insertBefore(temp_div, before_elem);
+    temp_div.textContent = text;
+
+    if (add_begin) {
+      this.where_add.insertBefore(temp_div, this.where_add.firstElementChild);
     } else {
       this.where_add.appendChild(temp_div);
     }
