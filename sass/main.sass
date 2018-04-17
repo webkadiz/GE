@@ -1,22 +1,34 @@
 
 $canvas_color: #282828
-$header_color: #73716f
+$header_color: #535353
 $vk_color: #e1e5eb	
 $settings_color: #34495E
 $link_color: #285473
 $apply_color: #16A085
 
-	
-html
+$menu_tools_color: #424242
 
+$coords_color: #474747
+
+$very_high: 10000	
+$high: 1000
+$middle: 100
+$low: 10
+
+*
+	box-sizing: border-box
+
+html
 	height: 100%
 	overflow: hidden
+	box-sizing: border-box
+	font-size: 14px
 
 body
 	background: $canvas_color
 	box-sizing: border-box
 	font-family: sans-serif
-	font-size: 1.1em
+	font-size: 1rem
 	height: 100%
 	margin: 0
 	z-index: -1000
@@ -31,22 +43,20 @@ ul
 
 
 header
-	left: 0
-	right: 0
-	position: fixed
 	margin: 0
 	background: $header_color
-	height: 171px
-	z-index: 1000
+	z-index: $middle
 	.options 
 		ul
-			background: $header_color
 			height: 100%
+			background: $header_color
 			border-bottom: 1px solid MINTCREAM
 			display: flex	
 			li
 				color: white
 				position: relative
+				div
+					height: 100%
 				&:hover
 					.options-dropdown
 				 		display: block
@@ -61,24 +71,23 @@ header
 				margin-left: 20px
 		&-dropdown
 			border: 1px solid black
-			z-index: 1000
+			z-index: $high
 			display: none	
 			position: absolute
 			left: 0
 			top: 100%
 			background: #eee
 			a
-				font-size: 17px
+				font-size: .9rem
 				white-space: pre
 				color: $link_color
 				text-decoration: none
 				background: #eee
-				padding: 10px	
+				padding: 8px 8px	
 				display: block
 				&:hover
 					background: $vk_color	
 		&-badge
-			line-height: 40px
 			padding: 0px 10px
 			transition: .3s
 			display: flex
@@ -90,14 +99,14 @@ header
 
 header
 	.title-canvas-wrapper
+		font-size: 1.2rem
+		line-height: 25px
 		display: none
-		height: 30px
-		background: $canvas_color	
+		background: $menu_tools_color
 		border-bottom: 1px solid MINTCREAM
 		padding-left: 20px
 		.title-canvas
-			height: 30px
-			line-height: 30px
+			height: 100%
 			padding: 0px 5px 0px 10px
 			transition: .3s
 			color: white
@@ -121,102 +130,52 @@ header
 			span
 				color: rgba(0 , 0 ,0, .6)
 
-header
-	nav.main-nav > div
-		background: SILVER
-		margin-right: 10px	
-	nav.main-nav
-		border-bottom: 1px solid #000
-		display: flex 
-		height: 129px
-		.tools-wrapper
-			padding: 20px
-			display: flex
-			align-items: center
-			.tools
-				ul:first-child
-					margin-bottom: 10px
-				ul
-					display: flex
-					li
-						a
-							text-align: center
-							margin-right: 15px
-							display: flex
-							align-items: center
-							justify-content: center
-							padding: 5px
-							width: 30px
-							height: 30px
-							border-radius: 5px
-							svg
-								font-size: 1.1em
-							&:hover
-								background: #eee
-								cursor: pointer
-						a.active					
-							background: linear-gradient( #F1C40F , #F39C12 )
-		.shapes-wrapper
-			padding: 10px
-			display: flex
-			flex-direction: column
-			justify-content: space-between
-			align-items: center
-			position: relative
-			.shapes		
-				display: flex
-				margin-bottom: 10px
-				justify-content: center
-				align-items: center
-				width: 60px
-				height: 60px
-				border: 3px solid black
-			.text
-				display: block
-			.shapes-controller
-				&:hover
-					cursor: pointer	
-			.dropdown-shapes-wrapper
-				z-index:  1000
-				position: absolute
-				top: 100%
-				left: 0
-				width: 200px
-				height: 150px
-				background: #eee
-				border: 1px solid black
-				display: none	
-				div
-					border: 1px solid red
-					width: 20px
-					height: 20px
-					cursor: pointer	
-				div.active
-					background: red					  	
-			.dropdown-shapes-wrapper-active
-				display: flex		
+	//верхняя панелька для всех инструментов
+.dragn-panel
+	width: 100%
+	background: $menu_tools_color
+	height: 12px
+	line-height: 12px
+	display: flex
+	justify-content: flex-end
+	&-close
+		font-size: 1.1rem
+		color: #a8a8a8
+		cursor: pointer
+		margin: 0px 2px
+
+//инструменты
+.tools-wrapper
+	position: absolute
+	z-index: $high
+	background: $header_color
+	display: flex
+	flex-wrap: wrap
+	width: 40px
+	left: 100px
+	top: 100px
+	justify-content: center
 
 
-
+	//обертка canvas
 .wrapper
 	display: none
-	z-index: 1
+	z-index: $low
 	position: relative
-	top: 170px
-	left: 0
 	overflow: scroll
 	.coords-x-wrapper
-		font-size: 10px
+		font-size: .7rem
 		line-height: 30px
 		display: flex
 		color: white
 		position: absolute
 		left: 0
 		top: 0
-		z-index: 1000
+		z-index: $middle
 		height: 20px
 		width: 100%
-		background: black
+		background: $coords_color
+		color: #ccc
 		.coords-x
 			width: calc(100% - 20px)
 			display: flex
@@ -225,15 +184,14 @@ header
 				height: 20px
 				text-indent: 2px
 				box-sizing: border-box
-				border-left: 1px solid $header_color
+				border-left: 1px solid #888
 	.coords-y-wrapper
+		@extend .coords-x-wrapper
+		line-height: inherit
 		position: absolute
-		z-index: 100
-		font-size: 10px
+		z-index: $middle - 10
 		left: 0
 		top: 0
-		color: white
-		background: black
 		height: 100%
 		width: 20px	
 		.coords-y
@@ -241,7 +199,7 @@ header
 				white-space: pre-wrap
 				text-align: center
 				box-sizing: border-box
-				border-top: 1px solid $header_color
+				border-top: 1px solid #888
 				width: 20px
 
 
@@ -337,7 +295,7 @@ header
 		cursor: pointer	
 
 .settings-window-size
-	z-index: 100000
+	z-index: $very_high
 	box-shadow: 0px 0px 15px rgba(0 , 0 ,0 , .3)
 	border: 1px solid blue
 	font-size: 25px

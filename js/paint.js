@@ -2,8 +2,9 @@
 
 // переменные DOM-елементов
 let html = document.documentElement; // html
-let header = document.querySelector("header"); // шапка
+let header = document.querySelector("header"); // вся шапка
 let title = document.querySelector(".title-canvas-wrapper");
+let menu_bar = document.querySelector(".options"); //самое верхнее меня с настройками
 let all_apply_button = document.querySelectorAll(".apply"); // все кнопки подтвердить
 let script = document.querySelector("script"); // последний script на странице
 
@@ -30,10 +31,11 @@ let prev_title;
 
 // все статические высоты
 const wrapper_add_size = 400;
-const height_title_file = 30; // константная высота менюшки с файлами
-const height_menu = 171; //константная высота менюшки
+const height_title_file = 25; // константная высота менюшки с файлами
+const height_menu_bar = 30; //константная высота менюшки
 const wrapper_coords_w_h = 20; // ширина и высоты системы координат
-let height_header = 171; //  ширина шапки
+
+let height_header = 40; //  ширина шапки
 let wrapper_top_tools = 20;
 let wrapper_left_tools = 20;
 
@@ -83,10 +85,6 @@ let arr_settings = [
     },
 
     service_func: function() {
-      header.style.height = height_menu + height_title_file + "px";
-      wrapper.style.top = height_menu + height_title_file + "px";
-      height_header = height_menu + height_title_file;
-
       title.style.display = "block";
       wrapper.style.display = "block";
 
@@ -225,6 +223,43 @@ let arr_class = [
 ];
 
 // блок объявления классов
+class Tools_Component {
+  constructor({ wrapper }) {
+    console.log();
+    this.wrapper = wrapper;
+  }
+  create_dragn_panel() {
+    let panel = document.createElement("div");
+    let close = document.createElement("div");
+    let arrow = document.createElement("div");
+
+    close.innerHTML = "&times;";
+    arrow.innerHTML = "<img width=8 height=8 src='img/arrow-right.png' />";
+    close.classList.add("dragn-panel-close");
+    arrow.classList.add("dragn-panel-close");
+
+    close.onclick = () => none(this.wrapper);
+
+    panel.appendChild(arrow);
+    panel.appendChild(close);
+
+    panel.classList.add("dragn-panel");
+
+    this.wrapper.insertBefore(panel, this.wrapper.firstElementChild);
+  }
+  create_menu_bar() {}
+  create_footer_bar() {}
+}
+class Tools_Draw extends Tools_Component {
+  constructor({ wrapper }) {
+    console.log(arguments[0]);
+    super(arguments[0]);
+    super.create_dragn_panel();
+
+    this.wrapper = wrapper;
+    console.log();
+  }
+}
 
 class Init_Wrapper {
   constructor(canvas) {
@@ -629,8 +664,12 @@ template_canvas = new Init_Canvas(document.querySelector(".zoom-wrapper")).init(
 
 new Init_Wrapper().event_scroll();
 
+let tools = new Tools_Draw({
+  wrapper: document.querySelector(".tools-wrapper")
+});
+
 // просто задаем стили в HTML
-header.style.height = height_menu + "px";
+menu_bar.style.height = height_menu_bar + "px";
 
 title.style.height = height_title_file + "px";
 
@@ -698,10 +737,6 @@ title.addEventListener("click", function(e) {
             .add_title_class()
             .init_coords();
         } else {
-          header.style.height = height_menu + "px";
-          wrapper.style.top = height_menu + "px";
-          height_header = height_menu;
-
           title.style.display = "none";
           wrapper.style.display = "none";
         }
@@ -727,51 +762,54 @@ document.querySelector(".options").addEventListener("click", function(e) {
 });
 
 // используем делегирование на шапке painta
-document.querySelector(".main-nav").onclick = function(e) {
-  let target = e.target;
-  let new_target;
 
-  e.preventDefault();
-  counter = 0;
+try {
+  document.querySelector(".tools-wrapper").onclick = function(e) {
+    let target = e.target;
+    let new_target;
 
-  function check() {
-    if (prev_target) {
-      canvas_wrapper.removeEventListener(prev_target.arr_class.event, prev_target.arr_class.func);
-      if (prev_target.arr_class.service_func) {
-        prev_target.arr_class.service_func(prev_target.arr_class.string);
+    e.preventDefault();
+    counter = 0;
+
+    function check() {
+      if (prev_target) {
+        canvas_wrapper.removeEventListener(prev_target.arr_class.event, prev_target.arr_class.func);
+        if (prev_target.arr_class.service_func) {
+          prev_target.arr_class.service_func(prev_target.arr_class.string);
+        }
+        prev_target.target.classList.remove("active");
       }
-      prev_target.target.classList.remove("active");
     }
-  }
 
-  for (let i = 0; i < arr_class.length; i++) {
-    new_target = target.closest("." + arr_class[i].class);
+    for (let i = 0; i < arr_class.length; i++) {
+      new_target = target.closest("." + arr_class[i].class);
 
-    if (new_target) {
-      counter++;
+      if (new_target) {
+        counter++;
 
+        check();
+
+        canvas_wrapper.addEventListener(arr_class[i].event, arr_class[i].func);
+
+        if (arr_class[i].service_func) {
+          arr_class[i].service_func(arr_class[i].string);
+        }
+
+        prev_target = {
+          target: document.querySelector("." + arr_class[i].class),
+          arr_class: arr_class[i]
+        };
+
+        new_target.classList.add("active");
+      }
+    }
+
+    if (counter == 0) {
       check();
-
-      canvas_wrapper.addEventListener(arr_class[i].event, arr_class[i].func);
-
-      if (arr_class[i].service_func) {
-        arr_class[i].service_func(arr_class[i].string);
-      }
-
-      prev_target = {
-        target: document.querySelector("." + arr_class[i].class),
-        arr_class: arr_class[i]
-      };
-
-      new_target.classList.add("active");
+      prev_target = null;
     }
-  }
-
-  if (counter == 0) {
-    check();
-    prev_target = null;
-  }
-};
+  };
+} catch (e) {}
 
 document.addEventListener("keydown", function(e) {
   if ((e.keyCode == 90 && e.ctrlKey) || (e.keyCode == 90 && e.metaKey)) {
@@ -1210,10 +1248,6 @@ function fill(e) {
 
 //shapes
 
-document.querySelector(".shapes-controller").addEventListener("click", function() {
-  document.querySelector(".dropdown-shapes-wrapper").classList.toggle("dropdown-shapes-wrapper-active");
-});
-
 // рисование прямоугольника
 
 function beginRect(e) {
@@ -1374,7 +1408,7 @@ function get_x(e) {
   return (e.pageX + wrapper.scrollLeft) * zoom - bias_left;
 }
 function get_y(e) {
-  return (e.pageY + wrapper.scrollTop - height_header) * zoom - bias_top;
+  return (e.pageY + wrapper.scrollTop - get_height(header)) * zoom - bias_top;
 }
 
 function get_left(elem) {
@@ -1415,8 +1449,15 @@ function get_zoom() {
 }
 
 function get_bias() {
-  bias_left = get_left(zoom_wrapper) * zoom;
-  bias_top = get_top(zoom_wrapper) * zoom;
+  bias_left = (get_left(zoom_wrapper) + get_left(wrapper)) * zoom;
+  bias_top = (get_top(zoom_wrapper) + get_top(wrapper)) * zoom;
+}
+
+function block(elem) {
+  elem.style.display = "block";
+}
+function none(elem) {
+  elem.style.display = "none";
 }
 
 //класс центрировки элемента
