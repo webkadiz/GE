@@ -250,16 +250,21 @@ class Tools_Component {
   create_menu_bar() {}
   create_footer_bar() {}
 }
-class Tools_Draw extends Tools_Component {
-  constructor({ wrapper }) {
-    console.log(arguments[0]);
-    super(arguments[0]);
-    super.create_dragn_panel();
+class Tools_Draw extends React.Component {
+  // constructor({ wrapper }) {
+  //   console.log(arguments[0]);
+  //   super(arguments[0]);
+  //   super.create_dragn_panel();
 
-    this.wrapper = wrapper;
-    console.log();
-  }
+  //   this.wrapper = wrapper;
+  //   console.log();
+  // }
+  // render () {
+  //   return React.createElement('h1' , null , 'hello world')
+
+  // }
 }
+// ReactDOM.render(<Tools_Draw/> , document.querySelector('.tools-wrapper'))
 
 class Init_Wrapper {
   constructor(canvas) {
