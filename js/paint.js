@@ -1,5 +1,11 @@
 "use strict";
 
+import { get_width, get_height } from "./settings_func";
+import Create_Element from "./class_create_element";
+
+import "style-loader!css-loader!../build/css/main.css";
+import "style-loader!css-loader!../build/css/animate.css";
+
 // переменные DOM-елементов
 let html = document.documentElement; // html
 let header = document.querySelector("header"); // вся шапка
@@ -121,7 +127,7 @@ let arr_settings = [
         .add_wrapper()
         .init_size(value.width, value.height);
 
-      wrapper.style.height = html.clientHeight - height_header + "px";
+      wrapper.style.height = html.clientHeight - get_height(header) + "px";
 
       new Centering_Element().all_elem(zoom_wrapper, wrapper, wrapper_left_tools, wrapper_top_tools);
 
@@ -225,46 +231,65 @@ let arr_class = [
 // блок объявления классов
 class Tools_Component {
   constructor({ wrapper }) {
-    console.log();
     this.wrapper = wrapper;
+    this.drag_panel;
+    this.drag_place;
   }
-  create_dragn_panel() {
-    let panel = document.createElement("div");
-    let close = document.createElement("div");
-    let arrow = document.createElement("div");
+  create_drag_panel(drag_panel_func) {
+    let { elem: panel } = new Create_Element({ tag_name: "div" }).add_classes("drag-panel");
 
-    close.innerHTML = "&times;";
-    arrow.innerHTML = "<img width=8 height=8 src='img/arrow-right.png' />";
-    close.classList.add("dragn-panel-close");
-    arrow.classList.add("dragn-panel-close");
+    let { elem: arrow } = new Create_Element({ tag_name: "div" }).add_classes("drag-panel-arrow", "drag-panel-item");
+
+    let { elem: close } = new Create_Element({ tag_name: "div" }).add_classes("drag-panel-close", "drag-panel-item");
+
+    arrow.innerHTML = "<img width=11 height=11 src='img/rewind.png' />";
 
     close.onclick = () => none(this.wrapper);
+
+    arrow.onclick = e => {
+      arrow.classList.toggle("drag-panel-arrow-active");
+      drag_panel_func();
+    };
 
     panel.appendChild(arrow);
     panel.appendChild(close);
 
-    panel.classList.add("dragn-panel");
+    this.drag_panel = panel;
 
-    this.wrapper.insertBefore(panel, this.wrapper.firstElementChild);
+    this.wrapper.prepend(panel);
+
+    return this;
+  }
+  create_drag_place() {
+    let { elem: place } = new Create_Element({ tag_name: "div" }).add_classes("drag-place");
+
+    place.innerHTML = '<img src="./img/drag.png" />';
+
+    drag(place, this.wrapper);
+
+    this.drag_panel.after(place);
+
+    this.drag_place = place;
   }
   create_menu_bar() {}
   create_footer_bar() {}
 }
-class Tools_Draw extends React.Component {
-  // constructor({ wrapper }) {
-  //   console.log(arguments[0]);
-  //   super(arguments[0]);
-  //   super.create_dragn_panel();
 
-  //   this.wrapper = wrapper;
-  //   console.log();
-  // }
-  // render () {
-  //   return React.createElement('h1' , null , 'hello world')
+class Tools_Draw extends Tools_Component {
+  constructor({ wrapper }) {
+    super({ wrapper: wrapper })
+      .create_drag_panel(switcher(this.drag_panel_func.bind(this), 2, 0.5))
+      .create_drag_place();
 
-  // }
+    this.wrapper.set_left(100);
+    this.wrapper.set_top(80);
+
+    console.log(this);
+  }
+  drag_panel_func(value) {
+    this.wrapper.style.width = get_width(this.wrapper) * value + "px";
+  }
 }
-// ReactDOM.render(<Tools_Draw/> , document.querySelector('.tools-wrapper'))
 
 class Init_Wrapper {
   constructor(canvas) {
@@ -390,9 +415,10 @@ class Init_Wrapper {
       get_size: get_width
     };
     //изменили ширину каждой координаты в зависимости от коэффициента
-    Array.prototype.forEach.call(arr_coords_x, item => {
+
+    for (let item of arr_coords_x) {
       item.style.width = get_width(item) * coefficient_x + "px";
-    });
+    }
 
     this.check_coords();
 
@@ -402,9 +428,9 @@ class Init_Wrapper {
       get_size: get_height
     };
 
-    Array.prototype.forEach.call(arr_coords_y, item => {
+    for (let item of arr_coords_y) {
       item.style.height = get_height(item) * coefficient_y + "px";
-    });
+    }
 
     this.check_coords();
   }
@@ -1394,6 +1420,7 @@ function draw_line(e) {
 }
 
 //создание нового canvas
+
 function create_canvas(x1, y1, ...value_class) {
   new_canvas = document.createElement("canvas");
   new_c = new_canvas.getContext("2d");
@@ -1423,30 +1450,6 @@ function get_top(elem) {
   return parseFloat(elem.style.top) || 0;
 }
 
-function get_width(elem) {
-  let width;
-  try {
-    if ((parseFloat(elem.style.width) || 0) > elem.clientWidth) {
-      width = parseFloat(elem.style.width) || 0;
-    } else {
-      width = elem.clientWidth;
-    }
-  } catch (e) {}
-  return width;
-}
-
-function get_height(elem) {
-  let height;
-  try {
-    if ((parseFloat(elem.style.height) || 0) > elem.clientHeight) {
-      height = parseFloat(elem.style.height) || 0;
-    } else {
-      height = elem.clientHeight;
-    }
-  } catch (e) {}
-  return height;
-}
-
 function get_zoom() {
   divide_width = canvas.width / html.clientWidth;
 
@@ -1463,6 +1466,45 @@ function block(elem) {
 }
 function none(elem) {
   elem.style.display = "none";
+}
+
+function switcher(f, value1, value2) {
+  let flag = true;
+  return function() {
+    if (flag) {
+      f(value1);
+      flag = false;
+    } else {
+      f(value2);
+      flag = true;
+    }
+  };
+}
+
+//реализация drag'n'drop
+function drag(target, wrapper) {
+  target.ondragstart = () => {
+    return false;
+  };
+
+  target.onmousedown = e => {
+    let x = e.pageX;
+    let y = e.pageY;
+    let begin_x = get_left(wrapper);
+    let begin_y = get_top(wrapper);
+
+    document.onmousemove = e => {
+      wrapper.style.left = begin_x + (e.pageX - x) + "px";
+      wrapper.style.top = begin_y + (e.pageY - y) + "px";
+    };
+  };
+
+  target.onmouseup = e => {
+    document.onmousemove = null;
+  };
+  document.onmouseup = () => {
+    document.onmousemove = null;
+  };
 }
 
 //класс центрировки элемента
@@ -1497,29 +1539,7 @@ let all_close_wrapper = document.querySelectorAll(".close-wrapper");
 let all_close = document.querySelectorAll(".close");
 
 all_close_wrapper.forEach(item => {
-  item.addEventListener("mousedown", e => {
-    let target = item.parentElement;
-    let x = e.pageX;
-    let y = e.pageY;
-    let begin_x = get_left(target);
-    let begin_y = get_top(target);
-
-    document.onmousemove = function(e) {
-      let new_x = e.pageX - x;
-      let new_y = e.pageY - y;
-
-      target.style.left = begin_x + new_x + "px";
-      target.style.top = begin_y + new_y + "px";
-    };
-
-    target.onmouseup = function() {
-      document.onmousemove = null;
-    };
-
-    document.onmouseup = function() {
-      document.onmousemove = null;
-    };
-  });
+  drag(item, item.parentElement);
 });
 
 all_close.forEach(item => {
