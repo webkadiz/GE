@@ -4,6 +4,19 @@ Object.prototype.set_left = function(size) {
 Object.prototype.set_top = function(size) {
   this.style.top = size + "px";
 };
+Object.prototype.set_width = function(size) {
+  this.style.width = size + "px";
+};
+Object.prototype.set_height = function(size) {
+  this.style.height = size + "px";
+};
+
+function visible(elem) {
+  elem.style.visibility = "visible"
+}
+function hidden(elem) {
+  elem.style.visibility = "hidden"
+}
 
 function get_width(elem) {
   let width;
@@ -29,4 +42,4 @@ function get_height(elem) {
   return height;
 }
 
-export { get_height, get_width };
+export { get_height, get_width , visible , hidden};

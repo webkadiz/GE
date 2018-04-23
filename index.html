@@ -48,47 +48,60 @@
 
 	</header>
 
-	<div class="tools-wrapper">
-		<div class="tool move-badge">
+
+	<div class="tool tools-wrapper">
+		<div class="tool-item move-badge">
 			<img src="img/move2.png" alt="" />
 		</div>
-		<div class="tool pencil-badge">
+		<div class="tool-item pencil-badge">
 			<img src="img/pencil7.png" alt="" />
 		</div>
-		<div class="tool text-badge">
+		<div class="tool-item text-badge">
 			<img src="img/text1.png" alt="" />
 		</div>
-		<div class="tool pouring-badge">
+		<div class="tool-item pouring-badge">
 			<img src="img/paint-bucket.png" alt="" />
 		</div>
-		<div class="tool rubber-badge">
+		<div class="tool-item rubber-badge">
 			<img src="img/eraser.png" alt="" />
 		</div>
-		<div class="tool square-badge">
+		<div class="tool-item square-badge">
 			<img src="img/cube.png" alt="" />
 		</div>
-		<div class="tool line-badge">
+		<div class="tool-item line-badge">
 			<img src="img/diagonal-line.png" alt="" />
 		</div>
 	</div>
 
-	
-	<!-- обертка в которую добавляются созданные canvas -->
-	<div class="wrapper">
-		<div class="coords-x-wrapper">
-			<div style="height: 20px ; width: 20px ;flex-shrink: 0"></div>
+
+
+	<div class="main-wrapper">
+
+		
+		<!-- обертка в которую добавляются созданные canvas -->
+		<div class="wrapper">
+			<div class="coords-x-wrapper">
+				<div style="height: 20px ; width: 20px ;flex-shrink: 0"></div>
+			</div>
+			<div class="coords-y-wrapper">
+				<div style="height: 20px ; width: 20px ; flex-shrink: 0"></div>
+			</div>
 		</div>
-		<div class="coords-y-wrapper">
-			<div style="height: 20px ; width: 20px ; flex-shrink: 0"></div>
-		</div>
+
+		<div class="casing casing-left"></div>
+		<div class="casing casing-right"></div>
+
 	</div>
 
+
 	<!-- шаблон для создания новых canvas -->
-	<div class="zoom-wrapper">
-		<div class="canvas-wrapper">
-			<canvas class="main-canvas"></canvas>
+
+		<div class="zoom-wrapper">
+			<div class="canvas-wrapper">
+				<canvas class="main-canvas"></canvas>
+			</div>
 		</div>
-	</div>
+
 
 
 

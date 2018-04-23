@@ -1,6 +1,6 @@
 "use strict";
 
-import { get_width, get_height } from "./settings_func";
+import { get_height, get_width, visible, hidden } from "./settings_func";
 import Create_Element from "./class_create_element";
 
 import "style-loader!css-loader!../build/css/main.css";
@@ -13,6 +13,10 @@ let title = document.querySelector(".title-canvas-wrapper");
 let menu_bar = document.querySelector(".options"); //самое верхнее меня с настройками
 let all_apply_button = document.querySelectorAll(".apply"); // все кнопки подтвердить
 let script = document.querySelector("script"); // последний script на странице
+
+let casing = document.querySelectorAll(".casing");
+
+let main_wrapper = document.querySelector(".main-wrapper");
 
 // переменные канваса
 let wrapper = document.querySelector(".wrapper"); //конечный wrapper
@@ -76,7 +80,7 @@ let arr_settings = [
 
       let value = new Init_Value(this.class_settings, this.class_value, this.value_name);
 
-      elem.style.display = "block";
+      block(elem);
       elem.classList.remove("zoomOut");
       elem.classList.add("zoomIn");
 
@@ -91,10 +95,10 @@ let arr_settings = [
     },
 
     service_func: function() {
-      title.style.display = "block";
-      wrapper.style.display = "block";
+      block(title);
+      visible(wrapper);
 
-      zoom_wrapper.style.display = "none";
+      none(zoom_wrapper);
 
       try {
         prev_title.classList.remove("active");
@@ -105,9 +109,8 @@ let arr_settings = [
       let value = new Init_Value(this.class_settings, this.class_value, this.value_name).init();
 
       // новый титл в шапке
-      let new_title = document.createElement("div");
-      new_title.classList.add("title-canvas");
-      new_title.classList.add("active");
+
+      let { elem: new_title } = new Create_Element({ tag_name: "div" }).add_classes("title-canvas", "active");
 
       new_title.setAttribute("data-canvas-name", value.name);
       new_title.innerHTML = value.name + "<span>&times;</span>";
@@ -127,7 +130,7 @@ let arr_settings = [
         .add_wrapper()
         .init_size(value.width, value.height);
 
-      wrapper.style.height = html.clientHeight - get_height(header) + "px";
+      main_wrapper.set_height(html.clientHeight - get_height(header));
 
       new Centering_Element().all_elem(zoom_wrapper, wrapper, wrapper_left_tools, wrapper_top_tools);
 
@@ -152,7 +155,7 @@ let arr_settings = [
       value.width.value = canvas.width;
       value.height.value = canvas.height;
 
-      elem.style.display = "block";
+      block(elem);
       elem.classList.remove("zoomOut");
       elem.classList.add("zoomIn");
 
@@ -265,7 +268,11 @@ class Tools_Component {
 
     place.innerHTML = '<img src="./img/drag.png" />';
 
-    drag(place, this.wrapper);
+    drag(place, this.wrapper, () => {
+      if (this.wrapper.classList.contains("tool-active")) {
+        this.wrapper.classList.remove("tool-active");
+      }
+    });
 
     this.drag_panel.after(place);
 
@@ -322,7 +329,7 @@ class Init_Wrapper {
 
     wrapper_coords.classList.add("coords-y");
 
-    this.canvas.coords_y = wrapper_coords; //приклепляем к канвасу div-координат-y
+    actual_canvas.coords_y = wrapper_coords; //приклепляем к канвасу div-координат-y
 
     this.init_value = { elem: wrapper_coords };
 
@@ -336,7 +343,7 @@ class Init_Wrapper {
 
     wrapper_coords.classList.add("coords-x");
 
-    this.canvas.coords_x = wrapper_coords; //приклепляем к канвасу div-координат-x
+    actual_canvas.coords_x = wrapper_coords; //приклепляем к канвасу div-координат-x
 
     this.init_value = { elem: wrapper_coords };
 
@@ -559,30 +566,30 @@ class Init_Wrapper {
 
   check() {
     if (get_left(zoom_wrapper) < wrapper_left_tools && get_top(zoom_wrapper) < wrapper_top_tools) {
-      wrapper_coords_x.style.width = zoom_wrapper.clientWidth + wrapper_add_size + "px";
+      wrapper_coords_x.set_width(zoom_wrapper.clientWidth + wrapper_add_size);
 
-      wrapper_coords_y.style.height = zoom_wrapper.clientHeight + wrapper_add_size + "px";
+      wrapper_coords_y.set_height(zoom_wrapper.clientHeight + wrapper_add_size);
 
       new Centering_Element().const_center(zoom_wrapper, wrapper_add_size / 2, wrapper_add_size / 2);
     } else if (get_left(zoom_wrapper) < wrapper_left_tools) {
-      wrapper_coords_x.style.width = zoom_wrapper.clientWidth + wrapper_add_size + "px";
+      wrapper_coords_x.set_width(zoom_wrapper.clientWidth + wrapper_add_size);
 
       if (get_top(zoom_wrapper) > wrapper_top_tools) {
-        wrapper_coords_y.style.width = wrapper.clientHeight + "px";
+        wrapper_coords_y.set_height(wrapper.clientHeight);
       }
 
       new Centering_Element().top(zoom_wrapper, wrapper_add_size / 2, wrapper, wrapper_top_tools);
     } else if (get_top(zoom_wrapper) < wrapper_top_tools) {
-      wrapper_coords_y.style.height = zoom_wrapper.clientHeight + wrapper_add_size + "px";
+      wrapper_coords_y.set_height(zoom_wrapper.clientHeight + wrapper_add_size);
 
       if (get_left(zoom_wrapper) > wrapper_left_tools) {
-        wrapper_coords_x.style.width = wrapper.clientWidth + "px";
+        wrapper_coords_x.set_width(wrapper.clientWidth);
       }
 
       new Centering_Element().left(zoom_wrapper, wrapper_add_size / 2, wrapper, wrapper_left_tools);
     } else {
-      wrapper_coords_x.style.width = wrapper.clientWidth + "px";
-      wrapper_coords_y.style.height = wrapper.clientHeight + "px";
+      wrapper_coords_x.set_width(wrapper.clientWidth);
+      wrapper_coords_y.set_height(wrapper.clientHeight);
     }
 
     return this;
@@ -647,8 +654,8 @@ class Init_Canvas {
     return this;
   }
   init_size(width, height) {
-    this.canvas_wrapper.style.width = (parseFloat(width || 0) || 0) + "px";
-    this.canvas_wrapper.style.height = (parseFloat(height || 0) || 0) + "px";
+    this.canvas_wrapper.set_width(parseFloat(width || 0));
+    this.canvas_wrapper.set_height(parseFloat(height || 0));
 
     this.canvas.width = width;
     this.canvas.height = height;
@@ -700,11 +707,40 @@ let tools = new Tools_Draw({
 });
 
 // просто задаем стили в HTML
-menu_bar.style.height = height_menu_bar + "px";
 
-title.style.height = height_title_file + "px";
+menu_bar.set_height(height_menu_bar);
+
+title.set_height(height_title_file);
 
 canvas_wrapper.style.zoom = 1;
+
+for (let item of casing) {
+  item.onmouseover = e => {
+    let related;
+    try {
+      related = e.relatedTarget.closest(".tool");
+      console.log(e.relatedTarget);
+    } catch (e) {}
+
+    if (related) {
+      item.onmouseup = e => {
+        related.classList.add("tool-active");
+
+        if (item.classList.contains("casing-left")) {
+          main_wrapper.prepend(related);
+          related.set_left(0);
+          related.set_top(0);
+        }
+
+        if (item.classList.contains("casing-right")) {
+          main_wrapper.append(related);
+          related.set_left(related.getBoundingClientRect().left);
+          related.set_top(0);
+        }
+      };
+    }
+  };
+}
 
 // обработчик на каждую кнопку подтвердить с соответствующей функцией из массива arr_settings
 all_apply_button.forEach(item => {
@@ -1444,10 +1480,22 @@ function get_y(e) {
 }
 
 function get_left(elem) {
-  return parseFloat(elem.style.left) || 0;
+  try {
+    let left = parseFloat(elem.style.left);
+    if (!left) {
+      left = elem.offsetLeft;
+    }
+    return left;
+  } catch (e) {}
 }
 function get_top(elem) {
-  return parseFloat(elem.style.top) || 0;
+  try {
+    let top = parseFloat(elem.style.top);
+    if (!top) {
+      top = elem.offsetTop;
+    }
+    return top;
+  } catch (e) {}
 }
 
 function get_zoom() {
@@ -1468,6 +1516,16 @@ function none(elem) {
   elem.style.display = "none";
 }
 
+function once(f, ...args) {
+  let counter = 0;
+  return function() {
+    if (!counter) {
+      f(...args);
+      counter++;
+    }
+  };
+}
+
 function switcher(f, value1, value2) {
   let flag = true;
   return function() {
@@ -1482,7 +1540,7 @@ function switcher(f, value1, value2) {
 }
 
 //реализация drag'n'drop
-function drag(target, wrapper) {
+function drag(target, wrapper, f_down = () => {}, f_move = () => {}, f_up = () => {}) {
   target.ondragstart = () => {
     return false;
   };
@@ -1493,17 +1551,25 @@ function drag(target, wrapper) {
     let begin_x = get_left(wrapper);
     let begin_y = get_top(wrapper);
 
+    f_down();
+
     document.onmousemove = e => {
       wrapper.style.left = begin_x + (e.pageX - x) + "px";
       wrapper.style.top = begin_y + (e.pageY - y) + "px";
+
+      f_move();
     };
   };
 
   target.onmouseup = e => {
     document.onmousemove = null;
+
+    f_up();
   };
   document.onmouseup = () => {
     document.onmousemove = null;
+
+    f_up();
   };
 }
 

@@ -11,12 +11,16 @@ $menu_tools_color: #424242
 $coords_color: #474747
 $bg_tools: #2F4F4F
 
+$very_very_high: 100000
 $very_high: 10000	
 $high: 1000
 $middle: 100
 $low: 10
 
 
+.tool-active
+	height: 100% !important
+	position: static !important
 
 *
 	box-sizing: border-box
@@ -26,6 +30,7 @@ html
 	overflow: hidden
 	box-sizing: border-box
 	font-size: 14px
+	user-select: none
 
 body
 	background: $canvas_color
@@ -74,7 +79,7 @@ header
 				margin-left: 20px
 		&-dropdown
 			border: 1px solid black
-			z-index: $high
+			z-index: $very_very_high
 			display: none	
 			position: absolute
 			left: 0
@@ -175,6 +180,7 @@ header
 		transform: rotate(0deg)	
 
 .drag-place
+	cursor: move
 	width: 100%
 	height: 25px
 	display: flex
@@ -190,95 +196,115 @@ header
 	display: flex
 	flex-wrap: wrap
 	justify-content: center
+	align-content: flex-start
 	width: 40px
 	left: 100px
 	top: 100px
 	border-radius: 5px
 	transition: width .4s
-	div.tool	
+	div.tool-item	
 		padding: 5px
 		width: 34px
-		height: 100%
+		height: 34px
 		display: flex
 		align-items: center
 		justify-content: center
 		cursor: pointer
-	div.tool:hover
+	div.tool-item:hover
 		background: #777	
 
 
 	//обертка canvas
-.wrapper
-	display: none
-	z-index: $low
+.main-wrapper
 	position: relative
-	overflow: scroll
-	.coords-x-wrapper
-		font-size: .7rem
-		line-height: 30px
-		display: flex
-		color: white
-		position: absolute
-		left: 0
-		top: 0
-		z-index: $middle
-		height: 20px
+	display: flex
+	height: 100%
+	.wrapper
 		width: 100%
-		background: $coords_color
-		color: #ccc
-		.coords-x
-			width: calc(100% - 20px)
-			display: flex
-			div
-				flex-shrink: 0
-				height: 20px
-				text-indent: 2px
-				box-sizing: border-box
-				border-left: 1px solid #888
-	.coords-y-wrapper
-		@extend .coords-x-wrapper
-		line-height: inherit
-		position: absolute
-		z-index: $middle - 10
-		flex-direction: column
-		left: 0
-		top: 0
 		height: 100%
-		width: 20px	
-		.coords-y
-			div
-				flex-shrink: 0
-				white-space: pre-wrap
-				text-align: center
-				box-sizing: border-box
-				border-top: 1px solid #888
-				width: 20px
-
-
-.zoom-wrapper
-	left: 0
-	top: 0
-	position: relative
-	display: none
-	
-	.canvas-wrapper.rubber-canvas-active	
-		// cursor: url(../img/rubber-cursor.cur) , pointer	 						
-	.canvas-wrapper
-		zoom: 1
-		background: #fff
-		display: block
-		textarea
+		position: relative
+		overflow: scroll
+		visibility: hidden
+		.zoom-wrapper
+			left: 0
+			top: 0
+			position: relative
+			display: none	
+			.canvas-wrapper.rubber-canvas-active	
+				// cursor: url(../img/rubber-cursor.cur) , pointer	 						
+			.canvas-wrapper
+				zoom: 1
+				background: #fff
+				display: block
+				textarea
+					position: absolute
+					font-size: 22px
+					font-weight: 400
+					border: 1px dashed black
+					&:focus
+						outline: none
+				.main-canvas
+					display: block	
+				.canvas
+					display: block
+					position: absolute	 	
+		.coords-x-wrapper
+			font-size: .7rem
+			line-height: 30px
+			display: flex
+			color: white
 			position: absolute
-			font-size: 22px
-			font-weight: 400
-			border: 1px dashed black
-			&:focus
-				outline: none
-		.main-canvas
-			display: block	
-		.canvas
-			display: block
-			position: absolute	 	
+			left: 0
+			top: 0
+			z-index: $low
+			height: 20px
+			width: 100%
+			background: $coords_color
+			color: #ccc
+			.coords-x
+				width: calc(100% - 20px)
+				display: flex
+				div
+					flex-shrink: 0
+					height: 20px
+					text-indent: 2px
+					box-sizing: border-box
+					border-left: 1px solid #888
+		.coords-y-wrapper
+			@extend .coords-x-wrapper
+			line-height: inherit
+			position: absolute
+			z-index: $low - 10
+			flex-direction: column
+			left: 0
+			top: 0
+			height: 100%
+			width: 20px	
+			.coords-y
+				div
+					flex-shrink: 0
+					white-space: pre-wrap
+					text-align: center
+					box-sizing: border-box
+					border-top: 1px solid #888
+					width: 20px
+	.casing
+		z-index: $very_high
+		position: absolute
+		&-left
+			left: 0
+			top: 0
+			width: 10px
+			height: 100%
+			background: rgba(0,0,0,.35)
+		&-right
+			right: 0
+			top: 0
+			width: 10px
+			height: 100%	
+			background: rgba(0,0,0,.35)
+
+
 
 
 .close-wrapper

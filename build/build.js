@@ -181,6 +181,10 @@ var menu_bar = document.querySelector(".options"); //самое верхнее �
 var all_apply_button = document.querySelectorAll(".apply"); // все кнопки подтвердить
 var script = document.querySelector("script"); // последний script на странице
 
+var casing = document.querySelectorAll(".casing");
+
+var main_wrapper = document.querySelector(".main-wrapper");
+
 // переменные канваса
 var wrapper = document.querySelector(".wrapper"); //конечный wrapper
 var wrapper_coords_x = document.querySelector(".coords-x-wrapper");
@@ -242,7 +246,7 @@ var arr_settings = [{
 
     var value = new Init_Value(this.class_settings, this.class_value, this.value_name);
 
-    elem.style.display = "block";
+    block(elem);
     elem.classList.remove("zoomOut");
     elem.classList.add("zoomIn");
 
@@ -257,10 +261,10 @@ var arr_settings = [{
   },
 
   service_func: function service_func() {
-    title.style.display = "block";
-    wrapper.style.display = "block";
+    block(title);
+    (0, _settings_func.visible)(wrapper);
 
-    zoom_wrapper.style.display = "none";
+    none(zoom_wrapper);
 
     try {
       prev_title.classList.remove("active");
@@ -271,9 +275,9 @@ var arr_settings = [{
     var value = new Init_Value(this.class_settings, this.class_value, this.value_name).init();
 
     // новый титл в шапке
-    var new_title = document.createElement("div");
-    new_title.classList.add("title-canvas");
-    new_title.classList.add("active");
+
+    var _add_classes = new _class_create_element2.default({ tag_name: "div" }).add_classes("title-canvas", "active"),
+        new_title = _add_classes.elem;
 
     new_title.setAttribute("data-canvas-name", value.name);
     new_title.innerHTML = value.name + "<span>&times;</span>";
@@ -289,7 +293,7 @@ var arr_settings = [{
 
     new_main_canvas = new Init_Canvas(new_main_canvas, new_title).init().block().add_wrapper().init_size(value.width, value.height);
 
-    wrapper.style.height = html.clientHeight - (0, _settings_func.get_height)(header) + "px";
+    main_wrapper.set_height(html.clientHeight - (0, _settings_func.get_height)(header));
 
     new Centering_Element().all_elem(zoom_wrapper, wrapper, wrapper_left_tools, wrapper_top_tools);
 
@@ -313,7 +317,7 @@ var arr_settings = [{
     value.width.value = canvas.width;
     value.height.value = canvas.height;
 
-    elem.style.display = "block";
+    block(elem);
     elem.classList.remove("zoomOut");
     elem.classList.add("zoomIn");
 
@@ -398,14 +402,14 @@ var Tools_Component = function () {
     value: function create_drag_panel(drag_panel_func) {
       var _this = this;
 
-      var _add_classes = new _class_create_element2.default({ tag_name: "div" }).add_classes("drag-panel"),
-          panel = _add_classes.elem;
+      var _add_classes2 = new _class_create_element2.default({ tag_name: "div" }).add_classes("drag-panel"),
+          panel = _add_classes2.elem;
 
-      var _add_classes2 = new _class_create_element2.default({ tag_name: "div" }).add_classes("drag-panel-arrow", "drag-panel-item"),
-          arrow = _add_classes2.elem;
+      var _add_classes3 = new _class_create_element2.default({ tag_name: "div" }).add_classes("drag-panel-arrow", "drag-panel-item"),
+          arrow = _add_classes3.elem;
 
-      var _add_classes3 = new _class_create_element2.default({ tag_name: "div" }).add_classes("drag-panel-close", "drag-panel-item"),
-          close = _add_classes3.elem;
+      var _add_classes4 = new _class_create_element2.default({ tag_name: "div" }).add_classes("drag-panel-close", "drag-panel-item"),
+          close = _add_classes4.elem;
 
       arrow.innerHTML = "<img width=11 height=11 src='img/rewind.png' />";
 
@@ -430,12 +434,18 @@ var Tools_Component = function () {
   }, {
     key: "create_drag_place",
     value: function create_drag_place() {
-      var _add_classes4 = new _class_create_element2.default({ tag_name: "div" }).add_classes("drag-place"),
-          place = _add_classes4.elem;
+      var _this2 = this;
+
+      var _add_classes5 = new _class_create_element2.default({ tag_name: "div" }).add_classes("drag-place"),
+          place = _add_classes5.elem;
 
       place.innerHTML = '<img src="./img/drag.png" />';
 
-      drag(place, this.wrapper);
+      drag(place, this.wrapper, function () {
+        if (_this2.wrapper.classList.contains("tool-active")) {
+          _this2.wrapper.classList.remove("tool-active");
+        }
+      });
 
       this.drag_panel.after(place);
 
@@ -456,19 +466,19 @@ var Tools_Draw = function (_Tools_Component) {
   _inherits(Tools_Draw, _Tools_Component);
 
   function Tools_Draw(_ref2) {
-    var _this2;
+    var _this3;
 
     var wrapper = _ref2.wrapper;
 
     _classCallCheck(this, Tools_Draw);
 
-    (_this2 = _possibleConstructorReturn(this, (Tools_Draw.__proto__ || Object.getPrototypeOf(Tools_Draw)).call(this, { wrapper: wrapper })), _this2).create_drag_panel(switcher(_this2.drag_panel_func.bind(_this2), 2, 0.5)).create_drag_place();
+    (_this3 = _possibleConstructorReturn(this, (Tools_Draw.__proto__ || Object.getPrototypeOf(Tools_Draw)).call(this, { wrapper: wrapper })), _this3).create_drag_panel(switcher(_this3.drag_panel_func.bind(_this3), 2, 0.5)).create_drag_place();
 
-    _this2.wrapper.set_left(100);
-    _this2.wrapper.set_top(80);
+    _this3.wrapper.set_left(100);
+    _this3.wrapper.set_top(80);
 
-    console.log(_this2);
-    return _this2;
+    console.log(_this3);
+    return _this3;
   }
 
   _createClass(Tools_Draw, [{
@@ -506,7 +516,7 @@ var Init_Wrapper = function () {
 
       wrapper_coords.classList.add("coords-y");
 
-      this.canvas.coords_y = wrapper_coords; //приклепляем к канвасу div-координат-y
+      actual_canvas.coords_y = wrapper_coords; //приклепляем к канвасу div-координат-y
 
       this.init_value = { elem: wrapper_coords };
 
@@ -520,7 +530,7 @@ var Init_Wrapper = function () {
 
       wrapper_coords.classList.add("coords-x");
 
-      this.canvas.coords_x = wrapper_coords; //приклепляем к канвасу div-координат-x
+      actual_canvas.coords_x = wrapper_coords; //приклепляем к канвасу div-координат-x
 
       this.init_value = { elem: wrapper_coords };
 
@@ -790,30 +800,30 @@ var Init_Wrapper = function () {
     key: "check",
     value: function check() {
       if (get_left(zoom_wrapper) < wrapper_left_tools && get_top(zoom_wrapper) < wrapper_top_tools) {
-        wrapper_coords_x.style.width = zoom_wrapper.clientWidth + wrapper_add_size + "px";
+        wrapper_coords_x.set_width(zoom_wrapper.clientWidth + wrapper_add_size);
 
-        wrapper_coords_y.style.height = zoom_wrapper.clientHeight + wrapper_add_size + "px";
+        wrapper_coords_y.set_height(zoom_wrapper.clientHeight + wrapper_add_size);
 
         new Centering_Element().const_center(zoom_wrapper, wrapper_add_size / 2, wrapper_add_size / 2);
       } else if (get_left(zoom_wrapper) < wrapper_left_tools) {
-        wrapper_coords_x.style.width = zoom_wrapper.clientWidth + wrapper_add_size + "px";
+        wrapper_coords_x.set_width(zoom_wrapper.clientWidth + wrapper_add_size);
 
         if (get_top(zoom_wrapper) > wrapper_top_tools) {
-          wrapper_coords_y.style.width = wrapper.clientHeight + "px";
+          wrapper_coords_y.set_height(wrapper.clientHeight);
         }
 
         new Centering_Element().top(zoom_wrapper, wrapper_add_size / 2, wrapper, wrapper_top_tools);
       } else if (get_top(zoom_wrapper) < wrapper_top_tools) {
-        wrapper_coords_y.style.height = zoom_wrapper.clientHeight + wrapper_add_size + "px";
+        wrapper_coords_y.set_height(zoom_wrapper.clientHeight + wrapper_add_size);
 
         if (get_left(zoom_wrapper) > wrapper_left_tools) {
-          wrapper_coords_x.style.width = wrapper.clientWidth + "px";
+          wrapper_coords_x.set_width(wrapper.clientWidth);
         }
 
         new Centering_Element().left(zoom_wrapper, wrapper_add_size / 2, wrapper, wrapper_left_tools);
       } else {
-        wrapper_coords_x.style.width = wrapper.clientWidth + "px";
-        wrapper_coords_y.style.height = wrapper.clientHeight + "px";
+        wrapper_coords_x.set_width(wrapper.clientWidth);
+        wrapper_coords_y.set_height(wrapper.clientHeight);
       }
 
       return this;
@@ -837,7 +847,7 @@ var Init_Wrapper = function () {
 
 var Init_Value = function () {
   function Init_Value(class_settings, selector_value, name_value) {
-    var _this3 = this;
+    var _this4 = this;
 
     _classCallCheck(this, Init_Value);
 
@@ -846,7 +856,7 @@ var Init_Value = function () {
     this.name_value = name_value;
 
     this.name_value.forEach(function (item, i) {
-      _this3[item] = _this3.value[i];
+      _this4[item] = _this4.value[i];
     });
 
     return this;
@@ -855,10 +865,10 @@ var Init_Value = function () {
   _createClass(Init_Value, [{
     key: "init",
     value: function init() {
-      var _this4 = this;
+      var _this5 = this;
 
       this.name_value.forEach(function (item, i) {
-        _this4[item] = _this4.value[i].value;
+        _this5[item] = _this5.value[i].value;
       });
       return this;
     }
@@ -910,8 +920,8 @@ var Init_Canvas = function () {
   }, {
     key: "init_size",
     value: function init_size(width, height) {
-      this.canvas_wrapper.style.width = (parseFloat(width || 0) || 0) + "px";
-      this.canvas_wrapper.style.height = (parseFloat(height || 0) || 0) + "px";
+      this.canvas_wrapper.set_width(parseFloat(width || 0));
+      this.canvas_wrapper.set_height(parseFloat(height || 0));
 
       this.canvas.width = width;
       this.canvas.height = height;
@@ -978,13 +988,68 @@ var tools = new Tools_Draw({
 });
 
 // просто задаем стили в HTML
-menu_bar.style.height = height_menu_bar + "px";
 
-title.style.height = height_title_file + "px";
+menu_bar.set_height(height_menu_bar);
+
+title.set_height(height_title_file);
 
 canvas_wrapper.style.zoom = 1;
 
-// обработчик на каждую кнопку подтвердить с соответствующей функцией из массива arr_settings
+var _iteratorNormalCompletion3 = true;
+var _didIteratorError3 = false;
+var _iteratorError3 = undefined;
+
+try {
+  var _loop2 = function _loop2() {
+    var item = _step3.value;
+
+    item.onmouseover = function (e) {
+      var related = void 0;
+      try {
+        related = e.relatedTarget.closest(".tool");
+        console.log(e.relatedTarget);
+      } catch (e) {}
+
+      if (related) {
+        item.onmouseup = function (e) {
+          related.classList.add("tool-active");
+
+          if (item.classList.contains("casing-left")) {
+            main_wrapper.prepend(related);
+            related.set_left(0);
+            related.set_top(0);
+          }
+
+          if (item.classList.contains("casing-right")) {
+            main_wrapper.append(related);
+            related.set_left(related.getBoundingClientRect().left);
+            related.set_top(0);
+          }
+        };
+      }
+    };
+  };
+
+  for (var _iterator3 = casing[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+    _loop2();
+  }
+
+  // обработчик на каждую кнопку подтвердить с соответствующей функцией из массива arr_settings
+} catch (err) {
+  _didIteratorError3 = true;
+  _iteratorError3 = err;
+} finally {
+  try {
+    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+      _iterator3.return();
+    }
+  } finally {
+    if (_didIteratorError3) {
+      throw _iteratorError3;
+    }
+  }
+}
+
 all_apply_button.forEach(function (item) {
   item.addEventListener("click", function (e) {
     var target = item.parentElement;
@@ -1723,10 +1788,22 @@ function get_y(e) {
 }
 
 function get_left(elem) {
-  return parseFloat(elem.style.left) || 0;
+  try {
+    var left = parseFloat(elem.style.left);
+    if (!left) {
+      left = elem.offsetLeft;
+    }
+    return left;
+  } catch (e) {}
 }
 function get_top(elem) {
-  return parseFloat(elem.style.top) || 0;
+  try {
+    var top = parseFloat(elem.style.top);
+    if (!top) {
+      top = elem.offsetTop;
+    }
+    return top;
+  } catch (e) {}
 }
 
 function get_zoom() {
@@ -1747,6 +1824,20 @@ function none(elem) {
   elem.style.display = "none";
 }
 
+function once(f) {
+  for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+    args[_key2 - 1] = arguments[_key2];
+  }
+
+  var counter = 0;
+  return function () {
+    if (!counter) {
+      f.apply(undefined, args);
+      counter++;
+    }
+  };
+}
+
 function switcher(f, value1, value2) {
   var flag = true;
   return function () {
@@ -1762,6 +1853,10 @@ function switcher(f, value1, value2) {
 
 //реализация drag'n'drop
 function drag(target, wrapper) {
+  var f_down = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {};
+  var f_move = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {};
+  var f_up = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : function () {};
+
   target.ondragstart = function () {
     return false;
   };
@@ -1772,17 +1867,25 @@ function drag(target, wrapper) {
     var begin_x = get_left(wrapper);
     var begin_y = get_top(wrapper);
 
+    f_down();
+
     document.onmousemove = function (e) {
       wrapper.style.left = begin_x + (e.pageX - x) + "px";
       wrapper.style.top = begin_y + (e.pageY - y) + "px";
+
+      f_move();
     };
   };
 
   target.onmouseup = function (e) {
     document.onmousemove = null;
+
+    f_up();
   };
   document.onmouseup = function () {
     document.onmousemove = null;
+
+    f_up();
   };
 }
 
@@ -1864,6 +1967,19 @@ Object.prototype.set_left = function (size) {
 Object.prototype.set_top = function (size) {
   this.style.top = size + "px";
 };
+Object.prototype.set_width = function (size) {
+  this.style.width = size + "px";
+};
+Object.prototype.set_height = function (size) {
+  this.style.height = size + "px";
+};
+
+function visible(elem) {
+  elem.style.visibility = "visible";
+}
+function hidden(elem) {
+  elem.style.visibility = "hidden";
+}
 
 function get_width(elem) {
   var width = void 0;
@@ -1891,6 +2007,8 @@ function get_height(elem) {
 
 exports.get_height = get_height;
 exports.get_width = get_width;
+exports.visible = visible;
+exports.hidden = hidden;
 
 /***/ }),
 
@@ -1925,7 +2043,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "* {\n  box-sizing: border-box; }\n\nhtml {\n  height: 100%;\n  overflow: hidden;\n  box-sizing: border-box;\n  font-size: 14px; }\n\nbody {\n  background: #282828;\n  box-sizing: border-box;\n  font-family: sans-serif;\n  font-size: 1rem;\n  height: 100%;\n  margin: 0;\n  z-index: -1000;\n  position: relative; }\n\nul {\n  margin: 0;\n  padding: 0;\n  list-style: none; }\n\nheader {\n  margin: 0;\n  background: #535353;\n  z-index: 100; }\n  header .options ul {\n    height: 100%;\n    background: #535353;\n    border-bottom: 1px solid MINTCREAM;\n    display: flex; }\n    header .options ul li {\n      color: white;\n      position: relative; }\n      header .options ul li div {\n        height: 100%; }\n      header .options ul li:hover .options-dropdown {\n        display: block; }\n      header .options ul li:hover .options-badge {\n        color: black;\n        cursor: pointer;\n        background: MINTCREAM; }\n        header .options ul li:hover .options-badge svg {\n          transform: rotate(180deg); }\n    header .options ul li:first-child {\n      margin-left: 20px; }\n  header .options-dropdown {\n    border: 1px solid black;\n    z-index: 1000;\n    display: none;\n    position: absolute;\n    left: 0;\n    top: 100%;\n    background: #eee; }\n    header .options-dropdown a {\n      font-size: .9rem;\n      white-space: pre;\n      color: #285473;\n      text-decoration: none;\n      background: #eee;\n      padding: 8px 8px;\n      display: block; }\n      header .options-dropdown a:hover {\n        background: #e1e5eb; }\n  header .options-badge {\n    padding: 0px 10px;\n    transition: .3s;\n    display: flex;\n    align-items: center; }\n    header .options-badge svg {\n      margin-left: 5px;\n      transition: .2s transform; }\n\nheader .title-canvas-wrapper {\n  font-size: 1.2rem;\n  line-height: 25px;\n  display: none;\n  background: #424242;\n  border-bottom: 1px solid MINTCREAM;\n  padding-left: 20px; }\n  header .title-canvas-wrapper .title-canvas, header .title-canvas-wrapper .title-canvas.active {\n    height: 100%;\n    padding: 0px 5px 0px 10px;\n    transition: .3s;\n    color: white;\n    display: inline-block;\n    cursor: pointer; }\n    header .title-canvas-wrapper .title-canvas span, header .title-canvas-wrapper .title-canvas.active span {\n      color: rgba(255, 255, 255, 0.6);\n      margin-left: 5px; }\n    header .title-canvas-wrapper .title-canvas:hover {\n      background: MINTCREAM;\n      color: black; }\n      header .title-canvas-wrapper .title-canvas:hover span {\n        color: rgba(0, 0, 0, 0.6); }\n\nheader .title-canvas-wrapper .active.title-canvas {\n  background: MINTCREAM;\n  color: black; }\n  header .title-canvas-wrapper .active.title-canvas span {\n    color: rgba(0, 0, 0, 0.6); }\n\n.drag-panel {\n  border-radius: 5px 5px 0 0;\n  width: 100%;\n  height: 17px;\n  line-height: 15px;\n  background: #535353;\n  display: flex;\n  justify-content: flex-end;\n  border-bottom: 1px solid MINTCREAM; }\n  .drag-panel-item {\n    transition: .4s;\n    width: 18px;\n    height: 100%;\n    padding: 0px 3px;\n    cursor: pointer; }\n    .drag-panel-item:hover {\n      border-left: 1px solid MINTCREAM;\n      border-right: 1px solid MINTCREAM; }\n  .drag-panel-close {\n    position: relative; }\n    .drag-panel-close::before, .drag-panel-close::after {\n      position: absolute;\n      top: 50%;\n      left: 50%;\n      content: '';\n      width: 11px;\n      height: 2px;\n      background: MINTCREAM;\n      transform: translate(-50%, -50%) rotate(45deg); }\n    .drag-panel-close::after {\n      transform: translate(-50%, -50%) rotate(-45deg); }\n  .drag-panel-arrow {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    transform: rotate(180deg); }\n  .drag-panel-arrow-active {\n    transform: rotate(0deg); }\n\n.drag-place {\n  width: 100%;\n  height: 25px;\n  display: flex;\n  justify-content: center;\n  align-items: center; }\n\n.tools-wrapper {\n  box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.2), 0 9px 46px 8px rgba(0, 0, 0, 0.2), 0 11px 15px -7px rgba(0, 0, 0, 0.1);\n  position: absolute;\n  z-index: 1000;\n  background: #535353;\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  width: 40px;\n  left: 100px;\n  top: 100px;\n  border-radius: 5px;\n  transition: width .4s; }\n  .tools-wrapper div.tool {\n    padding: 5px;\n    width: 34px;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    cursor: pointer; }\n  .tools-wrapper div.tool:hover {\n    background: #777; }\n\n.wrapper {\n  display: none;\n  z-index: 10;\n  position: relative;\n  overflow: scroll; }\n  .wrapper .coords-x-wrapper, .wrapper .coords-y-wrapper {\n    font-size: .7rem;\n    line-height: 30px;\n    display: flex;\n    color: white;\n    position: absolute;\n    left: 0;\n    top: 0;\n    z-index: 100;\n    height: 20px;\n    width: 100%;\n    background: #474747;\n    color: #ccc; }\n    .wrapper .coords-x-wrapper .coords-x, .wrapper .coords-y-wrapper .coords-x {\n      width: calc(100% - 20px);\n      display: flex; }\n      .wrapper .coords-x-wrapper .coords-x div, .wrapper .coords-y-wrapper .coords-x div {\n        flex-shrink: 0;\n        height: 20px;\n        text-indent: 2px;\n        box-sizing: border-box;\n        border-left: 1px solid #888; }\n  .wrapper .coords-y-wrapper {\n    line-height: inherit;\n    position: absolute;\n    z-index: 90;\n    flex-direction: column;\n    left: 0;\n    top: 0;\n    height: 100%;\n    width: 20px; }\n    .wrapper .coords-y-wrapper .coords-y div {\n      flex-shrink: 0;\n      white-space: pre-wrap;\n      text-align: center;\n      box-sizing: border-box;\n      border-top: 1px solid #888;\n      width: 20px; }\n\n.zoom-wrapper {\n  left: 0;\n  top: 0;\n  position: relative;\n  display: none; }\n  .zoom-wrapper .canvas-wrapper {\n    zoom: 1;\n    background: #fff;\n    display: block; }\n    .zoom-wrapper .canvas-wrapper textarea {\n      position: absolute;\n      font-size: 22px;\n      font-weight: 400;\n      border: 1px dashed black; }\n      .zoom-wrapper .canvas-wrapper textarea:focus {\n        outline: none; }\n    .zoom-wrapper .canvas-wrapper .main-canvas {\n      display: block; }\n    .zoom-wrapper .canvas-wrapper .canvas {\n      display: block;\n      position: absolute; }\n\n.close-wrapper {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 0;\n  height: 35px;\n  background: #fff; }\n  .close-wrapper .close {\n    transition: .3s;\n    position: absolute;\n    padding: 0;\n    background: transparent;\n    border: none;\n    right: 0;\n    top: 0;\n    margin: auto;\n    bottom: 0;\n    width: 35px;\n    height: 35px; }\n    .close-wrapper .close:focus {\n      outline: none; }\n    .close-wrapper .close:hover {\n      background: CRIMSON;\n      cursor: pointer; }\n      .close-wrapper .close:hover::before, .close-wrapper .close:hover::after {\n        background: white; }\n    .close-wrapper .close::before, .close-wrapper .close::after {\n      transition: .3s;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n      content: '';\n      display: block;\n      width: 75%;\n      height: 2px;\n      background: #34495E;\n      transform: translate(-50%, -50%) rotate(45deg); }\n    .close-wrapper .close::after {\n      transform: translate(-50%, -50%) rotate(-45deg); }\n\n.apply {\n  position: absolute;\n  right: 40px;\n  bottom: 25px;\n  height: 35px;\n  transition: .3s;\n  font-size: 22px;\n  padding: 5px;\n  border: none;\n  border-radius: 3px;\n  color: white;\n  background: #535353; }\n  .apply:active {\n    transform: scale(0.95); }\n  .apply:focus {\n    outline: none; }\n  .apply:hover {\n    background: #3a3a3a;\n    cursor: pointer; }\n\n.settings-window-size, .settings-new-file {\n  z-index: 10000;\n  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);\n  border: 1px solid blue;\n  font-size: 25px;\n  border-radius: 3px;\n  display: none;\n  background: #282828;\n  position: fixed;\n  padding: 75px 40px; }\n  .settings-window-size .input-wrapper, .settings-new-file .input-wrapper {\n    display: flex;\n    margin-bottom: 15px;\n    justify-content: space-between; }\n    .settings-window-size .input-wrapper input, .settings-new-file .input-wrapper input {\n      display: block;\n      padding: 5px;\n      border-radius: 3px;\n      border: none; }\n      .settings-window-size .input-wrapper input:focus, .settings-new-file .input-wrapper input:focus {\n        outline: none; }\n    .settings-window-size .input-wrapper label, .settings-new-file .input-wrapper label {\n      margin-right: 10px;\n      display: block;\n      color: white; }", ""]);
+exports.push([module.i, ".tool-active {\n  height: 100% !important;\n  position: static !important; }\n\n* {\n  box-sizing: border-box; }\n\nhtml {\n  height: 100%;\n  overflow: hidden;\n  box-sizing: border-box;\n  font-size: 14px;\n  user-select: none; }\n\nbody {\n  background: #282828;\n  box-sizing: border-box;\n  font-family: sans-serif;\n  font-size: 1rem;\n  height: 100%;\n  margin: 0;\n  z-index: -1000;\n  position: relative; }\n\nul {\n  margin: 0;\n  padding: 0;\n  list-style: none; }\n\nheader {\n  margin: 0;\n  background: #535353;\n  z-index: 100; }\n  header .options ul {\n    height: 100%;\n    background: #535353;\n    border-bottom: 1px solid MINTCREAM;\n    display: flex; }\n    header .options ul li {\n      color: white;\n      position: relative; }\n      header .options ul li div {\n        height: 100%; }\n      header .options ul li:hover .options-dropdown {\n        display: block; }\n      header .options ul li:hover .options-badge {\n        color: black;\n        cursor: pointer;\n        background: MINTCREAM; }\n        header .options ul li:hover .options-badge svg {\n          transform: rotate(180deg); }\n    header .options ul li:first-child {\n      margin-left: 20px; }\n  header .options-dropdown {\n    border: 1px solid black;\n    z-index: 100000;\n    display: none;\n    position: absolute;\n    left: 0;\n    top: 100%;\n    background: #eee; }\n    header .options-dropdown a {\n      font-size: .9rem;\n      white-space: pre;\n      color: #285473;\n      text-decoration: none;\n      background: #eee;\n      padding: 8px 8px;\n      display: block; }\n      header .options-dropdown a:hover {\n        background: #e1e5eb; }\n  header .options-badge {\n    padding: 0px 10px;\n    transition: .3s;\n    display: flex;\n    align-items: center; }\n    header .options-badge svg {\n      margin-left: 5px;\n      transition: .2s transform; }\n\nheader .title-canvas-wrapper {\n  font-size: 1.2rem;\n  line-height: 25px;\n  display: none;\n  background: #424242;\n  border-bottom: 1px solid MINTCREAM;\n  padding-left: 20px; }\n  header .title-canvas-wrapper .title-canvas, header .title-canvas-wrapper .title-canvas.active {\n    height: 100%;\n    padding: 0px 5px 0px 10px;\n    transition: .3s;\n    color: white;\n    display: inline-block;\n    cursor: pointer; }\n    header .title-canvas-wrapper .title-canvas span, header .title-canvas-wrapper .title-canvas.active span {\n      color: rgba(255, 255, 255, 0.6);\n      margin-left: 5px; }\n    header .title-canvas-wrapper .title-canvas:hover {\n      background: MINTCREAM;\n      color: black; }\n      header .title-canvas-wrapper .title-canvas:hover span {\n        color: rgba(0, 0, 0, 0.6); }\n\nheader .title-canvas-wrapper .active.title-canvas {\n  background: MINTCREAM;\n  color: black; }\n  header .title-canvas-wrapper .active.title-canvas span {\n    color: rgba(0, 0, 0, 0.6); }\n\n.drag-panel {\n  border-radius: 5px 5px 0 0;\n  width: 100%;\n  height: 17px;\n  line-height: 15px;\n  background: #535353;\n  display: flex;\n  justify-content: flex-end;\n  border-bottom: 1px solid MINTCREAM; }\n  .drag-panel-item {\n    transition: .4s;\n    width: 18px;\n    height: 100%;\n    padding: 0px 3px;\n    cursor: pointer; }\n    .drag-panel-item:hover {\n      border-left: 1px solid MINTCREAM;\n      border-right: 1px solid MINTCREAM; }\n  .drag-panel-close {\n    position: relative; }\n    .drag-panel-close::before, .drag-panel-close::after {\n      position: absolute;\n      top: 50%;\n      left: 50%;\n      content: '';\n      width: 11px;\n      height: 2px;\n      background: MINTCREAM;\n      transform: translate(-50%, -50%) rotate(45deg); }\n    .drag-panel-close::after {\n      transform: translate(-50%, -50%) rotate(-45deg); }\n  .drag-panel-arrow {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    transform: rotate(180deg); }\n  .drag-panel-arrow-active {\n    transform: rotate(0deg); }\n\n.drag-place {\n  cursor: move;\n  width: 100%;\n  height: 25px;\n  display: flex;\n  justify-content: center;\n  align-items: center; }\n\n.tools-wrapper {\n  box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.2), 0 9px 46px 8px rgba(0, 0, 0, 0.2), 0 11px 15px -7px rgba(0, 0, 0, 0.1);\n  position: absolute;\n  z-index: 1000;\n  background: #535353;\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  align-content: flex-start;\n  width: 40px;\n  left: 100px;\n  top: 100px;\n  border-radius: 5px;\n  transition: width .4s; }\n  .tools-wrapper div.tool-item {\n    padding: 5px;\n    width: 34px;\n    height: 34px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    cursor: pointer; }\n  .tools-wrapper div.tool-item:hover {\n    background: #777; }\n\n.main-wrapper {\n  position: relative;\n  display: flex;\n  height: 100%; }\n  .main-wrapper .wrapper {\n    width: 100%;\n    height: 100%;\n    position: relative;\n    overflow: scroll;\n    visibility: hidden; }\n    .main-wrapper .wrapper .zoom-wrapper {\n      left: 0;\n      top: 0;\n      position: relative;\n      display: none; }\n      .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper {\n        zoom: 1;\n        background: #fff;\n        display: block; }\n        .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper textarea {\n          position: absolute;\n          font-size: 22px;\n          font-weight: 400;\n          border: 1px dashed black; }\n          .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper textarea:focus {\n            outline: none; }\n        .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper .main-canvas {\n          display: block; }\n        .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper .canvas {\n          display: block;\n          position: absolute; }\n    .main-wrapper .wrapper .coords-x-wrapper, .main-wrapper .wrapper .coords-y-wrapper {\n      font-size: .7rem;\n      line-height: 30px;\n      display: flex;\n      color: white;\n      position: absolute;\n      left: 0;\n      top: 0;\n      z-index: 10;\n      height: 20px;\n      width: 100%;\n      background: #474747;\n      color: #ccc; }\n      .main-wrapper .wrapper .coords-x-wrapper .coords-x, .main-wrapper .wrapper .coords-y-wrapper .coords-x {\n        width: calc(100% - 20px);\n        display: flex; }\n        .main-wrapper .wrapper .coords-x-wrapper .coords-x div, .main-wrapper .wrapper .coords-y-wrapper .coords-x div {\n          flex-shrink: 0;\n          height: 20px;\n          text-indent: 2px;\n          box-sizing: border-box;\n          border-left: 1px solid #888; }\n    .main-wrapper .wrapper .coords-y-wrapper {\n      line-height: inherit;\n      position: absolute;\n      z-index: 0;\n      flex-direction: column;\n      left: 0;\n      top: 0;\n      height: 100%;\n      width: 20px; }\n      .main-wrapper .wrapper .coords-y-wrapper .coords-y div {\n        flex-shrink: 0;\n        white-space: pre-wrap;\n        text-align: center;\n        box-sizing: border-box;\n        border-top: 1px solid #888;\n        width: 20px; }\n  .main-wrapper .casing {\n    z-index: 10000;\n    position: absolute; }\n    .main-wrapper .casing-left {\n      left: 0;\n      top: 0;\n      width: 10px;\n      height: 100%;\n      background: rgba(0, 0, 0, 0.35); }\n    .main-wrapper .casing-right {\n      right: 0;\n      top: 0;\n      width: 10px;\n      height: 100%;\n      background: rgba(0, 0, 0, 0.35); }\n\n.close-wrapper {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 0;\n  height: 35px;\n  background: #fff; }\n  .close-wrapper .close {\n    transition: .3s;\n    position: absolute;\n    padding: 0;\n    background: transparent;\n    border: none;\n    right: 0;\n    top: 0;\n    margin: auto;\n    bottom: 0;\n    width: 35px;\n    height: 35px; }\n    .close-wrapper .close:focus {\n      outline: none; }\n    .close-wrapper .close:hover {\n      background: CRIMSON;\n      cursor: pointer; }\n      .close-wrapper .close:hover::before, .close-wrapper .close:hover::after {\n        background: white; }\n    .close-wrapper .close::before, .close-wrapper .close::after {\n      transition: .3s;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n      content: '';\n      display: block;\n      width: 75%;\n      height: 2px;\n      background: #34495E;\n      transform: translate(-50%, -50%) rotate(45deg); }\n    .close-wrapper .close::after {\n      transform: translate(-50%, -50%) rotate(-45deg); }\n\n.apply {\n  position: absolute;\n  right: 40px;\n  bottom: 25px;\n  height: 35px;\n  transition: .3s;\n  font-size: 22px;\n  padding: 5px;\n  border: none;\n  border-radius: 3px;\n  color: white;\n  background: #535353; }\n  .apply:active {\n    transform: scale(0.95); }\n  .apply:focus {\n    outline: none; }\n  .apply:hover {\n    background: #3a3a3a;\n    cursor: pointer; }\n\n.settings-window-size, .settings-new-file {\n  z-index: 10000;\n  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);\n  border: 1px solid blue;\n  font-size: 25px;\n  border-radius: 3px;\n  display: none;\n  background: #282828;\n  position: fixed;\n  padding: 75px 40px; }\n  .settings-window-size .input-wrapper, .settings-new-file .input-wrapper {\n    display: flex;\n    margin-bottom: 15px;\n    justify-content: space-between; }\n    .settings-window-size .input-wrapper input, .settings-new-file .input-wrapper input {\n      display: block;\n      padding: 5px;\n      border-radius: 3px;\n      border: none; }\n      .settings-window-size .input-wrapper input:focus, .settings-new-file .input-wrapper input:focus {\n        outline: none; }\n    .settings-window-size .input-wrapper label, .settings-new-file .input-wrapper label {\n      margin-right: 10px;\n      display: block;\n      color: white; }", ""]);
 
 // exports
 

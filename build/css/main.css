@@ -1,3 +1,7 @@
+.tool-active {
+  height: 100% !important;
+  position: static !important; }
+
 * {
   box-sizing: border-box; }
 
@@ -5,7 +9,8 @@ html {
   height: 100%;
   overflow: hidden;
   box-sizing: border-box;
-  font-size: 14px; }
+  font-size: 14px;
+  user-select: none; }
 
 body {
   background: #282828;
@@ -48,7 +53,7 @@ header {
       margin-left: 20px; }
   header .options-dropdown {
     border: 1px solid black;
-    z-index: 1000;
+    z-index: 100000;
     display: none;
     position: absolute;
     left: 0;
@@ -142,6 +147,7 @@ header .title-canvas-wrapper .active.title-canvas {
     transform: rotate(0deg); }
 
 .drag-place {
+  cursor: move;
   width: 100%;
   height: 25px;
   display: flex;
@@ -156,87 +162,107 @@ header .title-canvas-wrapper .active.title-canvas {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-content: flex-start;
   width: 40px;
   left: 100px;
   top: 100px;
   border-radius: 5px;
   transition: width .4s; }
-  .tools-wrapper div.tool {
+  .tools-wrapper div.tool-item {
     padding: 5px;
     width: 34px;
-    height: 100%;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer; }
-  .tools-wrapper div.tool:hover {
+  .tools-wrapper div.tool-item:hover {
     background: #777; }
 
-.wrapper {
-  display: none;
-  z-index: 10;
+.main-wrapper {
   position: relative;
-  overflow: scroll; }
-  .wrapper .coords-x-wrapper, .wrapper .coords-y-wrapper {
-    font-size: .7rem;
-    line-height: 30px;
-    display: flex;
-    color: white;
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 100;
-    height: 20px;
+  display: flex;
+  height: 100%; }
+  .main-wrapper .wrapper {
     width: 100%;
-    background: #474747;
-    color: #ccc; }
-    .wrapper .coords-x-wrapper .coords-x, .wrapper .coords-y-wrapper .coords-x {
-      width: calc(100% - 20px);
-      display: flex; }
-      .wrapper .coords-x-wrapper .coords-x div, .wrapper .coords-y-wrapper .coords-x div {
-        flex-shrink: 0;
-        height: 20px;
-        text-indent: 2px;
-        box-sizing: border-box;
-        border-left: 1px solid #888; }
-  .wrapper .coords-y-wrapper {
-    line-height: inherit;
-    position: absolute;
-    z-index: 90;
-    flex-direction: column;
-    left: 0;
-    top: 0;
     height: 100%;
-    width: 20px; }
-    .wrapper .coords-y-wrapper .coords-y div {
-      flex-shrink: 0;
-      white-space: pre-wrap;
-      text-align: center;
-      box-sizing: border-box;
-      border-top: 1px solid #888;
-      width: 20px; }
-
-.zoom-wrapper {
-  left: 0;
-  top: 0;
-  position: relative;
-  display: none; }
-  .zoom-wrapper .canvas-wrapper {
-    zoom: 1;
-    background: #fff;
-    display: block; }
-    .zoom-wrapper .canvas-wrapper textarea {
+    position: relative;
+    overflow: scroll;
+    visibility: hidden; }
+    .main-wrapper .wrapper .zoom-wrapper {
+      left: 0;
+      top: 0;
+      position: relative;
+      display: none; }
+      .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper {
+        zoom: 1;
+        background: #fff;
+        display: block; }
+        .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper textarea {
+          position: absolute;
+          font-size: 22px;
+          font-weight: 400;
+          border: 1px dashed black; }
+          .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper textarea:focus {
+            outline: none; }
+        .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper .main-canvas {
+          display: block; }
+        .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper .canvas {
+          display: block;
+          position: absolute; }
+    .main-wrapper .wrapper .coords-x-wrapper, .main-wrapper .wrapper .coords-y-wrapper {
+      font-size: .7rem;
+      line-height: 30px;
+      display: flex;
+      color: white;
       position: absolute;
-      font-size: 22px;
-      font-weight: 400;
-      border: 1px dashed black; }
-      .zoom-wrapper .canvas-wrapper textarea:focus {
-        outline: none; }
-    .zoom-wrapper .canvas-wrapper .main-canvas {
-      display: block; }
-    .zoom-wrapper .canvas-wrapper .canvas {
-      display: block;
-      position: absolute; }
+      left: 0;
+      top: 0;
+      z-index: 10;
+      height: 20px;
+      width: 100%;
+      background: #474747;
+      color: #ccc; }
+      .main-wrapper .wrapper .coords-x-wrapper .coords-x, .main-wrapper .wrapper .coords-y-wrapper .coords-x {
+        width: calc(100% - 20px);
+        display: flex; }
+        .main-wrapper .wrapper .coords-x-wrapper .coords-x div, .main-wrapper .wrapper .coords-y-wrapper .coords-x div {
+          flex-shrink: 0;
+          height: 20px;
+          text-indent: 2px;
+          box-sizing: border-box;
+          border-left: 1px solid #888; }
+    .main-wrapper .wrapper .coords-y-wrapper {
+      line-height: inherit;
+      position: absolute;
+      z-index: 0;
+      flex-direction: column;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 20px; }
+      .main-wrapper .wrapper .coords-y-wrapper .coords-y div {
+        flex-shrink: 0;
+        white-space: pre-wrap;
+        text-align: center;
+        box-sizing: border-box;
+        border-top: 1px solid #888;
+        width: 20px; }
+  .main-wrapper .casing {
+    z-index: 10000;
+    position: absolute; }
+    .main-wrapper .casing-left {
+      left: 0;
+      top: 0;
+      width: 10px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.35); }
+    .main-wrapper .casing-right {
+      right: 0;
+      top: 0;
+      width: 10px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.35); }
 
 .close-wrapper {
   position: absolute;
