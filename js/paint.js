@@ -1,7 +1,8 @@
 "use strict";
 
-import { get_height, get_width, visible, hidden } from "./settings_func";
+import { get_height, get_width, visible, hidden } from "./addition_function";
 import Create_Element from "./class_create_element";
+import Casing from "./class_casing";
 
 import "style-loader!css-loader!../build/css/main.css";
 import "style-loader!css-loader!../build/css/animate.css";
@@ -14,7 +15,7 @@ let menu_bar = document.querySelector(".options"); //самое верхнее �
 let all_apply_button = document.querySelectorAll(".apply"); // все кнопки подтвердить
 let script = document.querySelector("script"); // последний script на странице
 
-let casing = document.querySelectorAll(".casing");
+let casing = new Casing().none().event();
 
 let main_wrapper = document.querySelector(".main-wrapper");
 
@@ -268,11 +269,20 @@ class Tools_Component {
 
     place.innerHTML = '<img src="./img/drag.png" />';
 
-    drag(place, this.wrapper, () => {
-      if (this.wrapper.classList.contains("tool-active")) {
-        this.wrapper.classList.remove("tool-active");
+    drag(
+      place,
+      this.wrapper,
+      () => {
+        if (this.wrapper.classList.contains("tool-active")) {
+          this.wrapper.classList.remove("tool-active");
+        }
+        casing.block();
+      },
+      () => {},
+      () => {
+        casing.none();
       }
-    });
+    );
 
     this.drag_panel.after(place);
 
@@ -290,8 +300,6 @@ class Tools_Draw extends Tools_Component {
 
     this.wrapper.set_left(100);
     this.wrapper.set_top(80);
-
-    console.log(this);
   }
   drag_panel_func(value) {
     this.wrapper.style.width = get_width(this.wrapper) * value + "px";
@@ -713,34 +721,6 @@ menu_bar.set_height(height_menu_bar);
 title.set_height(height_title_file);
 
 canvas_wrapper.style.zoom = 1;
-
-for (let item of casing) {
-  item.onmouseover = e => {
-    let related;
-    try {
-      related = e.relatedTarget.closest(".tool");
-      console.log(e.relatedTarget);
-    } catch (e) {}
-
-    if (related) {
-      item.onmouseup = e => {
-        related.classList.add("tool-active");
-
-        if (item.classList.contains("casing-left")) {
-          main_wrapper.prepend(related);
-          related.set_left(0);
-          related.set_top(0);
-        }
-
-        if (item.classList.contains("casing-right")) {
-          main_wrapper.append(related);
-          related.set_left(related.getBoundingClientRect().left);
-          related.set_top(0);
-        }
-      };
-    }
-  };
-}
 
 // обработчик на каждую кнопку подтвердить с соответствующей функцией из массива arr_settings
 all_apply_button.forEach(item => {
@@ -1561,12 +1541,11 @@ function drag(target, wrapper, f_down = () => {}, f_move = () => {}, f_up = () =
     };
   };
 
-  target.onmouseup = e => {
+  document.onmouseup = e => {
     document.onmousemove = null;
-
-    f_up();
   };
-  document.onmouseup = () => {
+
+  target.onmouseup = e => {
     document.onmousemove = null;
 
     f_up();

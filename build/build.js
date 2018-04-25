@@ -71,6 +71,231 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./js/addition_function.js":
+/*!*********************************!*\
+  !*** ./js/addition_function.js ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+Object.prototype.set_left = function (size) {
+  this.style.left = size + "px";
+};
+Object.prototype.set_top = function (size) {
+  this.style.top = size + "px";
+};
+Object.prototype.set_width = function (size) {
+  this.style.width = size + "px";
+};
+Object.prototype.set_height = function (size) {
+  this.style.height = size + "px";
+};
+
+function visible(elem) {
+  elem.style.visibility = "visible";
+}
+function hidden(elem) {
+  elem.style.visibility = "hidden";
+}
+
+function get_width(elem) {
+  var width = void 0;
+  try {
+    if ((parseFloat(elem.style.width) || 0) > elem.clientWidth) {
+      width = parseFloat(elem.style.width) || 0;
+    } else {
+      width = elem.clientWidth;
+    }
+  } catch (e) {}
+  return width;
+}
+
+function get_height(elem) {
+  var height = void 0;
+  try {
+    if ((parseFloat(elem.style.height) || 0) > elem.clientHeight) {
+      height = parseFloat(elem.style.height) || 0;
+    } else {
+      height = elem.clientHeight;
+    }
+  } catch (e) {}
+  return height;
+}
+
+exports.get_height = get_height;
+exports.get_width = get_width;
+exports.visible = visible;
+exports.hidden = hidden;
+
+/***/ }),
+
+/***/ "./js/class_casing.js":
+/*!****************************!*\
+  !*** ./js/class_casing.js ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Casing = function () {
+  function Casing() {
+    _classCallCheck(this, Casing);
+
+    this.cases = document.querySelectorAll(".casing");
+  }
+
+  _createClass(Casing, [{
+    key: "block",
+    value: function block() {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.cases[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var item = _step.value;
+
+          item.style.display = "block";
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return this;
+    }
+  }, {
+    key: "none",
+    value: function none() {
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = this.cases[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var item = _step2.value;
+
+          item.style.display = "none";
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+
+      return this;
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      this.cases = document.querySelectorAll(".casing");
+    }
+  }, {
+    key: "event",
+    value: function event() {
+      var _this = this;
+
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
+
+      try {
+        var _loop = function _loop() {
+          var item = _step3.value;
+
+          item.onmouseover = function (e) {
+            var related = void 0;
+            try {
+              related = e.relatedTarget.closest(".tool");
+              console.log(e.relatedTarget);
+            } catch (e) {}
+
+            if (related) {
+              item.onmouseup = function (e) {
+                related.classList.add("tool-active");
+
+                if (item.classList.contains("casing-left")) {
+                  window.main_wrapper.prepend(related);
+                  related.set_left(0);
+                  related.set_top(0);
+                }
+
+                if (item.classList.contains("casing-right")) {
+                  window.main_wrapper.append(related);
+                  related.set_left(related.getBoundingClientRect().left);
+                  related.set_top(0);
+                }
+                _this.none();
+              };
+            }
+          };
+        };
+
+        for (var _iterator3 = this.cases[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          _loop();
+        }
+      } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+            _iterator3.return();
+          }
+        } finally {
+          if (_didIteratorError3) {
+            throw _iteratorError3;
+          }
+        }
+      }
+
+      return this;
+    }
+  }]);
+
+  return Casing;
+}();
+
+exports.default = Casing;
+
+/***/ }),
+
 /***/ "./js/class_create_element.js":
 /*!************************************!*\
   !*** ./js/class_create_element.js ***!
@@ -155,11 +380,15 @@ exports.default = Create_Element;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _settings_func = __webpack_require__(/*! ./settings_func */ "./js/settings_func.js");
+var _addition_function = __webpack_require__(/*! ./addition_function */ "./js/addition_function.js");
 
 var _class_create_element = __webpack_require__(/*! ./class_create_element */ "./js/class_create_element.js");
 
 var _class_create_element2 = _interopRequireDefault(_class_create_element);
+
+var _class_casing = __webpack_require__(/*! ./class_casing */ "./js/class_casing.js");
+
+var _class_casing2 = _interopRequireDefault(_class_casing);
 
 __webpack_require__(/*! style-loader!css-loader!../build/css/main.css */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./build/css/main.css");
 
@@ -181,7 +410,7 @@ var menu_bar = document.querySelector(".options"); //самое верхнее �
 var all_apply_button = document.querySelectorAll(".apply"); // все кнопки подтвердить
 var script = document.querySelector("script"); // последний script на странице
 
-var casing = document.querySelectorAll(".casing");
+var casing = new _class_casing2.default().none().event();
 
 var main_wrapper = document.querySelector(".main-wrapper");
 
@@ -262,7 +491,7 @@ var arr_settings = [{
 
   service_func: function service_func() {
     block(title);
-    (0, _settings_func.visible)(wrapper);
+    (0, _addition_function.visible)(wrapper);
 
     none(zoom_wrapper);
 
@@ -293,7 +522,7 @@ var arr_settings = [{
 
     new_main_canvas = new Init_Canvas(new_main_canvas, new_title).init().block().add_wrapper().init_size(value.width, value.height);
 
-    main_wrapper.set_height(html.clientHeight - (0, _settings_func.get_height)(header));
+    main_wrapper.set_height(html.clientHeight - (0, _addition_function.get_height)(header));
 
     new Centering_Element().all_elem(zoom_wrapper, wrapper, wrapper_left_tools, wrapper_top_tools);
 
@@ -445,6 +674,9 @@ var Tools_Component = function () {
         if (_this2.wrapper.classList.contains("tool-active")) {
           _this2.wrapper.classList.remove("tool-active");
         }
+        casing.block();
+      }, function () {}, function () {
+        casing.none();
       });
 
       this.drag_panel.after(place);
@@ -476,15 +708,13 @@ var Tools_Draw = function (_Tools_Component) {
 
     _this3.wrapper.set_left(100);
     _this3.wrapper.set_top(80);
-
-    console.log(_this3);
     return _this3;
   }
 
   _createClass(Tools_Draw, [{
     key: "drag_panel_func",
     value: function drag_panel_func(value) {
-      this.wrapper.style.width = (0, _settings_func.get_width)(this.wrapper) * value + "px";
+      this.wrapper.style.width = (0, _addition_function.get_width)(this.wrapper) * value + "px";
     }
   }]);
 
@@ -609,7 +839,7 @@ var Init_Wrapper = function () {
       this.init_value = {
         elem: actual_canvas.coords_x,
         decision: "width",
-        get_size: _settings_func.get_width
+        get_size: _addition_function.get_width
       };
       //изменили ширину каждой координаты в зависимости от коэффициента
 
@@ -621,7 +851,7 @@ var Init_Wrapper = function () {
         for (var _iterator = arr_coords_x[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var item = _step.value;
 
-          item.style.width = (0, _settings_func.get_width)(item) * coefficient_x + "px";
+          item.style.width = (0, _addition_function.get_width)(item) * coefficient_x + "px";
         }
       } catch (err) {
         _didIteratorError = true;
@@ -643,7 +873,7 @@ var Init_Wrapper = function () {
       this.init_value = {
         elem: actual_canvas.coords_y,
         decision: "height",
-        get_size: _settings_func.get_height
+        get_size: _addition_function.get_height
       };
 
       var _iteratorNormalCompletion2 = true;
@@ -654,7 +884,7 @@ var Init_Wrapper = function () {
         for (var _iterator2 = arr_coords_y[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
           var _item = _step2.value;
 
-          _item.style.height = (0, _settings_func.get_height)(_item) * coefficient_y + "px";
+          _item.style.height = (0, _addition_function.get_height)(_item) * coefficient_y + "px";
         }
       } catch (err) {
         _didIteratorError2 = true;
@@ -693,9 +923,9 @@ var Init_Wrapper = function () {
         this.check_positive(difference_width_begin, this.first);
 
         if (this.decision == "width") {
-          difference_width_end = wrapper.scrollWidth - (0, _settings_func.get_width)(wrapper_coords_x);
+          difference_width_end = wrapper.scrollWidth - (0, _addition_function.get_width)(wrapper_coords_x);
         } else if (this.decision == "height") {
-          difference_width_end = wrapper.scrollHeight - (0, _settings_func.get_height)(wrapper_coords_y);
+          difference_width_end = wrapper.scrollHeight - (0, _addition_function.get_height)(wrapper_coords_y);
         }
 
         //check end
@@ -995,61 +1225,7 @@ title.set_height(height_title_file);
 
 canvas_wrapper.style.zoom = 1;
 
-var _iteratorNormalCompletion3 = true;
-var _didIteratorError3 = false;
-var _iteratorError3 = undefined;
-
-try {
-  var _loop2 = function _loop2() {
-    var item = _step3.value;
-
-    item.onmouseover = function (e) {
-      var related = void 0;
-      try {
-        related = e.relatedTarget.closest(".tool");
-        console.log(e.relatedTarget);
-      } catch (e) {}
-
-      if (related) {
-        item.onmouseup = function (e) {
-          related.classList.add("tool-active");
-
-          if (item.classList.contains("casing-left")) {
-            main_wrapper.prepend(related);
-            related.set_left(0);
-            related.set_top(0);
-          }
-
-          if (item.classList.contains("casing-right")) {
-            main_wrapper.append(related);
-            related.set_left(related.getBoundingClientRect().left);
-            related.set_top(0);
-          }
-        };
-      }
-    };
-  };
-
-  for (var _iterator3 = casing[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-    _loop2();
-  }
-
-  // обработчик на каждую кнопку подтвердить с соответствующей функцией из массива arr_settings
-} catch (err) {
-  _didIteratorError3 = true;
-  _iteratorError3 = err;
-} finally {
-  try {
-    if (!_iteratorNormalCompletion3 && _iterator3.return) {
-      _iterator3.return();
-    }
-  } finally {
-    if (_didIteratorError3) {
-      throw _iteratorError3;
-    }
-  }
-}
-
+// обработчик на каждую кнопку подтвердить с соответствующей функцией из массива arr_settings
 all_apply_button.forEach(function (item) {
   item.addEventListener("click", function (e) {
     var target = item.parentElement;
@@ -1180,8 +1356,8 @@ document.addEventListener("keydown", function (e) {
 
   // увеличение масштаба
   if (e.keyCode == 187 && e.ctrlKey && e.altKey) {
-    actual_canvas.prev_zoom_wrapper_width = (0, _settings_func.get_width)(zoom_wrapper);
-    actual_canvas.prev_zoom_wrapper_height = (0, _settings_func.get_height)(zoom_wrapper);
+    actual_canvas.prev_zoom_wrapper_width = (0, _addition_function.get_width)(zoom_wrapper);
+    actual_canvas.prev_zoom_wrapper_height = (0, _addition_function.get_height)(zoom_wrapper);
 
     canvas_wrapper.style.zoom = parseFloat(canvas_wrapper.style.zoom) + 0.05;
 
@@ -1194,8 +1370,8 @@ document.addEventListener("keydown", function (e) {
   }
   // уменьшение масштаба
   if (e.keyCode == 189 && e.ctrlKey && e.altKey) {
-    actual_canvas.prev_zoom_wrapper_width = (0, _settings_func.get_width)(zoom_wrapper);
-    actual_canvas.prev_zoom_wrapper_height = (0, _settings_func.get_height)(zoom_wrapper);
+    actual_canvas.prev_zoom_wrapper_width = (0, _addition_function.get_width)(zoom_wrapper);
+    actual_canvas.prev_zoom_wrapper_height = (0, _addition_function.get_height)(zoom_wrapper);
 
     canvas_wrapper.style.zoom = parseFloat(canvas_wrapper.style.zoom) - 0.05;
 
@@ -1784,7 +1960,7 @@ function get_x(e) {
   return (e.pageX + wrapper.scrollLeft) * zoom - bias_left;
 }
 function get_y(e) {
-  return (e.pageY + wrapper.scrollTop - (0, _settings_func.get_height)(header)) * zoom - bias_top;
+  return (e.pageY + wrapper.scrollTop - (0, _addition_function.get_height)(header)) * zoom - bias_top;
 }
 
 function get_left(elem) {
@@ -1877,12 +2053,11 @@ function drag(target, wrapper) {
     };
   };
 
-  target.onmouseup = function (e) {
+  document.onmouseup = function (e) {
     document.onmousemove = null;
-
-    f_up();
   };
-  document.onmouseup = function () {
+
+  target.onmouseup = function (e) {
     document.onmousemove = null;
 
     f_up();
@@ -1945,70 +2120,6 @@ all_close.forEach(function (item) {
     }, 500);
   });
 });
-
-/***/ }),
-
-/***/ "./js/settings_func.js":
-/*!*****************************!*\
-  !*** ./js/settings_func.js ***!
-  \*****************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.prototype.set_left = function (size) {
-  this.style.left = size + "px";
-};
-Object.prototype.set_top = function (size) {
-  this.style.top = size + "px";
-};
-Object.prototype.set_width = function (size) {
-  this.style.width = size + "px";
-};
-Object.prototype.set_height = function (size) {
-  this.style.height = size + "px";
-};
-
-function visible(elem) {
-  elem.style.visibility = "visible";
-}
-function hidden(elem) {
-  elem.style.visibility = "hidden";
-}
-
-function get_width(elem) {
-  var width = void 0;
-  try {
-    if ((parseFloat(elem.style.width) || 0) > elem.clientWidth) {
-      width = parseFloat(elem.style.width) || 0;
-    } else {
-      width = elem.clientWidth;
-    }
-  } catch (e) {}
-  return width;
-}
-
-function get_height(elem) {
-  var height = void 0;
-  try {
-    if ((parseFloat(elem.style.height) || 0) > elem.clientHeight) {
-      height = parseFloat(elem.style.height) || 0;
-    } else {
-      height = elem.clientHeight;
-    }
-  } catch (e) {}
-  return height;
-}
-
-exports.get_height = get_height;
-exports.get_width = get_width;
-exports.visible = visible;
-exports.hidden = hidden;
 
 /***/ }),
 
