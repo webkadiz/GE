@@ -13,80 +13,89 @@
 
 	<header>
 		<!-- самая верхняя менюшка с инструментами -->
-		<nav class="options">
+		<nav class="header-options">
 			<ul>
 				<li>
-					<div class="options-badge">
+					<div class="header-options-badge">
 						файл
 						<i class="fas fa-angle-up"></i>
 					</div>
-					<div class="options-dropdown">
-						<a href="" class="options-new-file">новый файл</a>
+					<div class="header-options-dropdown">
+						<div class="header-options-new-file">новый файл</div>
+						<div  class="header-options-save-file">сохранить</div>
 					</div>
 				</li>
 				<li>
-					<div class="options-badge">
+					<div class="header-options-badge">
 						окно
 						<i class="fas fa-angle-up"></i>
 					</div>
-					<div class="options-dropdown">
-						<a href="" class="options-window-size">размеры холста</a>
+					<div class="header-options-dropdown">
+						<div class="header-options-window-size">размеры холста</div>
 					</div>
 				</li>
 				<li>
-					<div class="options-badge">
+					<div class="header-options-badge">
 						вид
 						<i class="fas fa-angle-up"></i>
 					</div>
-					<div class="options-dropdown"></div>
+					<div class="header-options-dropdown"></div>
 				</li>
 			</ul>
 		</nav>
 		
-		<!-- менюшка в которой отображаются все созданные canvas -->
-		<nav class="title-canvas-wrapper"></nav>
-
 	</header>
 
 
-	<div class="tool tools-wrapper">
-		<div class="tool-item move-badge">
-			<img src="img/move2.png" alt="" />
-		</div>
-		<div class="tool-item pencil-badge">
-			<img src="img/pencil7.png" alt="" />
-		</div>
-		<div class="tool-item text-badge">
-			<img src="img/text1.png" alt="" />
-		</div>
-		<div class="tool-item pouring-badge">
-			<img src="img/paint-bucket.png" alt="" />
-		</div>
-		<div class="tool-item rubber-badge">
-			<img src="img/eraser.png" alt="" />
-		</div>
-		<div class="tool-item square-badge">
-			<img src="img/cube.png" alt="" />
-		</div>
-		<div class="tool-item line-badge">
-			<img src="img/diagonal-line.png" alt="" />
-		</div>
-	</div>
+	
 
 
 
 	<div class="main-wrapper">
 
-		
+			<div class="tool tool-active tools-wrapper">
+					<div class="tool-item move-badge">
+						<img src="img/move3.png" alt="" />
+					</div>
+					<div class="tool-item pencil-badge">
+						<img src="img/pencil.png" alt="" />
+					</div>
+					<div class="tool-item text-badge">
+						<img src="img/text.png" alt="" />
+					</div>
+					<div class="tool-item pouring-badge">
+						<img src="img/paint-bucket.png" alt="" />
+					</div>
+					<div class="tool-item rubber-badge">
+						<img src="img/eraser.png" alt="" />
+					</div>
+					<div class="tool-item square-badge">
+						<img src="img/cube.png" alt="" />
+					</div>
+					<div class="tool-item line-badge">
+						<img src="img/diagonal-line.png" alt="" />
+					</div>
+				</div>
+					
 		<!-- обертка в которую добавляются созданные canvas -->
-		<div class="wrapper">
-			<div class="coords-x-wrapper">
-				<div style="height: 20px ; width: 20px ;flex-shrink: 0"></div>
+		<div class="main-wrapper-canvas">
+			<div class="title-file-wrapper"></div>
+
+			<div class="work-wrapper">
+					
+				<div class="coords-x-wrapper">
+					<div style="height: 20px ; width: 20px ;flex-shrink: 0"></div>
+				</div>
+				<div class="coords-y-wrapper">
+					<div style="height: 20px ; width: 20px ; flex-shrink: 0"></div>
+				</div>
+
 			</div>
-			<div class="coords-y-wrapper">
-				<div style="height: 20px ; width: 20px ; flex-shrink: 0"></div>
-			</div>
+		
 		</div>
+	
+			
+	
 
 		<div class="casing casing-left"></div>
 		<div class="casing casing-right"></div>
@@ -95,51 +104,58 @@
 
 
 	<!-- шаблон для создания новых canvas -->
-
-		<div class="zoom-wrapper">
-			<div class="canvas-wrapper">
-				<canvas class="main-canvas"></canvas>
-			</div>
-		</div>
+	
+		
 
 
 
 
 
   <!-- div с настройками изменения размера текущего canvas -->
-	<div class="settings-window-size animated">
+	<div class="header-settings-window-size animated">
 		<div class="close-wrapper">
 			<button class="close"></button>
 		</div>
 
-		<div class="input-wrapper">
-			<label for="width">Ширина</label>
-			<input type="text" name="width">
-		</div>
-		<div class="input-wrapper">
-			<label for="height">Высота </label>
-			<input type="text" name="height">
-		</div>
+		<form >
+			<div class="input-wrapper">
+					<label for="width">Ширина</label>
+					<input type="text" name="width">
+				</div>
+				<div class="input-wrapper">
+					<label for="height">Высота </label>
+					<input type="text" name="height">
+				</div>
+		</form>	
+		
 		<button class="apply">применить</button>
 	</div>
 
 	<!-- div с настройками создания нового canvas -->
-	<div class="settings-new-file animated">
+	<div class="header-settings-new-file animated">
 		<div class="close-wrapper">
 			<button class="close"></button>
 		</div>
-		<div class="input-wrapper">
-			<label for="width">Название</label>
-			<input type="text" name="width">
-		</div>
-		<div class="input-wrapper">
-			<label for="width">Ширина</label>
-			<input type="text" name="width">
-		</div>
-		<div class="input-wrapper">
-			<label for="height">Высота </label>
-			<input type="text" name="height">
-		</div>
+
+		<form>
+			<div class="input-wrapper">
+				<label for="name">Название</label>
+				<input type="text" name="name">
+			</div>
+			<div class="input-wrapper">
+				<label for="width">Ширина</label>
+				<input type="text" name="width">
+			</div>
+			<div class="input-wrapper">
+				<label for="height">Высота </label>
+				<input type="text" name="height">
+			</div>
+			<div class="input-wrapper">
+					<label for="background_color">Цве фона </label>
+					<input type="text" name="background_color">
+				</div>
+		</form>
+		
 		<button class="apply">применить</button>
 	</div>
 
@@ -151,6 +167,7 @@
 
 
 	<script  src="build/build.js" ></script>
+	
 
 </body>
 

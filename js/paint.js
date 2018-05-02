@@ -1,21 +1,240 @@
 "use strict";
 
-import { get_height, get_width, visible, hidden } from "./addition_function";
-import Create_Element from "./class_create_element";
-import Casing from "./class_casing";
+import {
+  get_height,
+  get_width,
+  get_left,
+  get_top,
+  visible,
+  hidden,
+  switcher,
+  block,
+  none,
+  elem_center,
+  once,
+  html,
+  get_value_of_form,
+  set_value_of_form,
+  drag,
+  get_zoom,
+  get_x,
+  get_y,
+  active,
+  disactive
+} from "./addition_function";
+
+import CREATE_ELEMENT from "./class_create_element";
+import CASING from "./class_casing";
+import APP from "./class_app";
+import WRAPPER from "./class_wrapper";
+import TOOLS_COMPONENTS from "./components/class_tools_components";
+import CANVAS from "./class_canvas";
+import OPTIONS_COMPONENTS from "./class_options_components";
+import TOOL_DRAW from "./components/class_tool_draw";
+import "fabric";
 
 import "style-loader!css-loader!../build/css/main.css";
 import "style-loader!css-loader!../build/css/animate.css";
 
 // переменные DOM-елементов
-let html = document.documentElement; // html
+
 let header = document.querySelector("header"); // вся шапка
 let title = document.querySelector(".title-canvas-wrapper");
-let menu_bar = document.querySelector(".options"); //самое верхнее меня с настройками
+let menu_bar = document.querySelector(".header-options"); //самое верхнее меня с настройками
 let all_apply_button = document.querySelectorAll(".apply"); // все кнопки подтвердить
 let script = document.querySelector("script"); // последний script на странице
 
-let casing = new Casing().none().event();
+let App = new APP();
+
+let Wrapper = new WRAPPER().init().event_scroll();
+
+CASING.none().event();
+
+let arr_canvas = [];
+
+let tool_draw = new TOOL_DRAW(document.querySelector(".tools-wrapper"));
+
+console.log(fabric);
+
+tool_draw.wrapper.addEventListener(
+  "mouseup",
+  function(e) {
+    let target = e.target;
+
+    for (let item in this) {
+      try {
+        if (target.closest(this[item].class_name)) {
+          try {
+            disactive(APP.canvas.prev_event.elem);
+            APP.canvas.off("mouse:down", APP.canvas.prev_event.func_event);
+            APP.canvas.prev_event.func_end();
+          } catch (e) {}
+
+          active(this[item].elem);
+
+          APP.canvas.on("mouse:down", this[item].func_event);
+          this[item].func_start();
+
+          APP.canvas.prev_event = this[item];
+        }
+      } catch (e) {}
+    }
+  }.bind(tool_draw)
+);
+
+let save_file = new OPTIONS_COMPONENTS({
+  class_option: "header-options-save-file",
+  class_setting: undefined
+}).set_appear(function() {
+  let src = APP.canvas.toDataURL();
+
+  let ref_download = document.createElement("a");
+  ref_download.href = src;
+  ref_download.download = APP.canvas.title.textContent.slice(0, -1);
+  ref_download.click();
+});
+
+let new_file = new OPTIONS_COMPONENTS({
+  class_option: "header-options-new-file",
+  class_setting: "header-settings-new-file"
+}).set_appear(function() {
+  set_value_of_form(this.elem_setting.querySelector("form"), {
+    width: get_width(APP.wrapper_work),
+    height: get_height(APP.wrapper_work),
+    name: `Untitled-${APP.canvas_counter}`,
+    background_color: "white"
+  });
+});
+
+new_file.set_apply(function() {
+  APP.canvas_counter++;
+
+  visible(APP.wrapper_main_canvas);
+
+  let { name, width, height, background_color } = get_value_of_form(this.elem_setting.querySelector("form"));
+
+  try {
+    APP.wrapper_zoom.classList.remove("active");
+    APP.canvas.title.classList.remove("active");
+    APP.wrapper_coords_x.lastElementChild.remove();
+    APP.wrapper_coords_y.lastElementChild.remove();
+  } catch (e) {}
+
+  let title = new CREATE_ELEMENT("div")
+    .add_classes("title-file", "active")
+    .add_parent(WRAPPER.title_file_wrapper)
+    .add_child(name)
+    .add_child("<span>&times;</span>");
+
+  APP.canvas = new CANVAS({
+    title,
+    width,
+    height,
+    background_color
+  });
+
+  arr_canvas.push(APP.canvas);
+
+  Wrapper.centering_canvas();
+  Wrapper.init_coords();
+
+  get_zoom();
+});
+
+WRAPPER.title_file_wrapper.addEventListener("mouseup", function(e) {
+  let target = e.target;
+
+  for (let item of arr_canvas) {
+    if (item.title === target) {
+      disactive(APP.canvas.wrapper_zoom, APP.canvas.title);
+
+      APP.canvas = item;
+
+      APP.wrapper_coords_x.replaceChild(APP.canvas.coords_x, APP.wrapper_coords_x.lastElementChild);
+      APP.wrapper_coords_y.replaceChild(APP.canvas.coords_y, APP.wrapper_coords_y.lastElementChild);
+
+      active(APP.canvas.wrapper_zoom, APP.canvas.title);
+    } else if (item.title.contains(target)) {
+      disactive(APP.canvas.wrapper_zoom, APP.canvas.title);
+
+      if (arr_canvas.prev(item)) {
+        APP.canvas = arr_canvas.prev(item);
+      } else if (arr_canvas.next(item)) {
+        APP.canvas = arr_canvas.next(item);
+      } else {
+        APP.wrapper_coords_x.lastElementChild.remove();
+        APP.wrapper_coords_y.lastElementChild.remove();
+        APP.canvas = null;
+        hidden(APP.wrapper_main_canvas);
+      }
+
+      item.title.remove();
+      item.wrapper_zoom.remove();
+      arr_canvas.remove(item);
+
+      try {
+        active(APP.canvas.wrapper_zoom, APP.canvas.title);
+      } catch (e) {}
+    }
+  }
+});
+
+document.addEventListener("keydown", function(e) {
+  if ((e.keyCode == 90 && e.ctrlKey) || (e.keyCode == 90 && e.metaKey)) {
+    path_remove();
+  }
+
+  // увеличение масштаба
+  if (e.keyCode == 187 && e.ctrlKey && e.altKey) {
+    APP.canvas.prev_width = get_width(APP.canvas.wrapperEl);
+    APP.canvas.prev_height = get_height(APP.canvas.wrapperEl);
+
+    APP.canvas.lowerCanvasEl.set_width(get_width(APP.canvas.lowerCanvasEl) + 50);
+    APP.canvas.lowerCanvasEl.set_height(get_height(APP.canvas.lowerCanvasEl) + 50);
+
+    APP.canvas.wrapperEl.set_width(get_width(APP.canvas.wrapperEl) + 50);
+    APP.canvas.wrapperEl.set_height(get_height(APP.canvas.wrapperEl) + 50);
+
+    APP.canvas.upperCanvasEl.set_width(get_width(APP.canvas.upperCanvasEl) + 50);
+    APP.canvas.upperCanvasEl.set_height(get_height(APP.canvas.upperCanvasEl) + 50);
+
+    console.log(APP.canvas);
+
+    //APP.wrapper_canvas.style.zoom = parseFloat(APP.wrapper_canvas.style.zoom) + 0.05;
+
+    Wrapper.centering_canvas();
+    Wrapper.change_coords();
+
+    get_zoom();
+  }
+  // уменьшение масштаба
+  if (e.keyCode == 189 && e.ctrlKey && e.altKey) {
+    APP.canvas.prev_width = get_width(APP.wrapper_zoom);
+    APP.canvas.prev_height = get_height(APP.wrapper_zoom);
+
+    APP.canvas.lowerCanvasEl.set_width(get_width(APP.canvas.lowerCanvasEl) - 50);
+    APP.canvas.lowerCanvasEl.set_height(get_height(APP.canvas.lowerCanvasEl) - 50);
+
+    APP.canvas.wrapperEl.set_width(get_width(APP.canvas.wrapperEl) - 50);
+    APP.canvas.wrapperEl.set_height(get_height(APP.canvas.wrapperEl) - 50);
+
+    APP.canvas.upperCanvasEl.set_width(get_width(APP.canvas.upperCanvasEl) - 50);
+    APP.canvas.upperCanvasEl.set_height(get_height(APP.canvas.upperCanvasEl) - 50);
+
+    console.log(APP.canvas);
+
+    //APP.wrapper_canvas.style.zoom = parseFloat(APP.wrapper_canvas.style.zoom) - 0.05;
+
+    Wrapper.centering_canvas();
+    Wrapper.change_coords();
+
+    get_zoom();
+  }
+});
+
+APP.wrapper_main_canvas.addEventListener("contextmenu", e => {
+  e.preventDefault();
+});
 
 let main_wrapper = document.querySelector(".main-wrapper");
 
@@ -57,7 +276,7 @@ let bias_left = 0; // смещение слева
 let bias_top = 0; // смещение сверху
 
 // массивы хранящие все действия пользователя
-let arr_canvas = []; // все созданные канвасы , именно как созданные файлы
+// все созданные канвасы , именно как созданные файлы
 let clear_coords = []; // координаты пройденные с помощью ластика
 let arr_textarea = []; // все созданные текстовые поля в функции create_textarea
 
@@ -233,376 +452,6 @@ let arr_class = [
 ];
 
 // блок объявления классов
-class Tools_Component {
-  constructor({ wrapper }) {
-    this.wrapper = wrapper;
-    this.drag_panel;
-    this.drag_place;
-  }
-  create_drag_panel(drag_panel_func) {
-    let { elem: panel } = new Create_Element({ tag_name: "div" }).add_classes("drag-panel");
-
-    let { elem: arrow } = new Create_Element({ tag_name: "div" }).add_classes("drag-panel-arrow", "drag-panel-item");
-
-    let { elem: close } = new Create_Element({ tag_name: "div" }).add_classes("drag-panel-close", "drag-panel-item");
-
-    arrow.innerHTML = "<img width=11 height=11 src='img/rewind.png' />";
-
-    close.onclick = () => none(this.wrapper);
-
-    arrow.onclick = e => {
-      arrow.classList.toggle("drag-panel-arrow-active");
-      drag_panel_func();
-    };
-
-    panel.appendChild(arrow);
-    panel.appendChild(close);
-
-    this.drag_panel = panel;
-
-    this.wrapper.prepend(panel);
-
-    return this;
-  }
-  create_drag_place() {
-    let { elem: place } = new Create_Element({ tag_name: "div" }).add_classes("drag-place");
-
-    place.innerHTML = '<img src="./img/drag.png" />';
-
-    drag(
-      place,
-      this.wrapper,
-      () => {
-        if (this.wrapper.classList.contains("tool-active")) {
-          this.wrapper.classList.remove("tool-active");
-        }
-        casing.block();
-      },
-      () => {},
-      () => {
-        casing.none();
-      }
-    );
-
-    this.drag_panel.after(place);
-
-    this.drag_place = place;
-  }
-  create_menu_bar() {}
-  create_footer_bar() {}
-}
-
-class Tools_Draw extends Tools_Component {
-  constructor({ wrapper }) {
-    super({ wrapper: wrapper })
-      .create_drag_panel(switcher(this.drag_panel_func.bind(this), 2, 0.5))
-      .create_drag_place();
-
-    this.wrapper.set_left(100);
-    this.wrapper.set_top(80);
-  }
-  drag_panel_func(value) {
-    this.wrapper.style.width = get_width(this.wrapper) * value + "px";
-  }
-}
-
-class Init_Wrapper {
-  constructor(canvas) {
-    this.canvas = canvas;
-    this.where_add;
-    this.first;
-    this.last;
-    this.arr_coords;
-    this.decision;
-    this.get_size;
-    return this;
-  }
-  set init_value(options) {
-    try {
-      this.where_add = options.elem || this.where_add;
-      this.first = options.elem.firstElementChild || this.where_add.firstElementChild;
-      this.last = options.elem.lastElementChild || this.where_add.lastElementChild;
-      this.arr_coords = options.elem.children || this.where_add.children;
-      this.decision = options.decision || this.decision;
-      this.get_size = options.get_size || this.get_size;
-    } catch (e) {}
-  }
-
-  init_coords() {
-    let width_breakdown = 50;
-    let wrapper_coords;
-    // инициализация координат по оси Y
-
-    wrapper_coords = document.createElement("div");
-
-    wrapper_coords.classList.add("coords-y");
-
-    actual_canvas.coords_y = wrapper_coords; //приклепляем к канвасу div-координат-y
-
-    this.init_value = { elem: wrapper_coords };
-
-    this.create_coords_block(get_top(zoom_wrapper), "height", width_breakdown, wrapper_top_tools);
-
-    wrapper_coords_y.appendChild(wrapper_coords);
-
-    // инициализация координат по оси X
-
-    wrapper_coords = document.createElement("div");
-
-    wrapper_coords.classList.add("coords-x");
-
-    actual_canvas.coords_x = wrapper_coords; //приклепляем к канвасу div-координат-x
-
-    this.init_value = { elem: wrapper_coords };
-
-    this.create_coords_block(get_left(zoom_wrapper), "width", width_breakdown, wrapper_left_tools);
-
-    wrapper_coords_x.appendChild(wrapper_coords);
-
-    return this;
-  }
-
-  create_coords_block(size, size_decision, breakdown, size_tools) {
-    let size_begin = size - size_tools;
-    let size_end;
-    let size_end_counter = 0;
-    let size_value = breakdown;
-    let first_iter = true;
-
-    if (size_decision == "height") {
-      size_end = wrapper.scrollHeight - size;
-    } else if (size_decision == "width") {
-      size_end = wrapper.scrollWidth - size;
-    }
-
-    while (size_begin >= breakdown) {
-      let text = "";
-      if (size_begin % breakdown == 0) {
-        text = size_begin;
-
-        size_value = breakdown;
-        size_begin -= breakdown;
-      } else {
-        size_value = size_begin % breakdown;
-        size_begin -= size_value;
-      }
-
-      this.create_coords_div(size_decision, size_value, text);
-    }
-
-    while (size_end_counter < size_end) {
-      let text = "";
-
-      text = size_end_counter;
-
-      if (size_end - size_end_counter < breakdown) {
-        size_value = size_end % breakdown;
-
-        this.create_coords_div(size_decision, size_value);
-      } else {
-        if (first_iter) {
-          if (size_decision == "width") {
-            actual_canvas.zero_coords_elem_x = this.create_coords_div(size_decision, size_value, text);
-          } else if (size_decision == "height") {
-            actual_canvas.zero_coords_elem_y = this.create_coords_div(size_decision, size_value, text);
-          }
-
-          first_iter = false;
-        } else {
-          this.create_coords_div(size_decision, size_value, text);
-        }
-      }
-
-      size_end_counter += breakdown;
-    }
-  }
-
-  change_coords() {
-    let arr_coords_x = actual_canvas.coords_x.children,
-      arr_coords_y = actual_canvas.coords_y.children,
-      coefficient_x = zoom_wrapper.clientWidth / actual_canvas.prev_zoom_wrapper_width, // коэффициент-x
-      coefficient_y = zoom_wrapper.clientHeight / actual_canvas.prev_zoom_wrapper_height; // коэффициент-y
-
-    // устанавливаем div , куда добавлять элементы
-    this.init_value = {
-      elem: actual_canvas.coords_x,
-      decision: "width",
-      get_size: get_width
-    };
-    //изменили ширину каждой координаты в зависимости от коэффициента
-
-    for (let item of arr_coords_x) {
-      item.style.width = get_width(item) * coefficient_x + "px";
-    }
-
-    this.check_coords();
-
-    this.init_value = {
-      elem: actual_canvas.coords_y,
-      decision: "height",
-      get_size: get_height
-    };
-
-    for (let item of arr_coords_y) {
-      item.style.height = get_height(item) * coefficient_y + "px";
-    }
-
-    this.check_coords();
-  }
-
-  check_coords() {
-    let difference_width_begin;
-    let difference_width_end;
-
-    let text_begin = parseFloat(this.first.nextElementSibling.textContent.replace(/\n/g, "")) || 0;
-    let text_end = parseFloat(this.last.previousElementSibling.textContent.replace(/\n/g, "")) || 0;
-
-    if (this.decision == "width") {
-      difference_width_begin =
-        actual_canvas.zero_coords_elem_x.getBoundingClientRect().left - zoom_wrapper.getBoundingClientRect().left;
-    } else if (this.decision == "height") {
-      difference_width_begin =
-        actual_canvas.zero_coords_elem_y.getBoundingClientRect().top - zoom_wrapper.getBoundingClientRect().top;
-    }
-
-    if (difference_width_begin > 0) {
-      //check start
-      this.check_positive(difference_width_begin, this.first);
-
-      if (this.decision == "width") {
-        difference_width_end = wrapper.scrollWidth - get_width(wrapper_coords_x);
-      } else if (this.decision == "height") {
-        difference_width_end = wrapper.scrollHeight - get_height(wrapper_coords_y);
-      }
-
-      //check end
-      this.check_positive(difference_width_end, this.last);
-    } else {
-      //difference_width_begin < 0
-      difference_width_begin = Math.abs(difference_width_begin);
-
-      // check_start
-      this.check_negative(difference_width_begin, this.first, text_begin, true);
-
-      if (this.decision == "width") {
-        difference_width_end = wrapper_coords_x.getBoundingClientRect().right - this.last.getBoundingClientRect().right;
-      } else if (this.decision == "height") {
-        difference_width_end =
-          wrapper_coords_y.getBoundingClientRect().bottom - this.last.getBoundingClientRect().bottom;
-      }
-      //check end
-      this.check_negative(difference_width_end, this.last, text_end, false);
-    }
-  }
-
-  check_positive(difference, elem) {
-    while (difference > this.get_size(elem)) {
-      difference -= this.get_size(elem);
-
-      let temp = elem.nextElementSibling || elem.previousElementSibling;
-
-      elem.remove();
-
-      elem = temp;
-    }
-
-    elem.style[this.decision] = this.get_size(elem) - difference + "px";
-
-    elem.innerHTML = "";
-  }
-
-  check_negative(difference, elem, text, flag) {
-    let middle_width = this.get_size(this.arr_coords[Math.round(this.arr_coords.length / 2)]);
-
-    if (this.get_size(elem) + difference > middle_width) {
-      difference -= middle_width - this.get_size(elem);
-
-      text += 50;
-
-      elem.remove();
-
-      this.create_coords_div(this.decision, middle_width, text, flag);
-
-      while (difference > middle_width) {
-        text += 50;
-
-        this.create_coords_div(this.decision, middle_width, text, flag);
-
-        difference -= middle_width;
-      }
-
-      this.create_coords_div(this.decision, difference, "", flag);
-    } else {
-      elem.style[this.decision] = this.get_size(elem) + difference + "px";
-      elem.innerHTML = "";
-    }
-  }
-
-  create_coords_div(flag, size, text = "", add_begin) {
-    let temp_div = document.createElement("div");
-
-    if (flag == "width") {
-      temp_div.style.width = size + "px";
-    } else if (flag == "height") {
-      temp_div.style.height = size + "px";
-      text = Array.prototype.reduce.call(
-        String(text),
-        (res, item) => {
-          return res + item + "\n";
-        },
-        ""
-      );
-    }
-
-    temp_div.textContent = text;
-
-    if (add_begin) {
-      this.where_add.insertBefore(temp_div, this.where_add.firstElementChild);
-    } else {
-      this.where_add.appendChild(temp_div);
-    }
-
-    return temp_div;
-  }
-
-  event_scroll() {
-    wrapper.addEventListener("scroll", function(e) {
-      wrapper_coords_x.style.top = wrapper.scrollTop + "px";
-    });
-    return this;
-  }
-
-  check() {
-    if (get_left(zoom_wrapper) < wrapper_left_tools && get_top(zoom_wrapper) < wrapper_top_tools) {
-      wrapper_coords_x.set_width(zoom_wrapper.clientWidth + wrapper_add_size);
-
-      wrapper_coords_y.set_height(zoom_wrapper.clientHeight + wrapper_add_size);
-
-      new Centering_Element().const_center(zoom_wrapper, wrapper_add_size / 2, wrapper_add_size / 2);
-    } else if (get_left(zoom_wrapper) < wrapper_left_tools) {
-      wrapper_coords_x.set_width(zoom_wrapper.clientWidth + wrapper_add_size);
-
-      if (get_top(zoom_wrapper) > wrapper_top_tools) {
-        wrapper_coords_y.set_height(wrapper.clientHeight);
-      }
-
-      new Centering_Element().top(zoom_wrapper, wrapper_add_size / 2, wrapper, wrapper_top_tools);
-    } else if (get_top(zoom_wrapper) < wrapper_top_tools) {
-      wrapper_coords_y.set_height(zoom_wrapper.clientHeight + wrapper_add_size);
-
-      if (get_left(zoom_wrapper) > wrapper_left_tools) {
-        wrapper_coords_x.set_width(wrapper.clientWidth);
-      }
-
-      new Centering_Element().left(zoom_wrapper, wrapper_add_size / 2, wrapper, wrapper_left_tools);
-    } else {
-      wrapper_coords_x.set_width(wrapper.clientWidth);
-      wrapper_coords_y.set_height(wrapper.clientHeight);
-    }
-
-    return this;
-  }
-}
 
 class Init_Value {
   constructor(class_settings, selector_value, name_value) {
@@ -635,10 +484,10 @@ class Init_Canvas {
       this.arr_context = [];
 
       this.zoom_wrapper = new_canvas;
-      this.canvas_wrapper = new_canvas.firstElementChild;
-      this.canvas = new_canvas.firstElementChild.firstElementChild;
-      this.c = this.canvas.getContext("2d");
-      this.canvas_name = new_canvas.dataset.canvasName;
+      //this.canvas_wrapper = new_canvas.firstElementChild;
+      //this.canvas = new_canvas.firstElementChild.firstElementChild;
+      //this.c = this.canvas.getContext("2d");
+      //this.canvas_name = new_canvas.dataset.canvasName;
 
       this.title = new_title;
 
@@ -708,19 +557,17 @@ Init_Canvas.counter = 0; // счетчик канвасов
 
 template_canvas = new Init_Canvas(document.querySelector(".zoom-wrapper")).init();
 
-new Init_Wrapper().event_scroll();
+// new Init_Wrapper().event_scroll();
 
-let tools = new Tools_Draw({
-  wrapper: document.querySelector(".tools-wrapper")
-});
+// let tools = new Tools_Draw({
+//   wrapper: document.querySelector(".tools-wrapper")
+// });
 
 // просто задаем стили в HTML
 
 menu_bar.set_height(height_menu_bar);
 
-title.set_height(height_title_file);
-
-canvas_wrapper.style.zoom = 1;
+//canvas_wrapper.style.zoom = 1;
 
 // обработчик на каждую кнопку подтвердить с соответствующей функцией из массива arr_settings
 all_apply_button.forEach(item => {
@@ -741,63 +588,63 @@ all_apply_button.forEach(item => {
   });
 });
 
-title.addEventListener("click", function(e) {
-  let target = e.target;
-  let all_title = title.querySelectorAll(".title-canvas");
+// title.addEventListener("click", function(e) {
+//   let target = e.target;
+//   let all_title = title.querySelectorAll(".title-canvas");
 
-  for (let i = 0; i < arr_canvas.length; i++) {
-    if (target.getAttribute("data-canvas-name") == arr_canvas[i].canvas_name) {
-      new Init_Canvas(arr_canvas[i])
-        .init()
-        .block()
-        .add_title_class()
-        .init_coords();
+//   for (let i = 0; i < arr_canvas.length; i++) {
+//     if (target.getAttribute("data-canvas-name") == arr_canvas[i].canvas_name) {
+//       new Init_Canvas(arr_canvas[i])
+//         .init()
+//         .block()
+//         .add_title_class()
+//         .init_coords();
 
-      get_zoom();
-      get_bias();
-    } else {
-      arr_canvas[i].remove_title_class();
-      arr_canvas[i].none();
-    }
-  }
+//       get_zoom();
+//       get_bias();
+//     } else {
+//       arr_canvas[i].remove_title_class();
+//       arr_canvas[i].none();
+//     }
+//   }
 
-  if (target.tagName == "SPAN") {
-    target = target.closest(".title-canvas");
-    for (let i = 0; i < arr_canvas.length; i++) {
-      if (target.getAttribute("data-canvas-name") == arr_canvas[i].canvas_name) {
-        arr_canvas[i].title.remove();
-        arr_canvas[i].zoom_wrapper.remove();
+//   if (target.tagName == "SPAN") {
+//     target = target.closest(".title-canvas");
+//     for (let i = 0; i < arr_canvas.length; i++) {
+//       if (target.getAttribute("data-canvas-name") == arr_canvas[i].canvas_name) {
+//         arr_canvas[i].title.remove();
+//         arr_canvas[i].zoom_wrapper.remove();
 
-        arr_canvas.splice(i, 1);
+//         arr_canvas.splice(i, 1);
 
-        if (arr_canvas[i]) {
-          new Init_Canvas(arr_canvas[i])
-            .init()
-            .block()
-            .add_title_class()
-            .init_coords();
-        } else if (arr_canvas[i - 1]) {
-          console.log(123);
-          new Init_Canvas(arr_canvas[i - 1])
-            .init()
-            .block()
-            .add_title_class()
-            .init_coords();
-        } else {
-          title.style.display = "none";
-          wrapper.style.display = "none";
-        }
+//         if (arr_canvas[i]) {
+//           new Init_Canvas(arr_canvas[i])
+//             .init()
+//             .block()
+//             .add_title_class()
+//             .init_coords();
+//         } else if (arr_canvas[i - 1]) {
+//           console.log(123);
+//           new Init_Canvas(arr_canvas[i - 1])
+//             .init()
+//             .block()
+//             .add_title_class()
+//             .init_coords();
+//         } else {
+//           title.style.display = "none";
+//           wrapper.style.display = "none";
+//         }
 
-        get_zoom();
-        get_bias();
-      } else {
-        arr_canvas[i].none();
-      }
-    }
-  }
-});
+//         get_zoom();
+//         get_bias();
+//       } else {
+//         arr_canvas[i].none();
+//       }
+//     }
+//   }
+// });
 
-document.querySelector(".options").addEventListener("click", function(e) {
+document.querySelector(".header-options").addEventListener("click", function(e) {
   e.preventDefault();
   let target = e.target;
 
@@ -810,88 +657,53 @@ document.querySelector(".options").addEventListener("click", function(e) {
 
 // используем делегирование на шапке painta
 
-try {
-  document.querySelector(".tools-wrapper").onclick = function(e) {
-    let target = e.target;
-    let new_target;
+// try {
+//   document.querySelector(".tools-wrapper").onclick = function(e) {
+//     let target = e.target;
+//     let new_target;
 
-    e.preventDefault();
-    counter = 0;
+//     e.preventDefault();
+//     counter = 0;
 
-    function check() {
-      if (prev_target) {
-        canvas_wrapper.removeEventListener(prev_target.arr_class.event, prev_target.arr_class.func);
-        if (prev_target.arr_class.service_func) {
-          prev_target.arr_class.service_func(prev_target.arr_class.string);
-        }
-        prev_target.target.classList.remove("active");
-      }
-    }
+//     function check() {
+//       if (prev_target) {
+//         canvas_wrapper.removeEventListener(prev_target.arr_class.event, prev_target.arr_class.func);
+//         if (prev_target.arr_class.service_func) {
+//           prev_target.arr_class.service_func(prev_target.arr_class.string);
+//         }
+//         prev_target.target.classList.remove("active");
+//       }
+//     }
 
-    for (let i = 0; i < arr_class.length; i++) {
-      new_target = target.closest("." + arr_class[i].class);
+//     for (let i = 0; i < arr_class.length; i++) {
+//       new_target = target.closest("." + arr_class[i].class);
 
-      if (new_target) {
-        counter++;
+//       if (new_target) {
+//         counter++;
 
-        check();
+//         check();
 
-        canvas_wrapper.addEventListener(arr_class[i].event, arr_class[i].func);
+//         canvas_wrapper.addEventListener(arr_class[i].event, arr_class[i].func);
 
-        if (arr_class[i].service_func) {
-          arr_class[i].service_func(arr_class[i].string);
-        }
+//         if (arr_class[i].service_func) {
+//           arr_class[i].service_func(arr_class[i].string);
+//         }
 
-        prev_target = {
-          target: document.querySelector("." + arr_class[i].class),
-          arr_class: arr_class[i]
-        };
+//         prev_target = {
+//           target: document.querySelector("." + arr_class[i].class),
+//           arr_class: arr_class[i]
+//         };
 
-        new_target.classList.add("active");
-      }
-    }
+//         new_target.classList.add("active");
+//       }
+//     }
 
-    if (counter == 0) {
-      check();
-      prev_target = null;
-    }
-  };
-} catch (e) {}
-
-document.addEventListener("keydown", function(e) {
-  if ((e.keyCode == 90 && e.ctrlKey) || (e.keyCode == 90 && e.metaKey)) {
-    path_remove();
-  }
-
-  // увеличение масштаба
-  if (e.keyCode == 187 && e.ctrlKey && e.altKey) {
-    actual_canvas.prev_zoom_wrapper_width = get_width(zoom_wrapper);
-    actual_canvas.prev_zoom_wrapper_height = get_height(zoom_wrapper);
-
-    canvas_wrapper.style.zoom = parseFloat(canvas_wrapper.style.zoom) + 0.05;
-
-    new Centering_Element().all_elem(zoom_wrapper, wrapper, wrapper_left_tools, wrapper_top_tools);
-
-    new Init_Wrapper().check().change_coords();
-
-    get_zoom();
-    get_bias();
-  }
-  // уменьшение масштаба
-  if (e.keyCode == 189 && e.ctrlKey && e.altKey) {
-    actual_canvas.prev_zoom_wrapper_width = get_width(zoom_wrapper);
-    actual_canvas.prev_zoom_wrapper_height = get_height(zoom_wrapper);
-
-    canvas_wrapper.style.zoom = parseFloat(canvas_wrapper.style.zoom) - 0.05;
-
-    new Centering_Element().all_elem(zoom_wrapper, wrapper, wrapper_left_tools, wrapper_top_tools);
-
-    new Init_Wrapper().check().change_coords();
-
-    get_zoom();
-    get_bias();
-  }
-});
+//     if (counter == 0) {
+//       check();
+//       prev_target = null;
+//     }
+//   };
+// } catch (e) {}
 
 // удаление пути через ctrl-z
 function path_remove() {
@@ -1012,73 +824,7 @@ function move_canvas(e) {
 }
 
 // рисование карандашом
-function draw_pencil(e) {
-  let target = e.target;
-  let x = get_x(e) - get_left(target);
-  let y = get_y(e) - get_top(target);
-
-  c = target.getContext("2d");
-
-  let current_path = {
-    path: new Path2D(),
-    isPath: true,
-    context: c,
-    stroke: true,
-    fill: false,
-    fillStyle: ["#fff"],
-    shape: false,
-    target: target,
-    remove: false
-  };
-
-  path.push(current_path);
-  all_path.push(current_path);
-
-  c.beginPath();
-  path[path.length - 1].path.moveTo(x, y);
-
-  canvas_wrapper.onmousemove = function(e) {
-    let current_target = e.target;
-
-    let x = get_x(e) - get_left(current_target);
-    let y = get_y(e) - get_top(current_target);
-
-    c = current_target.getContext("2d");
-
-    if (current_target !== target) {
-      target = current_target;
-
-      current_path = {
-        path: new Path2D(),
-        isPath: true,
-        context: c,
-        stroke: true,
-        fill: false,
-        fillStyle: ["#fff"],
-        shape: false,
-        target: target,
-        remove: false
-      };
-
-      path.push(current_path);
-      all_path.push(current_path);
-
-      c.beginPath();
-      path[path.length - 1].path.moveTo(x, y);
-    }
-
-    path[path.length - 1].path.lineTo(x, y);
-
-    c.stroke(path[path.length - 1].path);
-  };
-
-  document.onmouseup = function() {
-    canvas_wrapper.onmousemove = null;
-  };
-  canvas_wrapper.onmouseup = function() {
-    canvas_wrapper.onmousemove = null;
-  };
-}
+function draw_pencil(e) {}
 
 // ластик
 function moveToRubber(e) {
@@ -1450,133 +1196,6 @@ function create_canvas(x1, y1, ...value_class) {
   new_canvas.style.top = y1 + "px";
   new_canvas.width = 0;
   new_canvas.height = 0;
-}
-
-function get_x(e) {
-  return (e.pageX + wrapper.scrollLeft) * zoom - bias_left;
-}
-function get_y(e) {
-  return (e.pageY + wrapper.scrollTop - get_height(header)) * zoom - bias_top;
-}
-
-function get_left(elem) {
-  try {
-    let left = parseFloat(elem.style.left);
-    if (!left) {
-      left = elem.offsetLeft;
-    }
-    return left;
-  } catch (e) {}
-}
-function get_top(elem) {
-  try {
-    let top = parseFloat(elem.style.top);
-    if (!top) {
-      top = elem.offsetTop;
-    }
-    return top;
-  } catch (e) {}
-}
-
-function get_zoom() {
-  divide_width = canvas.width / html.clientWidth;
-
-  zoom = html.clientWidth / zoom_wrapper.clientWidth * divide_width;
-}
-
-function get_bias() {
-  bias_left = (get_left(zoom_wrapper) + get_left(wrapper)) * zoom;
-  bias_top = (get_top(zoom_wrapper) + get_top(wrapper)) * zoom;
-}
-
-function block(elem) {
-  elem.style.display = "block";
-}
-function none(elem) {
-  elem.style.display = "none";
-}
-
-function once(f, ...args) {
-  let counter = 0;
-  return function() {
-    if (!counter) {
-      f(...args);
-      counter++;
-    }
-  };
-}
-
-function switcher(f, value1, value2) {
-  let flag = true;
-  return function() {
-    if (flag) {
-      f(value1);
-      flag = false;
-    } else {
-      f(value2);
-      flag = true;
-    }
-  };
-}
-
-//реализация drag'n'drop
-function drag(target, wrapper, f_down = () => {}, f_move = () => {}, f_up = () => {}) {
-  target.ondragstart = () => {
-    return false;
-  };
-
-  target.onmousedown = e => {
-    let x = e.pageX;
-    let y = e.pageY;
-    let begin_x = get_left(wrapper);
-    let begin_y = get_top(wrapper);
-
-    f_down();
-
-    document.onmousemove = e => {
-      wrapper.style.left = begin_x + (e.pageX - x) + "px";
-      wrapper.style.top = begin_y + (e.pageY - y) + "px";
-
-      f_move();
-    };
-  };
-
-  document.onmouseup = e => {
-    document.onmousemove = null;
-  };
-
-  target.onmouseup = e => {
-    document.onmousemove = null;
-
-    f_up();
-  };
-}
-
-//класс центрировки элемента
-function Centering_Element() {
-  this.all = function(elem) {
-    elem.style.left = html.clientWidth / 2 - elem.clientWidth / 2 + "px";
-    elem.style.top = html.clientHeight / 2 - elem.clientHeight / 2 + "px";
-  };
-
-  this.all_elem = function(elem, wrapper, left_add = 0, top_add = 0) {
-    elem.style.left = (wrapper.clientWidth + left_add) / 2 - elem.clientWidth / 2 + "px";
-    elem.style.top = (wrapper.clientHeight + top_add) / 2 - elem.clientHeight / 2 + "px";
-  };
-
-  this.top = function(elem, left = 0, wrapper = html, top_add) {
-    elem.style.top = (wrapper.clientHeight + top_add) / 2 - elem.clientHeight / 2 + "px";
-    elem.style.left = left + "px";
-  };
-
-  this.left = function(elem, top = 0, wrapper = html, left_add) {
-    elem.style.top = top + "px";
-    elem.style.left = (wrapper.clientWidth + left_add) / 2 - elem.clientWidth / 2 + "px";
-  };
-  this.const_center = function(elem, left, top) {
-    elem.style.top = top + "px";
-    elem.style.left = left + "px";
-  };
 }
 
 // закрытие окошек с настройками

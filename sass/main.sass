@@ -21,6 +21,7 @@ $low: 10
 .tool-active
 	height: 100% !important
 	position: static !important
+	border-radius: 0px !important
 
 *
 	box-sizing: border-box
@@ -54,7 +55,7 @@ header
 	margin: 0
 	background: $header_color
 	z-index: $middle
-	.options 
+	.header-options 
 		ul
 			height: 100%
 			background: $header_color
@@ -66,9 +67,9 @@ header
 				div
 					height: 100%
 				&:hover
-					.options-dropdown
+					.header-options-dropdown
 				 		display: block
-					.options-badge
+					.header-options-badge
 			 			color: black
 			 			cursor: pointer
 			 			background: MINTCREAM
@@ -85,7 +86,9 @@ header
 			left: 0
 			top: 100%
 			background: #eee
-			a
+			& > div
+				cursor: pointer
+				text-align: center
 				font-size: .9rem
 				white-space: pre
 				color: $link_color
@@ -106,28 +109,7 @@ header
 
 
 header
-	.title-canvas-wrapper
-		font-size: 1.2rem
-		line-height: 25px
-		display: none
-		background: $menu_tools_color
-		border-bottom: 1px solid MINTCREAM
-		padding-left: 20px
-		.title-canvas
-			height: 100%
-			padding: 0px 5px 0px 10px
-			transition: .3s
-			color: white
-			display: inline-block
-			cursor: pointer
-			span
-				color: rgba(255 ,255 ,255, .6)
-				margin-left: 5px
-			&:hover
-				background: MINTCREAM
-				color: black
-				span
-						color: rgba(0 , 0 ,0, .6)
+	
 
 header
 	.title-canvas-wrapper
@@ -189,7 +171,7 @@ header
 
 //инструменты
 .tools-wrapper
-	box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.2), 0 9px 46px 8px rgba(0, 0, 0, 0.2), 0 11px 15px -7px rgba(0, 0, 0, .1)
+	box-shadow: 0 0px 14px 2px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2)
 	position: absolute
 	z-index: $high
 	background: $header_color
@@ -212,42 +194,76 @@ header
 		cursor: pointer
 	div.tool-item:hover
 		background: #777	
+	div.tool-item.active
+		background: #777	
 
 
 	//обертка canvas
 .main-wrapper
 	position: relative
 	display: flex
-	height: 100%
-	.wrapper
+	.main-wrapper-canvas
 		width: 100%
 		height: 100%
+		display: flex
+		flex-direction: column
 		position: relative
-		overflow: scroll
 		visibility: hidden
-		.zoom-wrapper
-			left: 0
-			top: 0
+		.title-file-wrapper
+			font-size: 1.2rem
+			line-height: 25px
+			background: $menu_tools_color
+			border-bottom: 1px solid MINTCREAM
+			.title-file
+				height: 100%
+				padding: 0px 8px 0px 8px
+				transition: .3s
+				color: white
+				display: inline-block
+				cursor: pointer
+				span
+					color: rgba(255 ,255 ,255, .6)
+					margin-left: 5px
+				&:hover
+					background: MINTCREAM
+					color: black
+					span
+						color: rgba(0 , 0 ,0, .6)
+			.title-file.active
+				background: MINTCREAM
+				color: black 
+				span
+					color: rgba(0 , 0 ,0, .6)
+		.work-wrapper
+			flex: 1
 			position: relative
-			display: none	
-			.canvas-wrapper.rubber-canvas-active	
-				// cursor: url(../img/rubber-cursor.cur) , pointer	 						
-			.canvas-wrapper
-				zoom: 1
-				background: #fff
-				display: block
-				textarea
-					position: absolute
-					font-size: 22px
-					font-weight: 400
-					border: 1px dashed black
-					&:focus
-						outline: none
-				.main-canvas
-					display: block	
-				.canvas
+			overflow: scroll
+			.zoom-wrapper.active
+				display: inline-block
+			.zoom-wrapper
+				display: none
+				position: absolute
+				.canvas-wrapper.rubber-canvas-active	
+					// cursor: url(../img/rubber-cursor.cur) , pointer	 						
+				.canvas-wrapper
+					zoom: 1
 					display: block
-					position: absolute	 	
+					textarea
+						position: absolute
+						font-size: 22px
+						font-weight: 400
+						border: 1px dashed black
+						&:focus
+							outline: none
+					.first-canvas
+						display: block	
+					.canvas
+						display: block
+						position: absolute	
+					canvas
+						position: absolute
+						left: 0
+						top: 0	 	
 		.coords-x-wrapper
 			font-size: .7rem
 			line-height: 30px
@@ -256,7 +272,7 @@ header
 			position: absolute
 			left: 0
 			top: 0
-			z-index: $low
+			z-index: $low + 10
 			height: 20px
 			width: 100%
 			background: $coords_color
@@ -274,7 +290,7 @@ header
 			@extend .coords-x-wrapper
 			line-height: inherit
 			position: absolute
-			z-index: $low - 10
+			z-index: $low 
 			flex-direction: column
 			left: 0
 			top: 0
@@ -372,7 +388,7 @@ header
 		background: darken($header_color, 10%)
 		cursor: pointer	
 
-.settings-window-size
+.header-settings-window-size
 	z-index: $very_high
 	box-shadow: 0px 0px 15px rgba(0 , 0 ,0 , .3)
 	border: 1px solid blue
@@ -399,5 +415,5 @@ header
 			color: white	
 	
 
-.settings-new-file
-	@extend .settings-window-size
+.header-settings-new-file
+	@extend .header-settings-window-size

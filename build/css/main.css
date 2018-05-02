@@ -1,6 +1,7 @@
 .tool-active {
   height: 100% !important;
-  position: static !important; }
+  position: static !important;
+  border-radius: 0px !important; }
 
 * {
   box-sizing: border-box; }
@@ -31,27 +32,27 @@ header {
   margin: 0;
   background: #535353;
   z-index: 100; }
-  header .options ul {
+  header .header-options ul {
     height: 100%;
     background: #535353;
     border-bottom: 1px solid MINTCREAM;
     display: flex; }
-    header .options ul li {
+    header .header-options ul li {
       color: white;
       position: relative; }
-      header .options ul li div {
+      header .header-options ul li div {
         height: 100%; }
-      header .options ul li:hover .options-dropdown {
+      header .header-options ul li:hover .header-options-dropdown {
         display: block; }
-      header .options ul li:hover .options-badge {
+      header .header-options ul li:hover .header-options-badge {
         color: black;
         cursor: pointer;
         background: MINTCREAM; }
-        header .options ul li:hover .options-badge svg {
+        header .header-options ul li:hover .header-options-badge svg {
           transform: rotate(180deg); }
-    header .options ul li:first-child {
+    header .header-options ul li:first-child {
       margin-left: 20px; }
-  header .options-dropdown {
+  header .header-options-dropdown {
     border: 1px solid black;
     z-index: 100000;
     display: none;
@@ -59,7 +60,9 @@ header {
     left: 0;
     top: 100%;
     background: #eee; }
-    header .options-dropdown a {
+    header .header-options-dropdown > div {
+      cursor: pointer;
+      text-align: center;
       font-size: .9rem;
       white-space: pre;
       color: #285473;
@@ -67,39 +70,16 @@ header {
       background: #eee;
       padding: 8px 8px;
       display: block; }
-      header .options-dropdown a:hover {
+      header .header-options-dropdown > div:hover {
         background: #e1e5eb; }
-  header .options-badge {
+  header .header-options-badge {
     padding: 0px 10px;
     transition: .3s;
     display: flex;
     align-items: center; }
-    header .options-badge svg {
+    header .header-options-badge svg {
       margin-left: 5px;
       transition: .2s transform; }
-
-header .title-canvas-wrapper {
-  font-size: 1.2rem;
-  line-height: 25px;
-  display: none;
-  background: #424242;
-  border-bottom: 1px solid MINTCREAM;
-  padding-left: 20px; }
-  header .title-canvas-wrapper .title-canvas, header .title-canvas-wrapper .title-canvas.active {
-    height: 100%;
-    padding: 0px 5px 0px 10px;
-    transition: .3s;
-    color: white;
-    display: inline-block;
-    cursor: pointer; }
-    header .title-canvas-wrapper .title-canvas span, header .title-canvas-wrapper .title-canvas.active span {
-      color: rgba(255, 255, 255, 0.6);
-      margin-left: 5px; }
-    header .title-canvas-wrapper .title-canvas:hover {
-      background: MINTCREAM;
-      color: black; }
-      header .title-canvas-wrapper .title-canvas:hover span {
-        color: rgba(0, 0, 0, 0.6); }
 
 header .title-canvas-wrapper .active.title-canvas {
   background: MINTCREAM;
@@ -155,7 +135,7 @@ header .title-canvas-wrapper .active.title-canvas {
   align-items: center; }
 
 .tools-wrapper {
-  box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.2), 0 9px 46px 8px rgba(0, 0, 0, 0.2), 0 11px 15px -7px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0px 14px 2px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
   position: absolute;
   z-index: 1000;
   background: #535353;
@@ -178,39 +158,73 @@ header .title-canvas-wrapper .active.title-canvas {
     cursor: pointer; }
   .tools-wrapper div.tool-item:hover {
     background: #777; }
+  .tools-wrapper div.tool-item.active {
+    background: #777; }
 
 .main-wrapper {
   position: relative;
-  display: flex;
-  height: 100%; }
-  .main-wrapper .wrapper {
+  display: flex; }
+  .main-wrapper .main-wrapper-canvas {
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
     position: relative;
-    overflow: scroll;
     visibility: hidden; }
-    .main-wrapper .wrapper .zoom-wrapper {
-      left: 0;
-      top: 0;
+    .main-wrapper .main-wrapper-canvas .title-file-wrapper {
+      font-size: 1.2rem;
+      line-height: 25px;
+      background: #424242;
+      border-bottom: 1px solid MINTCREAM; }
+      .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file {
+        height: 100%;
+        padding: 0px 8px 0px 8px;
+        transition: .3s;
+        color: white;
+        display: inline-block;
+        cursor: pointer; }
+        .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file span {
+          color: rgba(255, 255, 255, 0.6);
+          margin-left: 5px; }
+        .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file:hover {
+          background: MINTCREAM;
+          color: black; }
+          .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file:hover span {
+            color: rgba(0, 0, 0, 0.6); }
+      .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file.active {
+        background: MINTCREAM;
+        color: black; }
+        .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file.active span {
+          color: rgba(0, 0, 0, 0.6); }
+    .main-wrapper .main-wrapper-canvas .work-wrapper {
+      flex: 1;
       position: relative;
-      display: none; }
-      .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper {
-        zoom: 1;
-        background: #fff;
-        display: block; }
-        .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper textarea {
-          position: absolute;
-          font-size: 22px;
-          font-weight: 400;
-          border: 1px dashed black; }
-          .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper textarea:focus {
-            outline: none; }
-        .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper .main-canvas {
+      overflow: scroll; }
+      .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper.active {
+        display: inline-block; }
+      .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper {
+        display: none;
+        position: absolute; }
+        .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper {
+          zoom: 1;
           display: block; }
-        .main-wrapper .wrapper .zoom-wrapper .canvas-wrapper .canvas {
-          display: block;
-          position: absolute; }
-    .main-wrapper .wrapper .coords-x-wrapper, .main-wrapper .wrapper .coords-y-wrapper {
+          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper textarea {
+            position: absolute;
+            font-size: 22px;
+            font-weight: 400;
+            border: 1px dashed black; }
+            .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper textarea:focus {
+              outline: none; }
+          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper .first-canvas {
+            display: block; }
+          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper .canvas {
+            display: block;
+            position: absolute; }
+          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper canvas {
+            position: absolute;
+            left: 0;
+            top: 0; }
+    .main-wrapper .main-wrapper-canvas .coords-x-wrapper, .main-wrapper .main-wrapper-canvas .coords-y-wrapper {
       font-size: .7rem;
       line-height: 30px;
       display: flex;
@@ -218,30 +232,30 @@ header .title-canvas-wrapper .active.title-canvas {
       position: absolute;
       left: 0;
       top: 0;
-      z-index: 10;
+      z-index: 20;
       height: 20px;
       width: 100%;
       background: #474747;
       color: #ccc; }
-      .main-wrapper .wrapper .coords-x-wrapper .coords-x, .main-wrapper .wrapper .coords-y-wrapper .coords-x {
+      .main-wrapper .main-wrapper-canvas .coords-x-wrapper .coords-x, .main-wrapper .main-wrapper-canvas .coords-y-wrapper .coords-x {
         width: calc(100% - 20px);
         display: flex; }
-        .main-wrapper .wrapper .coords-x-wrapper .coords-x div, .main-wrapper .wrapper .coords-y-wrapper .coords-x div {
+        .main-wrapper .main-wrapper-canvas .coords-x-wrapper .coords-x div, .main-wrapper .main-wrapper-canvas .coords-y-wrapper .coords-x div {
           flex-shrink: 0;
           height: 20px;
           text-indent: 2px;
           box-sizing: border-box;
           border-left: 1px solid #888; }
-    .main-wrapper .wrapper .coords-y-wrapper {
+    .main-wrapper .main-wrapper-canvas .coords-y-wrapper {
       line-height: inherit;
       position: absolute;
-      z-index: 0;
+      z-index: 10;
       flex-direction: column;
       left: 0;
       top: 0;
       height: 100%;
       width: 20px; }
-      .main-wrapper .wrapper .coords-y-wrapper .coords-y div {
+      .main-wrapper .main-wrapper-canvas .coords-y-wrapper .coords-y div {
         flex-shrink: 0;
         white-space: pre-wrap;
         text-align: center;
@@ -324,7 +338,7 @@ header .title-canvas-wrapper .active.title-canvas {
     background: #3a3a3a;
     cursor: pointer; }
 
-.settings-window-size, .settings-new-file {
+.header-settings-window-size, .header-settings-new-file {
   z-index: 10000;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
   border: 1px solid blue;
@@ -334,18 +348,18 @@ header .title-canvas-wrapper .active.title-canvas {
   background: #282828;
   position: fixed;
   padding: 75px 40px; }
-  .settings-window-size .input-wrapper, .settings-new-file .input-wrapper {
+  .header-settings-window-size .input-wrapper, .header-settings-new-file .input-wrapper {
     display: flex;
     margin-bottom: 15px;
     justify-content: space-between; }
-    .settings-window-size .input-wrapper input, .settings-new-file .input-wrapper input {
+    .header-settings-window-size .input-wrapper input, .header-settings-new-file .input-wrapper input {
       display: block;
       padding: 5px;
       border-radius: 3px;
       border: none; }
-      .settings-window-size .input-wrapper input:focus, .settings-new-file .input-wrapper input:focus {
+      .header-settings-window-size .input-wrapper input:focus, .header-settings-new-file .input-wrapper input:focus {
         outline: none; }
-    .settings-window-size .input-wrapper label, .settings-new-file .input-wrapper label {
+    .header-settings-window-size .input-wrapper label, .header-settings-new-file .input-wrapper label {
       margin-right: 10px;
       display: block;
       color: white; }

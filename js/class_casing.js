@@ -1,25 +1,27 @@
-class Casing {
+import APP from "./class_app";
+
+export default class CASING extends APP {
   constructor() {
+    super();
     this.cases = document.querySelectorAll(".casing");
   }
-  block() {
-    for (let item of this.cases) {
+  static get cases() {
+    return document.querySelectorAll(".casing");
+  }
+  static block() {
+    for (let item of CASING.cases) {
       item.style.display = "block";
     }
     return this;
   }
-  none() {
-    for (let item of this.cases) {
+  static none() {
+    for (let item of CASING.cases) {
       item.style.display = "none";
     }
     return this;
   }
-  update() {
-    this.cases = document.querySelectorAll(".casing");
-  }
-
-  event() {
-    for (let item of this.cases) {
+  static event() {
+    for (let item of CASING.cases) {
       item.onmouseover = e => {
         let related;
         try {
@@ -32,13 +34,13 @@ class Casing {
             related.classList.add("tool-active");
 
             if (item.classList.contains("casing-left")) {
-              window.main_wrapper.prepend(related);
+              APP.wrapper_main.prepend(related);
               related.set_left(0);
               related.set_top(0);
             }
 
             if (item.classList.contains("casing-right")) {
-              window.main_wrapper.append(related);
+              APP.wrapper_main.append(related);
               related.set_left(related.getBoundingClientRect().left);
               related.set_top(0);
             }
@@ -50,5 +52,3 @@ class Casing {
     return this;
   }
 }
-
-export default Casing;
