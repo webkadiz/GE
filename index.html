@@ -11,11 +11,11 @@
 
 <body>
 
-	<header>
+	<header class="header">
 		<!-- самая верхняя менюшка с инструментами -->
 		<nav class="header-options">
-			<ul>
-				<li>
+			
+				<div class="header-options-item">
 					<div class="header-options-badge">
 						файл
 						<i class="fas fa-angle-up"></i>
@@ -24,8 +24,9 @@
 						<div class="header-options-new-file">новый файл</div>
 						<div  class="header-options-save-file">сохранить</div>
 					</div>
-				</li>
-				<li>
+				</div>
+
+				<div class="header-options-item">
 					<div class="header-options-badge">
 						окно
 						<i class="fas fa-angle-up"></i>
@@ -33,16 +34,27 @@
 					<div class="header-options-dropdown">
 						<div class="header-options-window-size">размеры холста</div>
 					</div>
-				</li>
-				<li>
+				</div>
+
+				<div class="header-options-item">
 					<div class="header-options-badge">
 						вид
 						<i class="fas fa-angle-up"></i>
 					</div>
 					<div class="header-options-dropdown"></div>
-				</li>
-			</ul>
+				</div>
+
+				<div class="header-options-item">
+					<div class="header-options-badge">
+						помощь
+						<i class="fas fa-angle-up"></i>
+					</div>
+					<div class="header-options-dropdown"></div>
+				</div>
+			
 		</nav>
+
+		<nav class="header-panel-settings"></nav>
 		
 	</header>
 
@@ -50,31 +62,46 @@
 	
 
 
-
 	<div class="main-wrapper">
 
 			<div class="tool tool-active tools-wrapper">
-					<div class="tool-item move-badge">
+					<div class="active tool-item move-badge">
 						<img src="img/move3.png" alt="" />
 					</div>
+
 					<div class="tool-item pencil-badge">
 						<img src="img/pencil.png" alt="" />
+						<div class="tool-item-panel">
+							
+								<img src="img/pencil.png" alt="" />								
+														
+								<label class="h-100 pointer">размер <input class="input" maxlength="3" type="text" name="width"></label>								
+									
+								<label class="h-100 pointer">цвет <input class="input" type="color" id="color" name="color"></label>								
+							
+						</div>
 					</div>
+
 					<div class="tool-item text-badge">
 						<img src="img/text.png" alt="" />
 					</div>
+
 					<div class="tool-item pouring-badge">
 						<img src="img/paint-bucket.png" alt="" />
 					</div>
+
 					<div class="tool-item rubber-badge">
 						<img src="img/eraser.png" alt="" />
 					</div>
+
 					<div class="tool-item square-badge">
 						<img src="img/cube.png" alt="" />
 					</div>
+
 					<div class="tool-item line-badge">
 						<img src="img/diagonal-line.png" alt="" />
 					</div>
+					
 				</div>
 					
 		<!-- обертка в которую добавляются созданные canvas -->

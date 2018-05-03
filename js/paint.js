@@ -32,9 +32,20 @@ import CANVAS from "./class_canvas";
 import OPTIONS_COMPONENTS from "./class_options_components";
 import TOOL_DRAW from "./components/class_tool_draw";
 import "fabric";
+import "jquery-colpick";
+import $ from "jquery";
 
 import "style-loader!css-loader!../build/css/main.css";
+import "style-loader!css-loader!../build/css/colpick.css";
 import "style-loader!css-loader!../build/css/animate.css";
+
+console.log($);
+$("input[type='color']").colpick({
+  onSubmit: function(hsb, hex, rgb, el, bySetColor) {
+    $(el).val("#" + hex);
+    $(el).colpickHide();
+  }
+});
 
 // переменные DOM-елементов
 
@@ -44,7 +55,7 @@ let menu_bar = document.querySelector(".header-options"); //самое верх�
 let all_apply_button = document.querySelectorAll(".apply"); // все кнопки подтвердить
 let script = document.querySelector("script"); // последний script на странице
 
-let App = new APP();
+console.log(fabric);
 
 let Wrapper = new WRAPPER().init().event_scroll();
 
@@ -53,8 +64,6 @@ CASING.none().event();
 let arr_canvas = [];
 
 let tool_draw = new TOOL_DRAW(document.querySelector(".tools-wrapper"));
-
-console.log(fabric);
 
 tool_draw.wrapper.addEventListener(
   "mouseup",
@@ -71,6 +80,8 @@ tool_draw.wrapper.addEventListener(
           } catch (e) {}
 
           active(this[item].elem);
+
+          APP.header_panel.prepend(APP.active_tool_panel);
 
           APP.canvas.on("mouse:down", this[item].func_event);
           this[item].func_start();
@@ -99,8 +110,8 @@ let new_file = new OPTIONS_COMPONENTS({
   class_setting: "header-settings-new-file"
 }).set_appear(function() {
   set_value_of_form(this.elem_setting.querySelector("form"), {
-    width: get_width(APP.wrapper_work),
-    height: get_height(APP.wrapper_work),
+    width: get_width(APP.wrapper_work) - 50,
+    height: get_height(APP.wrapper_work) - 50,
     name: `Untitled-${APP.canvas_counter}`,
     background_color: "white"
   });

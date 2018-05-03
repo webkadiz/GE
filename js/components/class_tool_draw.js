@@ -78,6 +78,19 @@ export default class TOOLS_DRAW extends TOOLS_COMPONENTS {
     APP.canvas.selection = true;
   }
   pencil_func_start() {
+    for (let item of APP.header_panel.querySelectorAll(".tool-item-panel input")) {
+      item.addEventListener("blur", e => {
+        if (item.name == "width") {
+          APP.canvas.freeDrawingBrush.width = parseInt(item.value);
+        }
+        if (item.name == "color") {
+          console.log(item.value);
+          console.log(APP.canvas);
+          APP.canvas.freeDrawingBrush.color = item.value;
+        }
+      });
+    }
+
     APP.canvas.selection = false;
     APP.canvas.isDrawingMode = true;
   }

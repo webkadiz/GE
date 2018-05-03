@@ -96,7 +96,7 @@ export default class WRAPPER extends APP {
       size_end = APP.wrapper_work.scrollWidth - size;
     }
 
-    while (size_begin >= this.breakdown) {
+    while (size_begin) {
       let text = "";
       if (size_begin % this.breakdown == 0) {
         text = size_begin;
@@ -115,6 +115,8 @@ export default class WRAPPER extends APP {
       let text = "";
 
       text = size_end_counter;
+
+      size_value = this.breakdown;
 
       if (size_end - size_end_counter < this.breakdown) {
         size_value = size_end % this.breakdown;

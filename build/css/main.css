@@ -1,7 +1,21 @@
+label {
+  display: block; }
+
+.h-100 {
+  height: 100%; }
+
+.colpick_full {
+  z-index: 10000; }
+
 .tool-active {
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  box-shadow: none !important;
   height: 100% !important;
   position: static !important;
   border-radius: 0px !important; }
+
+.pointer {
+  cursor: pointer; }
 
 * {
   box-sizing: border-box; }
@@ -28,64 +42,83 @@ ul {
   padding: 0;
   list-style: none; }
 
-header {
+.header {
   margin: 0;
   background: #535353;
   z-index: 100; }
-  header .header-options ul {
+  .header .header-options {
     height: 100%;
-    background: #535353;
-    border-bottom: 1px solid MINTCREAM;
+    border-bottom: 1px solid rgba(245, 255, 250, 0.5);
     display: flex; }
-    header .header-options ul li {
+    .header .header-options-item {
       color: white;
       position: relative; }
-      header .header-options ul li div {
+      .header .header-options-item div {
         height: 100%; }
-      header .header-options ul li:hover .header-options-dropdown {
+      .header .header-options-item:hover .header-options-dropdown {
         display: block; }
-      header .header-options ul li:hover .header-options-badge {
+      .header .header-options-item:hover .header-options-badge {
         color: black;
         cursor: pointer;
         background: MINTCREAM; }
-        header .header-options ul li:hover .header-options-badge svg {
+        .header .header-options-item:hover .header-options-badge svg {
           transform: rotate(180deg); }
-    header .header-options ul li:first-child {
-      margin-left: 20px; }
-  header .header-options-dropdown {
-    border: 1px solid black;
-    z-index: 100000;
-    display: none;
-    position: absolute;
-    left: 0;
-    top: 100%;
-    background: #eee; }
-    header .header-options-dropdown > div {
-      cursor: pointer;
-      text-align: center;
-      font-size: .9rem;
-      white-space: pre;
-      color: #285473;
-      text-decoration: none;
-      background: #eee;
-      padding: 8px 8px;
-      display: block; }
-      header .header-options-dropdown > div:hover {
-        background: #e1e5eb; }
-  header .header-options-badge {
-    padding: 0px 10px;
-    transition: .3s;
+    .header .header-options-dropdown {
+      border: 1px solid black;
+      z-index: 100000;
+      display: none;
+      position: absolute;
+      left: -1px;
+      top: 100%;
+      background: #eee; }
+      .header .header-options-dropdown > div {
+        cursor: pointer;
+        text-align: center;
+        font-size: .9rem;
+        white-space: pre;
+        color: #285473;
+        text-decoration: none;
+        background: #eee;
+        padding: 8px 8px;
+        display: block; }
+        .header .header-options-dropdown > div:hover {
+          background: #e1e5eb; }
+    .header .header-options-badge {
+      color: MINTCREAM;
+      padding: 0px 10px;
+      transition: .3s;
+      display: flex;
+      align-items: center; }
+      .header .header-options-badge svg {
+        margin-left: 5px;
+        transition: .2s transform; }
+
+.header .header-panel-settings {
+  color: MINTCREAM;
+  display: flex;
+  height: 35px;
+  border-bottom: 1px solid rgba(245, 255, 250, 0.5); }
+  .header .header-panel-settings .tool-item-panel {
     display: flex;
     align-items: center; }
-    header .header-options-badge svg {
+    .header .header-panel-settings .tool-item-panel img {
+      margin-left: 8px; }
+    .header .header-panel-settings .tool-item-panel .input {
       margin-left: 5px;
-      transition: .2s transform; }
-
-header .title-canvas-wrapper .active.title-canvas {
-  background: MINTCREAM;
-  color: black; }
-  header .title-canvas-wrapper .active.title-canvas span {
-    color: rgba(0, 0, 0, 0.6); }
+      width: 25px;
+      height: 15px;
+      outline: none;
+      border: none;
+      border-radius: 3px; }
+    .header .header-panel-settings .tool-item-panel input[type="color"] {
+      background: transparent;
+      width: 40px;
+      height: 25px;
+      padding: 0; }
+    .header .header-panel-settings .tool-item-panel label {
+      margin-left: 10px;
+      display: flex;
+      align-items: center; }
 
 .drag-panel {
   border-radius: 5px 5px 0 0;
@@ -95,7 +128,7 @@ header .title-canvas-wrapper .active.title-canvas {
   background: #535353;
   display: flex;
   justify-content: flex-end;
-  border-bottom: 1px solid MINTCREAM; }
+  border-bottom: 1px solid rgba(245, 255, 250, 0.5); }
   .drag-panel-item {
     transition: .4s;
     width: 18px;
@@ -103,8 +136,8 @@ header .title-canvas-wrapper .active.title-canvas {
     padding: 0px 3px;
     cursor: pointer; }
     .drag-panel-item:hover {
-      border-left: 1px solid MINTCREAM;
-      border-right: 1px solid MINTCREAM; }
+      border-left: 1px solid rgba(245, 255, 250, 0.5);
+      border-right: 1px solid rgba(245, 255, 250, 0.5); }
   .drag-panel-close {
     position: relative; }
     .drag-panel-close::before, .drag-panel-close::after {
@@ -156,6 +189,8 @@ header .title-canvas-wrapper .active.title-canvas {
     align-items: center;
     justify-content: center;
     cursor: pointer; }
+    .tools-wrapper div.tool-item-panel {
+      display: none; }
   .tools-wrapper div.tool-item:hover {
     background: #777; }
   .tools-wrapper div.tool-item.active {
@@ -175,7 +210,7 @@ header .title-canvas-wrapper .active.title-canvas {
       font-size: 1.2rem;
       line-height: 25px;
       background: #424242;
-      border-bottom: 1px solid MINTCREAM; }
+      border-bottom: 1px solid rgba(245, 255, 250, 0.5); }
       .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file {
         height: 100%;
         padding: 0px 8px 0px 8px;
@@ -244,7 +279,6 @@ header .title-canvas-wrapper .active.title-canvas {
           flex-shrink: 0;
           height: 20px;
           text-indent: 2px;
-          box-sizing: border-box;
           border-left: 1px solid #888; }
     .main-wrapper .main-wrapper-canvas .coords-y-wrapper {
       line-height: inherit;
@@ -259,7 +293,6 @@ header .title-canvas-wrapper .active.title-canvas {
         flex-shrink: 0;
         white-space: pre-wrap;
         text-align: center;
-        box-sizing: border-box;
         border-top: 1px solid #888;
         width: 20px; }
   .main-wrapper .casing {

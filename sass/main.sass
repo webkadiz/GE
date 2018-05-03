@@ -17,11 +17,28 @@ $high: 1000
 $middle: 100
 $low: 10
 
+$border_color: rgba(MINTCREAM , .5)
+
+label 
+	display: block
+
+.h-100
+	height: 100%
+
+.colpick_full
+	z-index: $very_high 
 
 .tool-active
+	border: 1px solid rgba(0,0,0,.5)
+	box-shadow: none !important
 	height: 100% !important
 	position: static !important
 	border-radius: 0px !important
+
+.pointer
+	cursor: pointer	
+		
+
 
 *
 	box-sizing: border-box
@@ -51,39 +68,36 @@ ul
 
 
 
-header
+.header
 	margin: 0
 	background: $header_color
 	z-index: $middle
-	.header-options 
-		ul
-			height: 100%
-			background: $header_color
-			border-bottom: 1px solid MINTCREAM
-			display: flex	
-			li
-				color: white
-				position: relative
-				div
-					height: 100%
-				&:hover
-					.header-options-dropdown
-				 		display: block
-					.header-options-badge
-			 			color: black
-			 			cursor: pointer
-			 			background: MINTCREAM
-			 			svg
-				 			transform: rotate(180deg)
+	.header-options
+		height: 100%
+		border-bottom: 1px solid $border_color
+		display: flex	
+		&-item
+			color: white
+			position: relative
+			div
+				height: 100%
+			&:hover
+				.header-options-dropdown
+					display: block
+				.header-options-badge
+					color: black
+					cursor: pointer
+					background: MINTCREAM
+					svg
+						transform: rotate(180deg)
 
-			li:first-child
-				margin-left: 20px
+
 		&-dropdown
 			border: 1px solid black
 			z-index: $very_very_high
 			display: none	
 			position: absolute
-			left: 0
+			left: -1px
 			top: 100%
 			background: #eee
 			& > div
@@ -99,6 +113,7 @@ header
 				&:hover
 					background: $vk_color	
 		&-badge
+			color: MINTCREAM
 			padding: 0px 10px
 			transition: .3s
 			display: flex
@@ -106,19 +121,40 @@ header
 			svg
 				margin-left: 5px
 				transition: .2s transform
+						
 
 
-header
-	
+.header
+	.header-panel-settings
+		color: MINTCREAM
+		display: flex
+		height: 35px
+		border-bottom: 1px solid $border_color
+		.tool-item-panel
+			display: flex
+			align-items: center
+			img
+				margin-left: 8px
+			.input
+				margin-left: 5px
+				width: 25px
+				height: 15px
+				outline: none
+				border: none
+				border-radius: 3px
+			input[type="color"]
+				background: transparent	
+				width: 40px
+				height: 25px
+				padding: 0
+			label
+				margin-left: 10px
+				display: flex
+				align-items: center	
+				
 
-header
-	.title-canvas-wrapper
-		.title-canvas.active
-			@extend .title-canvas
-			background: MINTCREAM
-			color: black 
-			span
-				color: rgba(0 , 0 ,0, .6)
+
+
 
 	//верхняя панелька для всех инструментов
 .drag-panel
@@ -129,7 +165,7 @@ header
 	background: $header_color
 	display: flex
 	justify-content: flex-end
-	border-bottom: 1px solid MINTCREAM
+	border-bottom: 1px solid $border_color
 	&-item
 		transition: .4s 
 		width: 18px
@@ -137,8 +173,8 @@ header
 		padding: 0px 3px
 		cursor: pointer
 		&:hover
-			border-left: 1px solid MINTCREAM
-			border-right: 1px solid MINTCREAM
+			border-left: 1px solid $border_color
+			border-right: 1px solid $border_color
 	&-close	
 		position: relative
 		&::before
@@ -192,6 +228,8 @@ header
 		align-items: center
 		justify-content: center
 		cursor: pointer
+		&-panel
+			display: none
 	div.tool-item:hover
 		background: #777	
 	div.tool-item.active
@@ -213,7 +251,7 @@ header
 			font-size: 1.2rem
 			line-height: 25px
 			background: $menu_tools_color
-			border-bottom: 1px solid MINTCREAM
+			border-bottom: 1px solid $border_color
 			.title-file
 				height: 100%
 				padding: 0px 8px 0px 8px
@@ -284,7 +322,6 @@ header
 					flex-shrink: 0
 					height: 20px
 					text-indent: 2px
-					box-sizing: border-box
 					border-left: 1px solid #888
 		.coords-y-wrapper
 			@extend .coords-x-wrapper
@@ -301,7 +338,6 @@ header
 					flex-shrink: 0
 					white-space: pre-wrap
 					text-align: center
-					box-sizing: border-box
 					border-top: 1px solid #888
 					width: 20px
 	.casing

@@ -2,6 +2,15 @@ import { get_height, get_width, get_left, get_top, visible, hidden, switcher, bl
 
 export default class APP {
   constructor() {}
+  static get active_tool_panel() {
+    return document.querySelector(".tool-item.active .tool-item-panel");
+  }
+  static get active_tool() {
+    return document.querySelector(".tool-item.active");
+  }
+  static get header_panel() {
+    return document.querySelector(".header-panel-settings");
+  }
   static get header() {
     return document.querySelector("header");
   }
@@ -24,6 +33,5 @@ export default class APP {
   static get wrapper_zoom() {
     return document.querySelector(".zoom-wrapper.active ");
   }
-
 }
 APP.canvas_counter = 1;
