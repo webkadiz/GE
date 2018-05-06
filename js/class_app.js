@@ -2,9 +2,7 @@ import { get_height, get_width, get_left, get_top, visible, hidden, switcher, bl
 
 export default class APP {
   constructor() {}
-  static get active_tool_panel() {
-    return document.querySelector(".tool-item.active .tool-item-panel");
-  }
+
   static get active_tool() {
     return document.querySelector(".tool-item.active");
   }

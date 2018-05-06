@@ -32,17 +32,19 @@ import CANVAS from "./class_canvas";
 import OPTIONS_COMPONENTS from "./class_options_components";
 import TOOL_DRAW from "./components/class_tool_draw";
 import "fabric";
-import "jquery-colpick";
+import "./colpick.js";
 import $ from "jquery";
+import "jquery-ui-dist/jquery-ui";
 
 import "style-loader!css-loader!../build/css/main.css";
 import "style-loader!css-loader!../build/css/colpick.css";
 import "style-loader!css-loader!../build/css/animate.css";
 
-console.log($);
+
 $("input[type='color']").colpick({
-  onSubmit: function(hsb, hex, rgb, el, bySetColor) {
+  onSubmit: function(hsb, hex, rgb, el) {
     $(el).val("#" + hex);
+    el.click();
     $(el).colpickHide();
   }
 });
@@ -65,6 +67,22 @@ let arr_canvas = [];
 
 let tool_draw = new TOOL_DRAW(document.querySelector(".tools-wrapper"));
 
+APP.prev_event = tool_draw.move;
+
+console.log(tool_draw);
+for (let item in tool_draw) {
+  if ("elem" in tool_draw[item]) {
+    for (let input of tool_draw[item].elem_setting.querySelectorAll("input")) {
+      $(input).on("input click", e => {
+        if (Number(input.value) || Number(input.value) === 0) {
+          tool_draw[item].settings[input.name] = parseFloat(input.value);
+        } else {
+          tool_draw[item].settings[input.name] = input.value;
+        }
+      });
+    }
+  }
+}
 tool_draw.wrapper.addEventListener(
   "mouseup",
   function(e) {
@@ -74,21 +92,25 @@ tool_draw.wrapper.addEventListener(
       try {
         if (target.closest(this[item].class_name)) {
           try {
-            disactive(APP.canvas.prev_event.elem);
-            APP.canvas.off("mouse:down", APP.canvas.prev_event.func_event);
-            APP.canvas.prev_event.func_end();
-          } catch (e) {}
+            disactive(APP.prev_event.elem_setting);
+            disactive(APP.prev_event.elem);
+            APP.canvas.off("mouse:down", APP.prev_event.func_event);
+            APP.prev_event.func_end();
+          } catch (e) {
+            console.log(e);
+          }
+
+          APP.prev_event = this[item];
 
           active(this[item].elem);
+          active(this[item].elem_setting);
 
-          APP.header_panel.prepend(APP.active_tool_panel);
-
-          APP.canvas.on("mouse:down", this[item].func_event);
           this[item].func_start();
-
-          APP.canvas.prev_event = this[item];
+          APP.canvas.on("mouse:down", this[item].func_event);
         }
-      } catch (e) {}
+      } catch (e) {
+        console.log(e);
+      }
     }
   }.bind(tool_draw)
 );

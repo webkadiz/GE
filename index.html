@@ -7,6 +7,8 @@
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>Paint Online</title>
 
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+
 </head>
 
 <body>
@@ -22,7 +24,7 @@
 					</div>
 					<div class="header-options-dropdown">
 						<div class="header-options-new-file">новый файл</div>
-						<div  class="header-options-save-file">сохранить</div>
+						<div  class="header-options-save-file">скачать</div>
 					</div>
 				</div>
 
@@ -54,7 +56,52 @@
 			
 		</nav>
 
-		<nav class="header-panel-settings"></nav>
+		<nav class="header-panel-settings">
+
+			<div class="panel header-panel-settings-move">						
+				<img src="img/move3.png" alt="" />																		
+				<label class="h-100 pointer">размер <input class="input" maxlength="3" type="text" name="width"></label>													
+				<label class="h-100 pointer">цвет <input class="input" type="color" id="color" name="color"></label>										
+			</div>
+
+			<div class="panel header-panel-settings-pencil">						
+				<img src="img/pencil.png" alt="" />																		
+				<label class="h-100 pointer">размер <input class="input" maxlength="3" type="text" name="width"></label>													
+				<label class="h-100 pointer">цвет <input class="input" type="color" id="color" name="color"></label>										
+			</div>
+
+			<div class="panel header-panel-settings-text">						
+				<img src="img/text.png" alt="" />																		
+				<label class="h-100 pointer">размер шрифта <input class="input" maxlength="3" type="text" name="fontSize"></label>													
+				<label class="h-100 pointer">цвет фона <input class="input" type="color" id="color" name="textBackgroundColor"></label>	
+				<label class="h-100 pointer">цвет текста <input class="input" type="color" id="color" name="fill"></label>												
+			</div>
+
+			<div class="panel header-panel-settings-pouring">						
+				<img src="img/paint-bucket.png" alt="" />																		
+				<label class="h-100 pointer">размер <input class="input" maxlength="3" type="text" name="width"></label>													
+				<label class="h-100 pointer">цвет <input class="input" type="color" id="color" name="color"></label>										
+			</div>
+
+			<div class="panel header-panel-settings-rubber">						
+				<img src="img/eraser.png" alt="" />																		
+				<label class="h-100 pointer">размер <input class="input" maxlength="3" type="text" name="width"></label>													
+				<label class="h-100 pointer">цвет <input class="input" type="color" id="color" name="color"></label>										
+			</div>
+
+			<div class="panel header-panel-settings-square">						
+				<img src="img/cube.png" alt="" />																		
+				<label class="h-100 pointer">ширина граница <input class="input" maxlength="3" type="text" name="strokeWidth"></label>													
+				<label class="h-100 pointer">цвет <input class="input" type="color" id="color" name="fill"></label>										
+			</div>
+
+			<div class="panel header-panel-settings-line">						
+				<img src="img/diagonal-line.png" alt="" />																		
+				<label class="h-100 pointer">ширина линии <input class="input" maxlength="3" type="text" name="strokeWidth"></label>													
+				<label class="h-100 pointer">цвет <input value="#000" class="input" type="color" id="color" name="stroke"></label>										
+			</div>
+
+		</nav>
 		
 	</header>
 
@@ -64,22 +111,13 @@
 
 	<div class="main-wrapper">
 
-			<div class="tool tool-active tools-wrapper">
-					<div class="active tool-item move-badge">
+			<div  class="tool tool-active tools-wrapper">
+					<div class="tool-item move-badge">
 						<img src="img/move3.png" alt="" />
 					</div>
 
 					<div class="tool-item pencil-badge">
-						<img src="img/pencil.png" alt="" />
-						<div class="tool-item-panel">
-							
-								<img src="img/pencil.png" alt="" />								
-														
-								<label class="h-100 pointer">размер <input class="input" maxlength="3" type="text" name="width"></label>								
-									
-								<label class="h-100 pointer">цвет <input class="input" type="color" id="color" name="color"></label>								
-							
-						</div>
+						<img src="img/pencil.png" alt="" />					
 					</div>
 
 					<div class="tool-item text-badge">
@@ -178,7 +216,7 @@
 				<input type="text" name="height">
 			</div>
 			<div class="input-wrapper">
-					<label for="background_color">Цве фона </label>
+					<label for="background_color">Цвет фона </label>
 					<input type="text" name="background_color">
 				</div>
 		</form>

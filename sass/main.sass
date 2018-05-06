@@ -1,4 +1,5 @@
 
+
 $canvas_color: #282828
 $header_color: #535353
 $vk_color: #e1e5eb	
@@ -10,6 +11,9 @@ $menu_tools_color: #424242
 
 $coords_color: #474747
 $bg_tools: #2F4F4F
+
+$input_color: #454545
+$label_color: #d6d6d6
 
 $very_very_high: 100000
 $very_high: 10000	
@@ -79,7 +83,7 @@ ul
 		&-item
 			color: white
 			position: relative
-			div
+			.header-options-badge
 				height: 100%
 			&:hover
 				.header-options-dropdown
@@ -130,12 +134,21 @@ ul
 		display: flex
 		height: 35px
 		border-bottom: 1px solid $border_color
-		.tool-item-panel
+		.panel.active
 			display: flex
+		.panel
+			display: none
 			align-items: center
+			label
+				margin-left: 10px
+				display: flex
+				align-items: center	
+				color: $label_color
 			img
 				margin-left: 8px
 			.input
+				color: white
+				background: $input_color
 				margin-left: 5px
 				width: 25px
 				height: 15px
@@ -147,10 +160,7 @@ ul
 				width: 40px
 				height: 25px
 				padding: 0
-			label
-				margin-left: 10px
-				display: flex
-				align-items: center	
+			
 				
 
 
@@ -208,7 +218,7 @@ ul
 //инструменты
 .tools-wrapper
 	box-shadow: 0 0px 14px 2px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2)
-	position: absolute
+	position: absolute 
 	z-index: $high
 	background: $header_color
 	display: flex
@@ -219,17 +229,15 @@ ul
 	left: 100px
 	top: 100px
 	border-radius: 5px
-	transition: width .4s
+	overflow: hidden
 	div.tool-item	
 		padding: 5px
-		width: 34px
-		height: 34px
+		width: 32px
+		height: 32px
 		display: flex
 		align-items: center
 		justify-content: center
 		cursor: pointer
-		&-panel
-			display: none
 	div.tool-item:hover
 		background: #777	
 	div.tool-item.active
@@ -364,7 +372,7 @@ ul
 	left: 0
 	right: 0
 	top: 0
-	height: 35px
+	height: 25px
 	background: #fff
 	.close
 		transition: .3s
@@ -376,8 +384,8 @@ ul
 		top: 0
 		margin: auto
 		bottom: 0
-		width: 35px
-		height: 35px
+		width: 25px
+		height: 25px
 		&:focus
 			outline: none
 		&:hover
@@ -408,20 +416,19 @@ ul
 	position: absolute
 	right: 40px
 	bottom: 25px
-	height: 35px
 	transition: .3s
-	font-size: 22px
-	padding: 5px
+	font-size: 1.1rem
+	padding: 5px 8px
 	border: none
 	border-radius: 3px
 	color: white
-	background: $header_color
+	background: $input_color
 	&:active
 		transform: scale(0.95)
 	&:focus
 		outline: none
 	&:hover
-		background: darken($header_color, 10%)
+		background: darken($input_color, 5%)
 		cursor: pointer	
 
 .header-settings-window-size
@@ -436,19 +443,23 @@ ul
 	padding: 75px 40px
 	.input-wrapper
 		display: flex
+		align-items: center
 		margin-bottom: 15px
-		justify-content: space-between
+		justify-content: flex-end
 		input	
+			background: $input_color
+			color: white
 			display: block
 			padding: 5px
 			border-radius: 3px
 			border: none
-			&:focus
-				outline: none
+			outline: none				
 		label
+			font-size: 1.1rem 
+			color: $label_color
 			margin-right: 10px
 			display: block
-			color: white	
+				
 	
 
 .header-settings-new-file

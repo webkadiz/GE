@@ -53,7 +53,7 @@ ul {
     .header .header-options-item {
       color: white;
       position: relative; }
-      .header .header-options-item div {
+      .header .header-options-item .header-options-badge {
         height: 100%; }
       .header .header-options-item:hover .header-options-dropdown {
         display: block; }
@@ -98,27 +98,32 @@ ul {
   display: flex;
   height: 35px;
   border-bottom: 1px solid rgba(245, 255, 250, 0.5); }
-  .header .header-panel-settings .tool-item-panel {
-    display: flex;
+  .header .header-panel-settings .panel.active {
+    display: flex; }
+  .header .header-panel-settings .panel {
+    display: none;
     align-items: center; }
-    .header .header-panel-settings .tool-item-panel img {
+    .header .header-panel-settings .panel label {
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+      color: #d6d6d6; }
+    .header .header-panel-settings .panel img {
       margin-left: 8px; }
-    .header .header-panel-settings .tool-item-panel .input {
+    .header .header-panel-settings .panel .input {
+      color: white;
+      background: #454545;
       margin-left: 5px;
       width: 25px;
       height: 15px;
       outline: none;
       border: none;
       border-radius: 3px; }
-    .header .header-panel-settings .tool-item-panel input[type="color"] {
+    .header .header-panel-settings .panel input[type="color"] {
       background: transparent;
       width: 40px;
       height: 25px;
       padding: 0; }
-    .header .header-panel-settings .tool-item-panel label {
-      margin-left: 10px;
-      display: flex;
-      align-items: center; }
 
 .drag-panel {
   border-radius: 5px 5px 0 0;
@@ -180,17 +185,15 @@ ul {
   left: 100px;
   top: 100px;
   border-radius: 5px;
-  transition: width .4s; }
+  overflow: hidden; }
   .tools-wrapper div.tool-item {
     padding: 5px;
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer; }
-    .tools-wrapper div.tool-item-panel {
-      display: none; }
   .tools-wrapper div.tool-item:hover {
     background: #777; }
   .tools-wrapper div.tool-item.active {
@@ -316,7 +319,7 @@ ul {
   left: 0;
   right: 0;
   top: 0;
-  height: 35px;
+  height: 25px;
   background: #fff; }
   .close-wrapper .close {
     transition: .3s;
@@ -328,8 +331,8 @@ ul {
     top: 0;
     margin: auto;
     bottom: 0;
-    width: 35px;
-    height: 35px; }
+    width: 25px;
+    height: 25px; }
     .close-wrapper .close:focus {
       outline: none; }
     .close-wrapper .close:hover {
@@ -355,20 +358,19 @@ ul {
   position: absolute;
   right: 40px;
   bottom: 25px;
-  height: 35px;
   transition: .3s;
-  font-size: 22px;
-  padding: 5px;
+  font-size: 1.1rem;
+  padding: 5px 8px;
   border: none;
   border-radius: 3px;
   color: white;
-  background: #535353; }
+  background: #454545; }
   .apply:active {
     transform: scale(0.95); }
   .apply:focus {
     outline: none; }
   .apply:hover {
-    background: #3a3a3a;
+    background: #383838;
     cursor: pointer; }
 
 .header-settings-window-size, .header-settings-new-file {
@@ -383,18 +385,21 @@ ul {
   padding: 75px 40px; }
   .header-settings-window-size .input-wrapper, .header-settings-new-file .input-wrapper {
     display: flex;
+    align-items: center;
     margin-bottom: 15px;
-    justify-content: space-between; }
+    justify-content: flex-end; }
     .header-settings-window-size .input-wrapper input, .header-settings-new-file .input-wrapper input {
+      background: #454545;
+      color: white;
       display: block;
       padding: 5px;
       border-radius: 3px;
-      border: none; }
-      .header-settings-window-size .input-wrapper input:focus, .header-settings-new-file .input-wrapper input:focus {
-        outline: none; }
+      border: none;
+      outline: none; }
     .header-settings-window-size .input-wrapper label, .header-settings-new-file .input-wrapper label {
+      font-size: 1.1rem;
+      color: #d6d6d6;
       margin-right: 10px;
-      display: block;
-      color: white; }
+      display: block; }
 
 /*# sourceMappingURL=main.css.map*/
