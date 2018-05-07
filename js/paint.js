@@ -31,6 +31,7 @@ import TOOLS_COMPONENTS from "./components/class_tools_components";
 import CANVAS from "./class_canvas";
 import OPTIONS_COMPONENTS from "./class_options_components";
 import TOOL_DRAW from "./components/class_tool_draw";
+import TOOLS_TEXT from "./components/class_tool_text";
 import "fabric";
 import "./colpick.js";
 import $ from "jquery";
@@ -39,7 +40,6 @@ import "jquery-ui-dist/jquery-ui";
 import "style-loader!css-loader!../build/css/main.css";
 import "style-loader!css-loader!../build/css/colpick.css";
 import "style-loader!css-loader!../build/css/animate.css";
-
 
 $("input[type='color']").colpick({
   onSubmit: function(hsb, hex, rgb, el) {
@@ -67,18 +67,12 @@ let arr_canvas = [];
 
 let tool_draw = new TOOL_DRAW(document.querySelector(".tools-wrapper"));
 
-APP.prev_event = tool_draw.move;
-
-console.log(tool_draw);
 for (let item in tool_draw) {
   if ("elem" in tool_draw[item]) {
     for (let input of tool_draw[item].elem_setting.querySelectorAll("input")) {
       $(input).on("input click", e => {
-        if (Number(input.value) || Number(input.value) === 0) {
-          tool_draw[item].settings[input.name] = parseFloat(input.value);
-        } else {
-          tool_draw[item].settings[input.name] = input.value;
-        }
+        tool_draw[item].settings[input.name] =
+          Number(input.value) || Number(input.value) === 0 ? parseFloat(input.value) : input.value;
       });
     }
   }
@@ -115,6 +109,20 @@ tool_draw.wrapper.addEventListener(
   }.bind(tool_draw)
 );
 
+let tool_text = new TOOLS_TEXT(document.querySelector(".text-tools-wrapper"));
+
+let header_tool_text = new OPTIONS_COMPONENTS({
+  class_option: "header-options-text-tools"
+}).set_appear(() => {
+  tool_text.wrapper.style.display = "";
+});
+
+let header_tool_draw = new OPTIONS_COMPONENTS({
+  class_option: "header-options-tools"
+}).set_appear(() => {
+  tool_draw.wrapper.style.display = "";
+});
+
 let save_file = new OPTIONS_COMPONENTS({
   class_option: "header-options-save-file",
   class_setting: undefined
@@ -147,8 +155,7 @@ new_file.set_apply(function() {
   let { name, width, height, background_color } = get_value_of_form(this.elem_setting.querySelector("form"));
 
   try {
-    APP.wrapper_zoom.classList.remove("active");
-    APP.canvas.title.classList.remove("active");
+    disactive(APP.wrapper_zoom, APP.canvas.title);
     APP.wrapper_coords_x.lastElementChild.remove();
     APP.wrapper_coords_y.lastElementChild.remove();
   } catch (e) {}
@@ -263,10 +270,6 @@ document.addEventListener("keydown", function(e) {
 
     get_zoom();
   }
-});
-
-APP.wrapper_main_canvas.addEventListener("contextmenu", e => {
-  e.preventDefault();
 });
 
 let main_wrapper = document.querySelector(".main-wrapper");

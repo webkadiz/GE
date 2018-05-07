@@ -203,6 +203,7 @@ export default class TOOLS_DRAW extends TOOLS_COMPONENTS {
         APP.canvas.renderAll();
 
         APP.canvas.off("mouse:move");
+        APP.canvas.off("mouse:up");
       });
     }
   }
@@ -235,6 +236,7 @@ export default class TOOLS_DRAW extends TOOLS_COMPONENTS {
         APP.canvas.add(line);
 
         APP.canvas.off("mouse:move");
+        APP.canvas.off("mouse:up");
       });
     }
   }
