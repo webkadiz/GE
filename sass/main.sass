@@ -29,7 +29,6 @@ label
 .h-100
 	height: 100%
 
-
 .select 
 	outline: none
 	padding: 5px 10px
@@ -47,7 +46,42 @@ label
 	border-radius: 3px	
 
 .colpick_full
+	border: 1px solid $border_color 
 	z-index: $very_high 
+	background: $header_color
+	color: white 		
+	.colpick_submit
+		color: white 
+		border: 1px solid $border_color 		
+		background: $input_color 
+		&:hover
+			background: darken($input_color , 10%) 
+	
+	.colpick_field , .colpick_hex_field
+		border: none
+		background: none 
+		display: flex
+		.colpick_field_letter
+			background: none
+			color: white
+		input
+			position: static
+			color: white 
+			border: 1px solid $border_color 		
+			background: $input_color 	
+		.colpick_field_arrs  
+			position: static
+			color: white !important
+			border: 1px solid $border_color !important		
+			background: $input_color !important
+			.colpick_field_uarr
+				border-bottom-color: white 
+			.colpick_field_darr
+				border-top-color: white 							
+			
+			
+
+			
 
 .tool-active
 	border: 1px solid rgba(0,0,0,.5)
@@ -55,6 +89,13 @@ label
 	height: 100% !important
 	position: static !important
 	border-radius: 0px !important
+
+%flex-end
+	display: flex
+	align-items: center
+	justify-content: flex-end
+	margin-bottom: 5px
+	cursor: pointer
 
 .pointer
 	cursor: pointer	
@@ -216,9 +257,8 @@ ul
 		transform: rotate(0deg)	
 
 .drag-place
-	cursor: move
 	width: 100%
-	height: 25px
+	height: 20px
 	display: flex
 	justify-content: center
 	align-items: center
@@ -253,6 +293,7 @@ ul
 		background: #777	
 
 
+
 // инструменты текста 
 .text-tools-wrapper
 	background: $header_color
@@ -262,15 +303,19 @@ ul
 	z-index: $high
 	border-radius: 5px
 	.font-wrapper
-		padding: 10px
+		padding: 0px 10px 10px 10px
 	.font-item
 		display: flex
+		justify-content: space-between
 		margin-bottom: 10px
 		.font-style
 			margin-left: 10px
 		.font-size
-			display: flex
-			align-items: center	
+			@extend  %flex-end
+		.font-line-height
+			@extend  %flex-end
+		.font-word-space
+			@extend  %flex-end			
 
 
 	//обертка canvas

@@ -15,11 +15,19 @@ import {
 } from "../addition_function";
 import "fabric";
 
-export default class TOOLS_DRAW extends TOOLS_COMPONENTS {
-  constructor(wrapper) {
-    super(wrapper)
-      .create_drag_panel(switcher(this.drag_panel_func.bind(this), 2, 0.5))
-      .create_drag_place();
+export default class TOOL_ALL extends TOOLS_COMPONENTS {
+  constructor(wrapper, func_panel) {
+    super(wrapper, func_panel);
+
+    this.default_settings = {
+      hasControls: false,
+      hasBorders: false,
+      lockMovementX: true,
+      lockMovementY: true,
+      width: 0,
+      height: 0,
+      hoverCursor: "default"
+    };
 
     this.move = {
       elem_setting: document.querySelector(".header-panel-settings-move"),
@@ -92,17 +100,21 @@ export default class TOOLS_DRAW extends TOOLS_COMPONENTS {
       }
     };
   }
-  drag_panel_func(value) {
-    this.wrapper.style.width = get_width(this.wrapper) * value + "px";
-  }
 
   // START
   move_func_start() {
     APP.canvas.selection = true;
-    console.log(APP.canvas.getObjects());
+    console.log();
+    APP.canvas.getActiveObjects().forEach(item => {
+      console.log(item);
+    });
 
     APP.canvas.forEachObject(item => {
       item.hasControls = true;
+      item.hasBorders = true;
+      item.hoverCursor = "move";
+      item.lockMovementX = false;
+      item.lockMovementY = false;
     });
   }
   pencil_func_start() {
@@ -119,12 +131,20 @@ export default class TOOLS_DRAW extends TOOLS_COMPONENTS {
   move_func_end() {
     APP.canvas.forEachObject(item => {
       item.hasControls = false;
+      item.hasBorders = false;
+      item.hoverCursor = "default";
+      item.lockMovementX = true;
+      item.lockMovementY = true;
     });
   }
   pencil_func_end() {
     APP.canvas.isDrawingMode = false;
   }
-  text_func_end() {}
+  text_func_end() {
+    try {
+      APP.canvas.item(APP.canvas.size() - 1).exitEditing();
+    } catch (e) {}
+  }
   pouring_func_end() {}
   rubber_func_end() {}
   square_func_end() {}
@@ -144,10 +164,10 @@ export default class TOOLS_DRAW extends TOOLS_COMPONENTS {
     let x = get_x(props.e);
     let y = get_y(props.e);
 
-    this.text.settings.left = x;
-    this.text.settings.top = y;
-
-    console.log(this.text.settings);
+    Object.assign(this.text.settings, this.default_settings, {
+      left: x,
+      top: y
+    });
 
     let text = new fabric.IText("", this.text.settings);
 
@@ -155,89 +175,84 @@ export default class TOOLS_DRAW extends TOOLS_COMPONENTS {
 
     text.enterEditing();
 
-    console.log(text);
+    text.on("editing:exited", () => {
+      
+      if (text.text === "") APP.canvas.remove(text);
+      console.log(APP.canvas.getObjects());
+    });
   }
+
   pouring_func_event(e) {}
   rubber_func_event(e) {}
   square_func_event(props) {
     APP.canvas.selection = false;
 
-    if (!props.target) {
-      let x1 = get_x(props.e);
-      let y1 = get_y(props.e);
+    let x1 = get_x(props.e);
+    let y1 = get_y(props.e);
 
-      console.log(this.square.settings);
+    Object.assign(this.square.settings, this.default_settings);
 
-      this.square.settings.left = x1;
-      this.square.settings.top = y1;
-      this.square.settings.width = 0;
-      this.square.settings.height = 0;
-      this.square.settings.hasControls = false;
+    this.square.settings.left = x1;
+    this.square.settings.top = y1;
 
-      let rect = new fabric.Rect(this.square.settings);
+    let rect = new fabric.Rect(this.square.settings);
 
-      APP.canvas.on("mouse:move", function(props) {
-        let x = get_x(props.e);
-        let y = get_y(props.e);
-        let x2 = x - x1;
-        let y2 = y - y1;
+    APP.canvas.on("mouse:move", function(props) {
+      let x = get_x(props.e);
+      let y = get_y(props.e);
+      let x2 = x - x1;
+      let y2 = y - y1;
 
-        if (x < x1 && y < y1) {
-          rect.set({ left: x, top: y, width: Math.abs(x2), height: Math.abs(y2) });
-        } else if (x < x1) {
-          rect.set({ left: x, width: Math.abs(x2), height: Math.abs(y2) });
-        } else if (y < y1) {
-          rect.set({ top: y, width: Math.abs(x2), height: Math.abs(y2) });
-        } else {
-          rect.set({ width: x2, height: y2 });
-        }
+      if (x < x1 && y < y1) {
+        rect.set({ left: x, top: y, width: Math.abs(x2), height: Math.abs(y2) });
+      } else if (x < x1) {
+        rect.set({ left: x, width: Math.abs(x2), height: Math.abs(y2) });
+      } else if (y < y1) {
+        rect.set({ top: y, width: Math.abs(x2), height: Math.abs(y2) });
+      } else {
+        rect.set({ width: x2, height: y2 });
+      }
 
-        APP.canvas.renderAll();
+      APP.canvas.renderAll();
 
-        rect.render(APP.canvas.getContext());
-      });
+      rect.render(APP.canvas.getContext());
+    });
 
-      APP.canvas.on("mouse:up", function() {
-        APP.canvas.add(rect);
+    APP.canvas.on("mouse:up", function() {
+      APP.canvas.add(rect);
 
-        APP.canvas.renderAll();
+      APP.canvas.renderAll();
 
-        APP.canvas.off("mouse:move");
-        APP.canvas.off("mouse:up");
-      });
-    }
+      APP.canvas.off("mouse:move");
+      APP.canvas.off("mouse:up");
+    });
   }
   line_func_event(props) {
     APP.canvas.selection = false;
 
-    if (!props.target) {
+    let x = get_x(props.e);
+    let y = get_y(props.e);
+
+    Object.assign(this.line.settings, this.default_settings);
+
+    let line = new fabric.Line([x, y, x, y], this.line.settings);
+
+    APP.canvas.on("mouse:move", function(props) {
       let x = get_x(props.e);
       let y = get_y(props.e);
 
-      this.line.settings.hasControls = false;
+      line.set({ x2: x, y2: y });
 
-      console.log(this.line.settings);
+      APP.canvas.renderAll();
 
-      let line = new fabric.Line([x, y, x, y], this.line.settings);
+      line.render(APP.canvas.getContext());
+    });
 
-      APP.canvas.on("mouse:move", function(props) {
-        let x = get_x(props.e);
-        let y = get_y(props.e);
+    APP.canvas.on("mouse:up", function() {
+      APP.canvas.add(line);
 
-        line.set({ x2: x, y2: y });
-
-        APP.canvas.renderAll();
-
-        line.render(APP.canvas.getContext());
-      });
-
-      APP.canvas.on("mouse:up", function() {
-        console.log(123);
-        APP.canvas.add(line);
-
-        APP.canvas.off("mouse:move");
-        APP.canvas.off("mouse:up");
-      });
-    }
+      APP.canvas.off("mouse:move");
+      APP.canvas.off("mouse:up");
+    });
   }
 }

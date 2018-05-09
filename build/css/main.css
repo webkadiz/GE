@@ -21,7 +21,37 @@ label {
   border-radius: 3px; }
 
 .colpick_full {
-  z-index: 10000; }
+  border: 1px solid rgba(245, 255, 250, 0.5);
+  z-index: 10000;
+  background: #535353;
+  color: white; }
+  .colpick_full .colpick_submit {
+    color: white;
+    border: 1px solid rgba(245, 255, 250, 0.5);
+    background: #454545; }
+    .colpick_full .colpick_submit:hover {
+      background: #2c2c2c; }
+  .colpick_full .colpick_field, .colpick_full .colpick_hex_field {
+    border: none;
+    background: none;
+    display: flex; }
+    .colpick_full .colpick_field .colpick_field_letter, .colpick_full .colpick_hex_field .colpick_field_letter {
+      background: none;
+      color: white; }
+    .colpick_full .colpick_field input, .colpick_full .colpick_hex_field input {
+      position: static;
+      color: white;
+      border: 1px solid rgba(245, 255, 250, 0.5);
+      background: #454545; }
+    .colpick_full .colpick_field .colpick_field_arrs, .colpick_full .colpick_hex_field .colpick_field_arrs {
+      position: static;
+      color: white !important;
+      border: 1px solid rgba(245, 255, 250, 0.5) !important;
+      background: #454545 !important; }
+      .colpick_full .colpick_field .colpick_field_arrs .colpick_field_uarr, .colpick_full .colpick_hex_field .colpick_field_arrs .colpick_field_uarr {
+        border-bottom-color: white; }
+      .colpick_full .colpick_field .colpick_field_arrs .colpick_field_darr, .colpick_full .colpick_hex_field .colpick_field_arrs .colpick_field_darr {
+        border-top-color: white; }
 
 .tool-active {
   border: 1px solid rgba(0, 0, 0, 0.5);
@@ -29,6 +59,13 @@ label {
   height: 100% !important;
   position: static !important;
   border-radius: 0px !important; }
+
+.text-tools-wrapper .font-item .font-size, .text-tools-wrapper .font-item .font-line-height, .text-tools-wrapper .font-item .font-word-space {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 5px;
+  cursor: pointer; }
 
 .pointer {
   cursor: pointer; }
@@ -172,9 +209,8 @@ ul {
     transform: rotate(0deg); }
 
 .drag-place {
-  cursor: move;
   width: 100%;
-  height: 25px;
+  height: 20px;
   display: flex;
   justify-content: center;
   align-items: center; }
@@ -215,15 +251,13 @@ ul {
   z-index: 1000;
   border-radius: 5px; }
   .text-tools-wrapper .font-wrapper {
-    padding: 10px; }
+    padding: 0px 10px 10px 10px; }
   .text-tools-wrapper .font-item {
     display: flex;
+    justify-content: space-between;
     margin-bottom: 10px; }
     .text-tools-wrapper .font-item .font-style {
       margin-left: 10px; }
-    .text-tools-wrapper .font-item .font-size {
-      display: flex;
-      align-items: center; }
 
 .main-wrapper {
   position: relative;

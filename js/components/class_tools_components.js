@@ -17,11 +17,13 @@ import $ from "jquery";
 import "jquery-ui-dist/jquery-ui";
 
 export default class TOOLS_COMPONENTS extends APP {
-  constructor(wrapper) {
+  constructor(wrapper, func_panel = () => {}) {
     super();
     this.wrapper = wrapper;
     this.drag_panel;
     this.drag_place;
+    this.create_drag_panel(func_panel);
+    this.create_drag_place();
 
     $(this.wrapper).resizable({
       ghost: true,

@@ -30,15 +30,15 @@ import WRAPPER from "./class_wrapper";
 import TOOLS_COMPONENTS from "./components/class_tools_components";
 import CANVAS from "./class_canvas";
 import OPTIONS_COMPONENTS from "./class_options_components";
-import TOOL_DRAW from "./components/class_tool_draw";
-import TOOLS_TEXT from "./components/class_tool_text";
+import TOOL_ALL from "./components/class_tool_all";
+
 import "fabric";
 import "./colpick.js";
 import $ from "jquery";
 import "jquery-ui-dist/jquery-ui";
 
-import "style-loader!css-loader!../build/css/main.css";
 import "style-loader!css-loader!../build/css/colpick.css";
+import "style-loader!css-loader!../build/css/main.css";
 import "style-loader!css-loader!../build/css/animate.css";
 
 $("input[type='color']").colpick({
@@ -65,51 +65,66 @@ CASING.none().event();
 
 let arr_canvas = [];
 
-let tool_draw = new TOOL_DRAW(document.querySelector(".tools-wrapper"));
+let tool_all = new TOOL_ALL(
+  document.querySelector(".tools-wrapper"),
+  switcher(
+    function(value) {
+      document.querySelector(".tools-wrapper").style.width =
+        get_width(document.querySelector(".tools-wrapper")) * value + "px";
+    },
+    2,
+    0.5
+  )
+);
 
-for (let item in tool_draw) {
-  if ("elem" in tool_draw[item]) {
-    for (let input of tool_draw[item].elem_setting.querySelectorAll("input")) {
+for (let item in tool_all) {
+  if ("elem" in tool_all[item]) {
+    for (let input of tool_all[item].elem_setting.querySelectorAll("input")) {
       $(input).on("input click", e => {
-        tool_draw[item].settings[input.name] =
+        tool_all[item].settings[input.name] =
           Number(input.value) || Number(input.value) === 0 ? parseFloat(input.value) : input.value;
       });
     }
   }
 }
-tool_draw.wrapper.addEventListener(
-  "mouseup",
-  function(e) {
-    let target = e.target;
+tool_all.wrapper.addEventListener("mouseup", function(e) {
+  let target = e.target;
 
-    for (let item in this) {
-      try {
-        if (target.closest(this[item].class_name)) {
-          try {
-            disactive(APP.prev_event.elem_setting);
-            disactive(APP.prev_event.elem);
-            APP.canvas.off("mouse:down", APP.prev_event.func_event);
-            APP.prev_event.func_end();
-          } catch (e) {
-            console.log(e);
-          }
-
-          APP.prev_event = this[item];
-
-          active(this[item].elem);
-          active(this[item].elem_setting);
-
-          this[item].func_start();
-          APP.canvas.on("mouse:down", this[item].func_event);
+  for (let item in tool_all) {
+    try {
+      if (target.closest(tool_all[item].class_name)) {
+        try {
+          disactive(APP.prev_event.elem_setting);
+          disactive(APP.prev_event.elem);
+          APP.canvas.off("mouse:down", APP.prev_event.func_event);
+          APP.prev_event.func_end();
+        } catch (e) {
+          console.log(e);
         }
-      } catch (e) {
-        console.log(e);
-      }
-    }
-  }.bind(tool_draw)
-);
 
-let tool_text = new TOOLS_TEXT(document.querySelector(".text-tools-wrapper"));
+        APP.prev_event = tool_all[item];
+
+        active(tool_all[item].elem);
+        active(tool_all[item].elem_setting);
+
+        tool_all[item].func_start();
+        APP.canvas.on("mouse:down", tool_all[item].func_event);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+});
+
+let tool_text = new TOOLS_COMPONENTS(document.querySelector(".text-tools-wrapper"));
+
+for (let input of tool_text.wrapper.querySelectorAll("input , select")) {
+  $(input).on("input click", e => {
+    console.log(123);
+    tool_all.text.settings[input.name] =
+      Number(input.value) || Number(input.value) === 0 ? parseFloat(input.value) : input.value;
+  });
+}
 
 let header_tool_text = new OPTIONS_COMPONENTS({
   class_option: "header-options-text-tools"
@@ -117,10 +132,10 @@ let header_tool_text = new OPTIONS_COMPONENTS({
   tool_text.wrapper.style.display = "";
 });
 
-let header_tool_draw = new OPTIONS_COMPONENTS({
+let header_tool_all = new OPTIONS_COMPONENTS({
   class_option: "header-options-tools"
 }).set_appear(() => {
-  tool_draw.wrapper.style.display = "";
+  tool_all.wrapper.style.display = "";
 });
 
 let save_file = new OPTIONS_COMPONENTS({

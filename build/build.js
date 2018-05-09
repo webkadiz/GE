@@ -1982,10 +1982,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 /***/ }),
 
-/***/ "./js/components/class_tool_draw.js":
-/*!******************************************!*\
-  !*** ./js/components/class_tool_draw.js ***!
-  \******************************************/
+/***/ "./js/components/class_tool_all.js":
+/*!*****************************************!*\
+  !*** ./js/components/class_tool_all.js ***!
+  \*****************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2018,15 +2018,23 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var TOOLS_DRAW = function (_TOOLS_COMPONENTS) {
-  _inherits(TOOLS_DRAW, _TOOLS_COMPONENTS);
+var TOOL_ALL = function (_TOOLS_COMPONENTS) {
+  _inherits(TOOL_ALL, _TOOLS_COMPONENTS);
 
-  function TOOLS_DRAW(wrapper) {
-    var _this;
+  function TOOL_ALL(wrapper, func_panel) {
+    _classCallCheck(this, TOOL_ALL);
 
-    _classCallCheck(this, TOOLS_DRAW);
+    var _this = _possibleConstructorReturn(this, (TOOL_ALL.__proto__ || Object.getPrototypeOf(TOOL_ALL)).call(this, wrapper, func_panel));
 
-    (_this = _possibleConstructorReturn(this, (TOOLS_DRAW.__proto__ || Object.getPrototypeOf(TOOLS_DRAW)).call(this, wrapper)), _this).create_drag_panel((0, _addition_function.switcher)(_this.drag_panel_func.bind(_this), 2, 0.5)).create_drag_place();
+    _this.default_settings = {
+      hasControls: false,
+      hasBorders: false,
+      lockMovementX: true,
+      lockMovementY: true,
+      width: 0,
+      height: 0,
+      hoverCursor: "default"
+    };
 
     _this.move = {
       elem_setting: document.querySelector(".header-panel-settings-move"),
@@ -2101,22 +2109,24 @@ var TOOLS_DRAW = function (_TOOLS_COMPONENTS) {
     return _this;
   }
 
-  _createClass(TOOLS_DRAW, [{
-    key: "drag_panel_func",
-    value: function drag_panel_func(value) {
-      this.wrapper.style.width = (0, _addition_function.get_width)(this.wrapper) * value + "px";
-    }
+  // START
 
-    // START
 
-  }, {
+  _createClass(TOOL_ALL, [{
     key: "move_func_start",
     value: function move_func_start() {
       _class_app2.default.canvas.selection = true;
-      console.log(_class_app2.default.canvas.getObjects());
+      console.log();
+      _class_app2.default.canvas.getActiveObjects().forEach(function (item) {
+        console.log(item);
+      });
 
       _class_app2.default.canvas.forEachObject(function (item) {
         item.hasControls = true;
+        item.hasBorders = true;
+        item.hoverCursor = "move";
+        item.lockMovementX = false;
+        item.lockMovementY = false;
       });
     }
   }, {
@@ -2148,6 +2158,10 @@ var TOOLS_DRAW = function (_TOOLS_COMPONENTS) {
     value: function move_func_end() {
       _class_app2.default.canvas.forEachObject(function (item) {
         item.hasControls = false;
+        item.hasBorders = false;
+        item.hoverCursor = "default";
+        item.lockMovementX = true;
+        item.lockMovementY = true;
       });
     }
   }, {
@@ -2157,7 +2171,11 @@ var TOOLS_DRAW = function (_TOOLS_COMPONENTS) {
     }
   }, {
     key: "text_func_end",
-    value: function text_func_end() {}
+    value: function text_func_end() {
+      try {
+        _class_app2.default.canvas.item(_class_app2.default.canvas.size() - 1).exitEditing();
+      } catch (e) {}
+    }
   }, {
     key: "pouring_func_end",
     value: function pouring_func_end() {}
@@ -2192,10 +2210,10 @@ var TOOLS_DRAW = function (_TOOLS_COMPONENTS) {
       var x = (0, _addition_function.get_x)(props.e);
       var y = (0, _addition_function.get_y)(props.e);
 
-      this.text.settings.left = x;
-      this.text.settings.top = y;
-
-      console.log(this.text.settings);
+      Object.assign(this.text.settings, this.default_settings, {
+        left: x,
+        top: y
+      });
 
       var text = new fabric.IText("", this.text.settings);
 
@@ -2203,7 +2221,11 @@ var TOOLS_DRAW = function (_TOOLS_COMPONENTS) {
 
       text.enterEditing();
 
-      console.log(text);
+      text.on("editing:exited", function () {
+
+        if (text.text === "") _class_app2.default.canvas.remove(text);
+        console.log(_class_app2.default.canvas.getObjects());
+      });
     }
   }, {
     key: "pouring_func_event",
@@ -2216,145 +2238,82 @@ var TOOLS_DRAW = function (_TOOLS_COMPONENTS) {
     value: function square_func_event(props) {
       _class_app2.default.canvas.selection = false;
 
-      if (!props.target) {
-        var x1 = (0, _addition_function.get_x)(props.e);
-        var y1 = (0, _addition_function.get_y)(props.e);
+      var x1 = (0, _addition_function.get_x)(props.e);
+      var y1 = (0, _addition_function.get_y)(props.e);
 
-        console.log(this.square.settings);
+      Object.assign(this.square.settings, this.default_settings);
 
-        this.square.settings.left = x1;
-        this.square.settings.top = y1;
-        this.square.settings.width = 0;
-        this.square.settings.height = 0;
-        this.square.settings.hasControls = false;
+      this.square.settings.left = x1;
+      this.square.settings.top = y1;
 
-        var rect = new fabric.Rect(this.square.settings);
+      var rect = new fabric.Rect(this.square.settings);
 
-        _class_app2.default.canvas.on("mouse:move", function (props) {
-          var x = (0, _addition_function.get_x)(props.e);
-          var y = (0, _addition_function.get_y)(props.e);
-          var x2 = x - x1;
-          var y2 = y - y1;
+      _class_app2.default.canvas.on("mouse:move", function (props) {
+        var x = (0, _addition_function.get_x)(props.e);
+        var y = (0, _addition_function.get_y)(props.e);
+        var x2 = x - x1;
+        var y2 = y - y1;
 
-          if (x < x1 && y < y1) {
-            rect.set({ left: x, top: y, width: Math.abs(x2), height: Math.abs(y2) });
-          } else if (x < x1) {
-            rect.set({ left: x, width: Math.abs(x2), height: Math.abs(y2) });
-          } else if (y < y1) {
-            rect.set({ top: y, width: Math.abs(x2), height: Math.abs(y2) });
-          } else {
-            rect.set({ width: x2, height: y2 });
-          }
+        if (x < x1 && y < y1) {
+          rect.set({ left: x, top: y, width: Math.abs(x2), height: Math.abs(y2) });
+        } else if (x < x1) {
+          rect.set({ left: x, width: Math.abs(x2), height: Math.abs(y2) });
+        } else if (y < y1) {
+          rect.set({ top: y, width: Math.abs(x2), height: Math.abs(y2) });
+        } else {
+          rect.set({ width: x2, height: y2 });
+        }
 
-          _class_app2.default.canvas.renderAll();
+        _class_app2.default.canvas.renderAll();
 
-          rect.render(_class_app2.default.canvas.getContext());
-        });
+        rect.render(_class_app2.default.canvas.getContext());
+      });
 
-        _class_app2.default.canvas.on("mouse:up", function () {
-          _class_app2.default.canvas.add(rect);
+      _class_app2.default.canvas.on("mouse:up", function () {
+        _class_app2.default.canvas.add(rect);
 
-          _class_app2.default.canvas.renderAll();
+        _class_app2.default.canvas.renderAll();
 
-          _class_app2.default.canvas.off("mouse:move");
-          _class_app2.default.canvas.off("mouse:up");
-        });
-      }
+        _class_app2.default.canvas.off("mouse:move");
+        _class_app2.default.canvas.off("mouse:up");
+      });
     }
   }, {
     key: "line_func_event",
     value: function line_func_event(props) {
       _class_app2.default.canvas.selection = false;
 
-      if (!props.target) {
+      var x = (0, _addition_function.get_x)(props.e);
+      var y = (0, _addition_function.get_y)(props.e);
+
+      Object.assign(this.line.settings, this.default_settings);
+
+      var line = new fabric.Line([x, y, x, y], this.line.settings);
+
+      _class_app2.default.canvas.on("mouse:move", function (props) {
         var x = (0, _addition_function.get_x)(props.e);
         var y = (0, _addition_function.get_y)(props.e);
 
-        this.line.settings.hasControls = false;
+        line.set({ x2: x, y2: y });
 
-        console.log(this.line.settings);
+        _class_app2.default.canvas.renderAll();
 
-        var line = new fabric.Line([x, y, x, y], this.line.settings);
+        line.render(_class_app2.default.canvas.getContext());
+      });
 
-        _class_app2.default.canvas.on("mouse:move", function (props) {
-          var x = (0, _addition_function.get_x)(props.e);
-          var y = (0, _addition_function.get_y)(props.e);
+      _class_app2.default.canvas.on("mouse:up", function () {
+        _class_app2.default.canvas.add(line);
 
-          line.set({ x2: x, y2: y });
-
-          _class_app2.default.canvas.renderAll();
-
-          line.render(_class_app2.default.canvas.getContext());
-        });
-
-        _class_app2.default.canvas.on("mouse:up", function () {
-          console.log(123);
-          _class_app2.default.canvas.add(line);
-
-          _class_app2.default.canvas.off("mouse:move");
-          _class_app2.default.canvas.off("mouse:up");
-        });
-      }
+        _class_app2.default.canvas.off("mouse:move");
+        _class_app2.default.canvas.off("mouse:up");
+      });
     }
   }]);
 
-  return TOOLS_DRAW;
+  return TOOL_ALL;
 }(_class_tools_components2.default);
 
-exports.default = TOOLS_DRAW;
-
-/***/ }),
-
-/***/ "./js/components/class_tool_text.js":
-/*!******************************************!*\
-  !*** ./js/components/class_tool_text.js ***!
-  \******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _class_app = __webpack_require__(/*! ../class_app */ "./js/class_app.js");
-
-var _class_app2 = _interopRequireDefault(_class_app);
-
-var _class_tools_components = __webpack_require__(/*! ./class_tools_components */ "./js/components/class_tools_components.js");
-
-var _class_tools_components2 = _interopRequireDefault(_class_tools_components);
-
-var _addition_function = __webpack_require__(/*! ../addition_function */ "./js/addition_function.js");
-
-__webpack_require__(/*! fabric */ "./node_modules/fabric/dist/fabric.js");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var TOOLS_TEXT = function (_TOOLS_COMPONENTS) {
-  _inherits(TOOLS_TEXT, _TOOLS_COMPONENTS);
-
-  function TOOLS_TEXT(wrapper) {
-    var _this;
-
-    _classCallCheck(this, TOOLS_TEXT);
-
-    (_this = _possibleConstructorReturn(this, (TOOLS_TEXT.__proto__ || Object.getPrototypeOf(TOOLS_TEXT)).call(this, wrapper)), _this).create_drag_panel().create_drag_place();
-    return _this;
-  }
-
-  return TOOLS_TEXT;
-}(_class_tools_components2.default);
-
-exports.default = TOOLS_TEXT;
+exports.default = TOOL_ALL;
 
 /***/ }),
 
@@ -2406,6 +2365,8 @@ var TOOLS_COMPONENTS = function (_APP) {
     _inherits(TOOLS_COMPONENTS, _APP);
 
     function TOOLS_COMPONENTS(wrapper) {
+        var func_panel = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {};
+
         _classCallCheck(this, TOOLS_COMPONENTS);
 
         var _this = _possibleConstructorReturn(this, (TOOLS_COMPONENTS.__proto__ || Object.getPrototypeOf(TOOLS_COMPONENTS)).call(this));
@@ -2413,6 +2374,8 @@ var TOOLS_COMPONENTS = function (_APP) {
         _this.wrapper = wrapper;
         _this.drag_panel;
         _this.drag_place;
+        _this.create_drag_panel(func_panel);
+        _this.create_drag_place();
 
         (0, _jquery2.default)(_this.wrapper).resizable({
             ghost: true,
@@ -2535,13 +2498,9 @@ var _class_options_components = __webpack_require__(/*! ./class_options_componen
 
 var _class_options_components2 = _interopRequireDefault(_class_options_components);
 
-var _class_tool_draw = __webpack_require__(/*! ./components/class_tool_draw */ "./js/components/class_tool_draw.js");
+var _class_tool_all = __webpack_require__(/*! ./components/class_tool_all */ "./js/components/class_tool_all.js");
 
-var _class_tool_draw2 = _interopRequireDefault(_class_tool_draw);
-
-var _class_tool_text = __webpack_require__(/*! ./components/class_tool_text */ "./js/components/class_tool_text.js");
-
-var _class_tool_text2 = _interopRequireDefault(_class_tool_text);
+var _class_tool_all2 = _interopRequireDefault(_class_tool_all);
 
 __webpack_require__(/*! fabric */ "./node_modules/fabric/dist/fabric.js");
 
@@ -2553,9 +2512,9 @@ var _jquery2 = _interopRequireDefault(_jquery);
 
 __webpack_require__(/*! jquery-ui-dist/jquery-ui */ "./node_modules/jquery-ui-dist/jquery-ui.js");
 
-__webpack_require__(/*! style-loader!css-loader!../build/css/main.css */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./build/css/main.css");
-
 __webpack_require__(/*! style-loader!css-loader!../build/css/colpick.css */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./build/css/colpick.css");
+
+__webpack_require__(/*! style-loader!css-loader!../build/css/main.css */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./build/css/main.css");
 
 __webpack_require__(/*! style-loader!css-loader!../build/css/animate.css */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./build/css/animate.css");
 
@@ -2587,52 +2546,54 @@ _class_casing2.default.none().event();
 
 var arr_canvas = [];
 
-var tool_draw = new _class_tool_draw2.default(document.querySelector(".tools-wrapper"));
+var tool_all = new _class_tool_all2.default(document.querySelector(".tools-wrapper"), (0, _addition_function.switcher)(function (value) {
+  document.querySelector(".tools-wrapper").style.width = (0, _addition_function.get_width)(document.querySelector(".tools-wrapper")) * value + "px";
+}, 2, 0.5));
 
 var _loop = function _loop(item) {
-  if ("elem" in tool_draw[item]) {
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
+  if ("elem" in tool_all[item]) {
+    var _iteratorNormalCompletion3 = true;
+    var _didIteratorError3 = false;
+    var _iteratorError3 = undefined;
 
     try {
       var _loop3 = function _loop3() {
-        var input = _step2.value;
+        var input = _step3.value;
 
         (0, _jquery2.default)(input).on("input click", function (e) {
-          tool_draw[item].settings[input.name] = Number(input.value) || Number(input.value) === 0 ? parseFloat(input.value) : input.value;
+          tool_all[item].settings[input.name] = Number(input.value) || Number(input.value) === 0 ? parseFloat(input.value) : input.value;
         });
       };
 
-      for (var _iterator2 = tool_draw[item].elem_setting.querySelectorAll("input")[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+      for (var _iterator3 = tool_all[item].elem_setting.querySelectorAll("input")[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
         _loop3();
       }
     } catch (err) {
-      _didIteratorError2 = true;
-      _iteratorError2 = err;
+      _didIteratorError3 = true;
+      _iteratorError3 = err;
     } finally {
       try {
-        if (!_iteratorNormalCompletion2 && _iterator2.return) {
-          _iterator2.return();
+        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+          _iterator3.return();
         }
       } finally {
-        if (_didIteratorError2) {
-          throw _iteratorError2;
+        if (_didIteratorError3) {
+          throw _iteratorError3;
         }
       }
     }
   }
 };
 
-for (var item in tool_draw) {
+for (var item in tool_all) {
   _loop(item);
 }
-tool_draw.wrapper.addEventListener("mouseup", function (e) {
+tool_all.wrapper.addEventListener("mouseup", function (e) {
   var target = e.target;
 
-  for (var item in this) {
+  for (var item in tool_all) {
     try {
-      if (target.closest(this[item].class_name)) {
+      if (target.closest(tool_all[item].class_name)) {
         try {
           (0, _addition_function.disactive)(_class_app2.default.prev_event.elem_setting);
           (0, _addition_function.disactive)(_class_app2.default.prev_event.elem);
@@ -2642,21 +2603,53 @@ tool_draw.wrapper.addEventListener("mouseup", function (e) {
           console.log(e);
         }
 
-        _class_app2.default.prev_event = this[item];
+        _class_app2.default.prev_event = tool_all[item];
 
-        (0, _addition_function.active)(this[item].elem);
-        (0, _addition_function.active)(this[item].elem_setting);
+        (0, _addition_function.active)(tool_all[item].elem);
+        (0, _addition_function.active)(tool_all[item].elem_setting);
 
-        this[item].func_start();
-        _class_app2.default.canvas.on("mouse:down", this[item].func_event);
+        tool_all[item].func_start();
+        _class_app2.default.canvas.on("mouse:down", tool_all[item].func_event);
       }
     } catch (e) {
       console.log(e);
     }
   }
-}.bind(tool_draw));
+});
 
-var tool_text = new _class_tool_text2.default(document.querySelector(".text-tools-wrapper"));
+var tool_text = new _class_tools_components2.default(document.querySelector(".text-tools-wrapper"));
+
+var _iteratorNormalCompletion = true;
+var _didIteratorError = false;
+var _iteratorError = undefined;
+
+try {
+  var _loop4 = function _loop4() {
+    var input = _step.value;
+
+    (0, _jquery2.default)(input).on("input click", function (e) {
+      console.log(123);
+      tool_all.text.settings[input.name] = Number(input.value) || Number(input.value) === 0 ? parseFloat(input.value) : input.value;
+    });
+  };
+
+  for (var _iterator = tool_text.wrapper.querySelectorAll("input , select")[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+    _loop4();
+  }
+} catch (err) {
+  _didIteratorError = true;
+  _iteratorError = err;
+} finally {
+  try {
+    if (!_iteratorNormalCompletion && _iterator.return) {
+      _iterator.return();
+    }
+  } finally {
+    if (_didIteratorError) {
+      throw _iteratorError;
+    }
+  }
+}
 
 var header_tool_text = new _class_options_components2.default({
   class_option: "header-options-text-tools"
@@ -2664,10 +2657,10 @@ var header_tool_text = new _class_options_components2.default({
   tool_text.wrapper.style.display = "";
 });
 
-var header_tool_draw = new _class_options_components2.default({
+var header_tool_all = new _class_options_components2.default({
   class_option: "header-options-tools"
 }).set_appear(function () {
-  tool_draw.wrapper.style.display = "";
+  tool_all.wrapper.style.display = "";
 });
 
 var save_file = new _class_options_components2.default({
@@ -2731,13 +2724,13 @@ new_file.set_apply(function () {
 _class_wrapper2.default.title_file_wrapper.addEventListener("mouseup", function (e) {
   var target = e.target;
 
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
+  var _iteratorNormalCompletion2 = true;
+  var _didIteratorError2 = false;
+  var _iteratorError2 = undefined;
 
   try {
-    for (var _iterator = arr_canvas[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var item = _step.value;
+    for (var _iterator2 = arr_canvas[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+      var item = _step2.value;
 
       if (item.title === target) {
         (0, _addition_function.disactive)(_class_app2.default.canvas.wrapper_zoom, _class_app2.default.canvas.title);
@@ -2772,16 +2765,16 @@ _class_wrapper2.default.title_file_wrapper.addEventListener("mouseup", function 
       }
     }
   } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
+    _didIteratorError2 = true;
+    _iteratorError2 = err;
   } finally {
     try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
+      if (!_iteratorNormalCompletion2 && _iterator2.return) {
+        _iterator2.return();
       }
     } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
+      if (_didIteratorError2) {
+        throw _iteratorError2;
       }
     }
   }
@@ -5803,7 +5796,7 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "label {\n  display: block; }\n\n.h-100 {\n  height: 100%; }\n\n.select {\n  outline: none;\n  padding: 5px 10px;\n  background: #454545;\n  color: white; }\n\n.input {\n  color: white;\n  background: #454545;\n  margin-left: 5px;\n  width: 25px;\n  height: 15px;\n  outline: none;\n  border: none;\n  border-radius: 3px; }\n\n.colpick_full {\n  z-index: 10000; }\n\n.tool-active {\n  border: 1px solid rgba(0, 0, 0, 0.5);\n  box-shadow: none !important;\n  height: 100% !important;\n  position: static !important;\n  border-radius: 0px !important; }\n\n.pointer {\n  cursor: pointer; }\n\n* {\n  box-sizing: border-box; }\n\nhtml {\n  height: 100%;\n  overflow: hidden;\n  box-sizing: border-box;\n  font-size: 14px;\n  user-select: none; }\n\nbody {\n  background: #282828;\n  box-sizing: border-box;\n  font-family: sans-serif;\n  font-size: 1rem;\n  height: 100%;\n  margin: 0;\n  z-index: -1000;\n  position: relative; }\n\nul {\n  margin: 0;\n  padding: 0;\n  list-style: none; }\n\n.header {\n  margin: 0;\n  background: #535353;\n  z-index: 100; }\n  .header .header-options {\n    height: 100%;\n    border-bottom: 1px solid rgba(245, 255, 250, 0.5);\n    display: flex; }\n    .header .header-options-item {\n      color: white;\n      position: relative; }\n      .header .header-options-item .header-options-badge {\n        height: 100%; }\n      .header .header-options-item:hover .header-options-dropdown {\n        display: block; }\n      .header .header-options-item:hover .header-options-badge {\n        color: black;\n        cursor: pointer;\n        background: MINTCREAM; }\n        .header .header-options-item:hover .header-options-badge svg {\n          transform: rotate(180deg); }\n    .header .header-options-dropdown {\n      border: 1px solid black;\n      z-index: 100000;\n      display: none;\n      position: absolute;\n      left: -1px;\n      top: 100%;\n      background: #eee; }\n      .header .header-options-dropdown > div {\n        cursor: pointer;\n        text-align: center;\n        font-size: .9rem;\n        white-space: pre;\n        color: #285473;\n        text-decoration: none;\n        background: #eee;\n        padding: 8px 8px;\n        display: block; }\n        .header .header-options-dropdown > div:hover {\n          background: #e1e5eb; }\n    .header .header-options-badge {\n      color: MINTCREAM;\n      padding: 0px 10px;\n      transition: .3s;\n      display: flex;\n      align-items: center; }\n      .header .header-options-badge svg {\n        margin-left: 5px;\n        transition: .2s transform; }\n\n.header .header-panel-settings {\n  color: MINTCREAM;\n  display: flex;\n  height: 35px;\n  border-bottom: 1px solid rgba(245, 255, 250, 0.5); }\n  .header .header-panel-settings .panel.active {\n    display: flex; }\n  .header .header-panel-settings .panel {\n    display: none;\n    align-items: center; }\n    .header .header-panel-settings .panel label {\n      margin-left: 10px;\n      display: flex;\n      align-items: center;\n      color: #d6d6d6; }\n    .header .header-panel-settings .panel img {\n      margin-left: 8px; }\n    .header .header-panel-settings .panel input[type=\"color\"] {\n      background: transparent;\n      width: 40px;\n      height: 25px;\n      padding: 0; }\n\n.drag-panel {\n  border-radius: 5px 5px 0 0;\n  width: 100%;\n  height: 17px;\n  line-height: 15px;\n  background: #535353;\n  display: flex;\n  justify-content: flex-end;\n  border-bottom: 1px solid rgba(245, 255, 250, 0.5); }\n  .drag-panel-item {\n    transition: .4s;\n    width: 18px;\n    height: 100%;\n    padding: 0px 3px;\n    cursor: pointer; }\n    .drag-panel-item:hover {\n      border-left: 1px solid rgba(245, 255, 250, 0.5);\n      border-right: 1px solid rgba(245, 255, 250, 0.5); }\n  .drag-panel-close {\n    position: relative; }\n    .drag-panel-close::before, .drag-panel-close::after {\n      position: absolute;\n      top: 50%;\n      left: 50%;\n      content: '';\n      width: 11px;\n      height: 2px;\n      background: MINTCREAM;\n      transform: translate(-50%, -50%) rotate(45deg); }\n    .drag-panel-close::after {\n      transform: translate(-50%, -50%) rotate(-45deg); }\n  .drag-panel-arrow {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    transform: rotate(180deg); }\n  .drag-panel-arrow-active {\n    transform: rotate(0deg); }\n\n.drag-place {\n  cursor: move;\n  width: 100%;\n  height: 25px;\n  display: flex;\n  justify-content: center;\n  align-items: center; }\n\n.tools-wrapper {\n  flex-shrink: 0;\n  box-shadow: 0 0px 14px 2px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);\n  position: absolute;\n  z-index: 1000;\n  background: #535353;\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  align-content: flex-start;\n  width: 40px;\n  left: 100px;\n  top: 100px;\n  border-radius: 5px;\n  overflow: hidden; }\n  .tools-wrapper div.tool-item {\n    padding: 5px;\n    width: 32px;\n    height: 32px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    cursor: pointer; }\n  .tools-wrapper div.tool-item:hover {\n    background: #777; }\n  .tools-wrapper div.tool-item.active {\n    background: #777; }\n\n.text-tools-wrapper {\n  background: #535353;\n  position: absolute;\n  left: 500px;\n  top: 500px;\n  z-index: 1000;\n  border-radius: 5px; }\n  .text-tools-wrapper .font-wrapper {\n    padding: 10px; }\n  .text-tools-wrapper .font-item {\n    display: flex;\n    margin-bottom: 10px; }\n    .text-tools-wrapper .font-item .font-style {\n      margin-left: 10px; }\n    .text-tools-wrapper .font-item .font-size {\n      display: flex;\n      align-items: center; }\n\n.main-wrapper {\n  position: relative;\n  display: flex; }\n  .main-wrapper .main-wrapper-canvas {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    visibility: hidden; }\n    .main-wrapper .main-wrapper-canvas .title-file-wrapper {\n      font-size: 1.2rem;\n      line-height: 25px;\n      background: #424242;\n      border-bottom: 1px solid rgba(245, 255, 250, 0.5); }\n      .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file {\n        height: 100%;\n        padding: 0px 8px 0px 8px;\n        transition: .3s;\n        color: white;\n        display: inline-block;\n        cursor: pointer; }\n        .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file span {\n          color: rgba(255, 255, 255, 0.6);\n          margin-left: 5px; }\n        .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file:hover {\n          background: MINTCREAM;\n          color: black; }\n          .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file:hover span {\n            color: rgba(0, 0, 0, 0.6); }\n      .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file.active {\n        background: MINTCREAM;\n        color: black; }\n        .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file.active span {\n          color: rgba(0, 0, 0, 0.6); }\n    .main-wrapper .main-wrapper-canvas .work-wrapper {\n      flex: 1;\n      position: relative;\n      overflow: scroll; }\n      .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper.active {\n        display: inline-block; }\n      .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper {\n        display: none;\n        position: absolute; }\n        .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper {\n          zoom: 1;\n          display: block; }\n          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper textarea {\n            position: absolute;\n            font-size: 22px;\n            font-weight: 400;\n            border: 1px dashed black; }\n            .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper textarea:focus {\n              outline: none; }\n          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper .first-canvas {\n            display: block; }\n          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper .canvas {\n            display: block;\n            position: absolute; }\n          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper canvas {\n            position: absolute;\n            left: 0;\n            top: 0; }\n    .main-wrapper .main-wrapper-canvas .coords-x-wrapper, .main-wrapper .main-wrapper-canvas .coords-y-wrapper {\n      font-size: .7rem;\n      line-height: 30px;\n      display: flex;\n      color: white;\n      position: absolute;\n      left: 0;\n      top: 0;\n      z-index: 20;\n      height: 20px;\n      width: 100%;\n      background: #474747;\n      color: #ccc; }\n      .main-wrapper .main-wrapper-canvas .coords-x-wrapper .coords-x, .main-wrapper .main-wrapper-canvas .coords-y-wrapper .coords-x {\n        width: calc(100% - 20px);\n        display: flex; }\n        .main-wrapper .main-wrapper-canvas .coords-x-wrapper .coords-x div, .main-wrapper .main-wrapper-canvas .coords-y-wrapper .coords-x div {\n          flex-shrink: 0;\n          height: 20px;\n          text-indent: 2px;\n          border-left: 1px solid #888; }\n    .main-wrapper .main-wrapper-canvas .coords-y-wrapper {\n      line-height: inherit;\n      position: absolute;\n      z-index: 10;\n      flex-direction: column;\n      left: 0;\n      top: 0;\n      height: 100%;\n      width: 20px; }\n      .main-wrapper .main-wrapper-canvas .coords-y-wrapper .coords-y div {\n        flex-shrink: 0;\n        white-space: pre-wrap;\n        text-align: center;\n        border-top: 1px solid #888;\n        width: 20px; }\n  .main-wrapper .casing {\n    z-index: 10000;\n    position: absolute; }\n    .main-wrapper .casing-left {\n      left: 0;\n      top: 0;\n      width: 10px;\n      height: 100%;\n      background: rgba(0, 0, 0, 0.35); }\n    .main-wrapper .casing-right {\n      right: 0;\n      top: 0;\n      width: 10px;\n      height: 100%;\n      background: rgba(0, 0, 0, 0.35); }\n\n.close-wrapper {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 0;\n  height: 25px;\n  background: #fff; }\n  .close-wrapper .close {\n    transition: .3s;\n    position: absolute;\n    padding: 0;\n    background: transparent;\n    border: none;\n    right: 0;\n    top: 0;\n    margin: auto;\n    bottom: 0;\n    width: 25px;\n    height: 25px; }\n    .close-wrapper .close:focus {\n      outline: none; }\n    .close-wrapper .close:hover {\n      background: CRIMSON;\n      cursor: pointer; }\n      .close-wrapper .close:hover::before, .close-wrapper .close:hover::after {\n        background: white; }\n    .close-wrapper .close::before, .close-wrapper .close::after {\n      transition: .3s;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n      content: '';\n      display: block;\n      width: 75%;\n      height: 2px;\n      background: #34495E;\n      transform: translate(-50%, -50%) rotate(45deg); }\n    .close-wrapper .close::after {\n      transform: translate(-50%, -50%) rotate(-45deg); }\n\n.apply {\n  position: absolute;\n  right: 40px;\n  bottom: 25px;\n  transition: .3s;\n  font-size: 1.1rem;\n  padding: 5px 8px;\n  border: none;\n  border-radius: 3px;\n  color: white;\n  background: #454545; }\n  .apply:active {\n    transform: scale(0.95); }\n  .apply:focus {\n    outline: none; }\n  .apply:hover {\n    background: #383838;\n    cursor: pointer; }\n\n.header-settings-window-size, .header-settings-new-file {\n  z-index: 10000;\n  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);\n  border: 1px solid blue;\n  font-size: 25px;\n  border-radius: 3px;\n  display: none;\n  background: #282828;\n  position: fixed;\n  padding: 75px 40px; }\n  .header-settings-window-size .input-wrapper, .header-settings-new-file .input-wrapper {\n    display: flex;\n    align-items: center;\n    margin-bottom: 15px;\n    justify-content: flex-end; }\n    .header-settings-window-size .input-wrapper input, .header-settings-new-file .input-wrapper input {\n      background: #454545;\n      color: white;\n      display: block;\n      padding: 5px;\n      border-radius: 3px;\n      border: none;\n      outline: none; }\n    .header-settings-window-size .input-wrapper label, .header-settings-new-file .input-wrapper label {\n      font-size: 1.1rem;\n      color: #d6d6d6;\n      margin-right: 10px;\n      display: block; }", ""]);
+exports.push([module.i, "label {\n  display: block; }\n\n.h-100 {\n  height: 100%; }\n\n.select {\n  outline: none;\n  padding: 5px 10px;\n  background: #454545;\n  color: white; }\n\n.input {\n  color: white;\n  background: #454545;\n  margin-left: 5px;\n  width: 25px;\n  height: 15px;\n  outline: none;\n  border: none;\n  border-radius: 3px; }\n\n.colpick_full {\n  border: 1px solid rgba(245, 255, 250, 0.5);\n  z-index: 10000;\n  background: #535353;\n  color: white; }\n  .colpick_full .colpick_submit {\n    color: white;\n    border: 1px solid rgba(245, 255, 250, 0.5);\n    background: #454545; }\n    .colpick_full .colpick_submit:hover {\n      background: #2c2c2c; }\n  .colpick_full .colpick_field, .colpick_full .colpick_hex_field {\n    border: none;\n    background: none;\n    display: flex; }\n    .colpick_full .colpick_field .colpick_field_letter, .colpick_full .colpick_hex_field .colpick_field_letter {\n      background: none;\n      color: white; }\n    .colpick_full .colpick_field input, .colpick_full .colpick_hex_field input {\n      position: static;\n      color: white;\n      border: 1px solid rgba(245, 255, 250, 0.5);\n      background: #454545; }\n    .colpick_full .colpick_field .colpick_field_arrs, .colpick_full .colpick_hex_field .colpick_field_arrs {\n      position: static;\n      color: white !important;\n      border: 1px solid rgba(245, 255, 250, 0.5) !important;\n      background: #454545 !important; }\n      .colpick_full .colpick_field .colpick_field_arrs .colpick_field_uarr, .colpick_full .colpick_hex_field .colpick_field_arrs .colpick_field_uarr {\n        border-bottom-color: white; }\n      .colpick_full .colpick_field .colpick_field_arrs .colpick_field_darr, .colpick_full .colpick_hex_field .colpick_field_arrs .colpick_field_darr {\n        border-top-color: white; }\n\n.tool-active {\n  border: 1px solid rgba(0, 0, 0, 0.5);\n  box-shadow: none !important;\n  height: 100% !important;\n  position: static !important;\n  border-radius: 0px !important; }\n\n.text-tools-wrapper .font-item .font-size, .text-tools-wrapper .font-item .font-line-height, .text-tools-wrapper .font-item .font-word-space {\n  display: flex;\n  align-items: center;\n  justify-content: flex-end;\n  margin-bottom: 5px;\n  cursor: pointer; }\n\n.pointer {\n  cursor: pointer; }\n\n* {\n  box-sizing: border-box; }\n\nhtml {\n  height: 100%;\n  overflow: hidden;\n  box-sizing: border-box;\n  font-size: 14px;\n  user-select: none; }\n\nbody {\n  background: #282828;\n  box-sizing: border-box;\n  font-family: sans-serif;\n  font-size: 1rem;\n  height: 100%;\n  margin: 0;\n  z-index: -1000;\n  position: relative; }\n\nul {\n  margin: 0;\n  padding: 0;\n  list-style: none; }\n\n.header {\n  margin: 0;\n  background: #535353;\n  z-index: 100; }\n  .header .header-options {\n    height: 100%;\n    border-bottom: 1px solid rgba(245, 255, 250, 0.5);\n    display: flex; }\n    .header .header-options-item {\n      color: white;\n      position: relative; }\n      .header .header-options-item .header-options-badge {\n        height: 100%; }\n      .header .header-options-item:hover .header-options-dropdown {\n        display: block; }\n      .header .header-options-item:hover .header-options-badge {\n        color: black;\n        cursor: pointer;\n        background: MINTCREAM; }\n        .header .header-options-item:hover .header-options-badge svg {\n          transform: rotate(180deg); }\n    .header .header-options-dropdown {\n      border: 1px solid black;\n      z-index: 100000;\n      display: none;\n      position: absolute;\n      left: -1px;\n      top: 100%;\n      background: #eee; }\n      .header .header-options-dropdown > div {\n        cursor: pointer;\n        text-align: center;\n        font-size: .9rem;\n        white-space: pre;\n        color: #285473;\n        text-decoration: none;\n        background: #eee;\n        padding: 8px 8px;\n        display: block; }\n        .header .header-options-dropdown > div:hover {\n          background: #e1e5eb; }\n    .header .header-options-badge {\n      color: MINTCREAM;\n      padding: 0px 10px;\n      transition: .3s;\n      display: flex;\n      align-items: center; }\n      .header .header-options-badge svg {\n        margin-left: 5px;\n        transition: .2s transform; }\n\n.header .header-panel-settings {\n  color: MINTCREAM;\n  display: flex;\n  height: 35px;\n  border-bottom: 1px solid rgba(245, 255, 250, 0.5); }\n  .header .header-panel-settings .panel.active {\n    display: flex; }\n  .header .header-panel-settings .panel {\n    display: none;\n    align-items: center; }\n    .header .header-panel-settings .panel label {\n      margin-left: 10px;\n      display: flex;\n      align-items: center;\n      color: #d6d6d6; }\n    .header .header-panel-settings .panel img {\n      margin-left: 8px; }\n    .header .header-panel-settings .panel input[type=\"color\"] {\n      background: transparent;\n      width: 40px;\n      height: 25px;\n      padding: 0; }\n\n.drag-panel {\n  border-radius: 5px 5px 0 0;\n  width: 100%;\n  height: 17px;\n  line-height: 15px;\n  background: #535353;\n  display: flex;\n  justify-content: flex-end;\n  border-bottom: 1px solid rgba(245, 255, 250, 0.5); }\n  .drag-panel-item {\n    transition: .4s;\n    width: 18px;\n    height: 100%;\n    padding: 0px 3px;\n    cursor: pointer; }\n    .drag-panel-item:hover {\n      border-left: 1px solid rgba(245, 255, 250, 0.5);\n      border-right: 1px solid rgba(245, 255, 250, 0.5); }\n  .drag-panel-close {\n    position: relative; }\n    .drag-panel-close::before, .drag-panel-close::after {\n      position: absolute;\n      top: 50%;\n      left: 50%;\n      content: '';\n      width: 11px;\n      height: 2px;\n      background: MINTCREAM;\n      transform: translate(-50%, -50%) rotate(45deg); }\n    .drag-panel-close::after {\n      transform: translate(-50%, -50%) rotate(-45deg); }\n  .drag-panel-arrow {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    transform: rotate(180deg); }\n  .drag-panel-arrow-active {\n    transform: rotate(0deg); }\n\n.drag-place {\n  width: 100%;\n  height: 20px;\n  display: flex;\n  justify-content: center;\n  align-items: center; }\n\n.tools-wrapper {\n  flex-shrink: 0;\n  box-shadow: 0 0px 14px 2px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);\n  position: absolute;\n  z-index: 1000;\n  background: #535353;\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  align-content: flex-start;\n  width: 40px;\n  left: 100px;\n  top: 100px;\n  border-radius: 5px;\n  overflow: hidden; }\n  .tools-wrapper div.tool-item {\n    padding: 5px;\n    width: 32px;\n    height: 32px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    cursor: pointer; }\n  .tools-wrapper div.tool-item:hover {\n    background: #777; }\n  .tools-wrapper div.tool-item.active {\n    background: #777; }\n\n.text-tools-wrapper {\n  background: #535353;\n  position: absolute;\n  left: 500px;\n  top: 500px;\n  z-index: 1000;\n  border-radius: 5px; }\n  .text-tools-wrapper .font-wrapper {\n    padding: 0px 10px 10px 10px; }\n  .text-tools-wrapper .font-item {\n    display: flex;\n    justify-content: space-between;\n    margin-bottom: 10px; }\n    .text-tools-wrapper .font-item .font-style {\n      margin-left: 10px; }\n\n.main-wrapper {\n  position: relative;\n  display: flex; }\n  .main-wrapper .main-wrapper-canvas {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    visibility: hidden; }\n    .main-wrapper .main-wrapper-canvas .title-file-wrapper {\n      font-size: 1.2rem;\n      line-height: 25px;\n      background: #424242;\n      border-bottom: 1px solid rgba(245, 255, 250, 0.5); }\n      .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file {\n        height: 100%;\n        padding: 0px 8px 0px 8px;\n        transition: .3s;\n        color: white;\n        display: inline-block;\n        cursor: pointer; }\n        .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file span {\n          color: rgba(255, 255, 255, 0.6);\n          margin-left: 5px; }\n        .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file:hover {\n          background: MINTCREAM;\n          color: black; }\n          .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file:hover span {\n            color: rgba(0, 0, 0, 0.6); }\n      .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file.active {\n        background: MINTCREAM;\n        color: black; }\n        .main-wrapper .main-wrapper-canvas .title-file-wrapper .title-file.active span {\n          color: rgba(0, 0, 0, 0.6); }\n    .main-wrapper .main-wrapper-canvas .work-wrapper {\n      flex: 1;\n      position: relative;\n      overflow: scroll; }\n      .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper.active {\n        display: inline-block; }\n      .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper {\n        display: none;\n        position: absolute; }\n        .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper {\n          zoom: 1;\n          display: block; }\n          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper textarea {\n            position: absolute;\n            font-size: 22px;\n            font-weight: 400;\n            border: 1px dashed black; }\n            .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper textarea:focus {\n              outline: none; }\n          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper .first-canvas {\n            display: block; }\n          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper .canvas {\n            display: block;\n            position: absolute; }\n          .main-wrapper .main-wrapper-canvas .work-wrapper .zoom-wrapper .canvas-wrapper canvas {\n            position: absolute;\n            left: 0;\n            top: 0; }\n    .main-wrapper .main-wrapper-canvas .coords-x-wrapper, .main-wrapper .main-wrapper-canvas .coords-y-wrapper {\n      font-size: .7rem;\n      line-height: 30px;\n      display: flex;\n      color: white;\n      position: absolute;\n      left: 0;\n      top: 0;\n      z-index: 20;\n      height: 20px;\n      width: 100%;\n      background: #474747;\n      color: #ccc; }\n      .main-wrapper .main-wrapper-canvas .coords-x-wrapper .coords-x, .main-wrapper .main-wrapper-canvas .coords-y-wrapper .coords-x {\n        width: calc(100% - 20px);\n        display: flex; }\n        .main-wrapper .main-wrapper-canvas .coords-x-wrapper .coords-x div, .main-wrapper .main-wrapper-canvas .coords-y-wrapper .coords-x div {\n          flex-shrink: 0;\n          height: 20px;\n          text-indent: 2px;\n          border-left: 1px solid #888; }\n    .main-wrapper .main-wrapper-canvas .coords-y-wrapper {\n      line-height: inherit;\n      position: absolute;\n      z-index: 10;\n      flex-direction: column;\n      left: 0;\n      top: 0;\n      height: 100%;\n      width: 20px; }\n      .main-wrapper .main-wrapper-canvas .coords-y-wrapper .coords-y div {\n        flex-shrink: 0;\n        white-space: pre-wrap;\n        text-align: center;\n        border-top: 1px solid #888;\n        width: 20px; }\n  .main-wrapper .casing {\n    z-index: 10000;\n    position: absolute; }\n    .main-wrapper .casing-left {\n      left: 0;\n      top: 0;\n      width: 10px;\n      height: 100%;\n      background: rgba(0, 0, 0, 0.35); }\n    .main-wrapper .casing-right {\n      right: 0;\n      top: 0;\n      width: 10px;\n      height: 100%;\n      background: rgba(0, 0, 0, 0.35); }\n\n.close-wrapper {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 0;\n  height: 25px;\n  background: #fff; }\n  .close-wrapper .close {\n    transition: .3s;\n    position: absolute;\n    padding: 0;\n    background: transparent;\n    border: none;\n    right: 0;\n    top: 0;\n    margin: auto;\n    bottom: 0;\n    width: 25px;\n    height: 25px; }\n    .close-wrapper .close:focus {\n      outline: none; }\n    .close-wrapper .close:hover {\n      background: CRIMSON;\n      cursor: pointer; }\n      .close-wrapper .close:hover::before, .close-wrapper .close:hover::after {\n        background: white; }\n    .close-wrapper .close::before, .close-wrapper .close::after {\n      transition: .3s;\n      position: absolute;\n      left: 50%;\n      top: 50%;\n      content: '';\n      display: block;\n      width: 75%;\n      height: 2px;\n      background: #34495E;\n      transform: translate(-50%, -50%) rotate(45deg); }\n    .close-wrapper .close::after {\n      transform: translate(-50%, -50%) rotate(-45deg); }\n\n.apply {\n  position: absolute;\n  right: 40px;\n  bottom: 25px;\n  transition: .3s;\n  font-size: 1.1rem;\n  padding: 5px 8px;\n  border: none;\n  border-radius: 3px;\n  color: white;\n  background: #454545; }\n  .apply:active {\n    transform: scale(0.95); }\n  .apply:focus {\n    outline: none; }\n  .apply:hover {\n    background: #383838;\n    cursor: pointer; }\n\n.header-settings-window-size, .header-settings-new-file {\n  z-index: 10000;\n  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);\n  border: 1px solid blue;\n  font-size: 25px;\n  border-radius: 3px;\n  display: none;\n  background: #282828;\n  position: fixed;\n  padding: 75px 40px; }\n  .header-settings-window-size .input-wrapper, .header-settings-new-file .input-wrapper {\n    display: flex;\n    align-items: center;\n    margin-bottom: 15px;\n    justify-content: flex-end; }\n    .header-settings-window-size .input-wrapper input, .header-settings-new-file .input-wrapper input {\n      background: #454545;\n      color: white;\n      display: block;\n      padding: 5px;\n      border-radius: 3px;\n      border: none;\n      outline: none; }\n    .header-settings-window-size .input-wrapper label, .header-settings-new-file .input-wrapper label {\n      font-size: 1.1rem;\n      color: #d6d6d6;\n      margin-right: 10px;\n      display: block; }", ""]);
 
 // exports
 
