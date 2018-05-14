@@ -11,7 +11,8 @@ import {
   hidden,
   switcher,
   block,
-  none
+  none,
+  once
 } from "../addition_function";
 import "fabric";
 
@@ -33,6 +34,7 @@ export default class TOOL_ALL extends TOOLS_COMPONENTS {
       elem_setting: document.querySelector(".header-panel-settings-move"),
       elem: document.querySelector(".move-badge"),
       class_name: ".move-badge",
+      event: "mouse:move",
       func_event: this.move_func_event.bind(this),
       func_start: this.move_func_start.bind(this),
       func_end: this.move_func_end.bind(this),
@@ -42,6 +44,7 @@ export default class TOOL_ALL extends TOOLS_COMPONENTS {
       elem_setting: document.querySelector(".header-panel-settings-pencil"),
       elem: document.querySelector(".pencil-badge"),
       class_name: ".pencil-badge",
+      event: "mouse:move",
       func_event: this.pencil_func_event.bind(this),
       func_start: this.pencil_func_start.bind(this),
       func_end: this.pencil_func_end.bind(this),
@@ -54,6 +57,7 @@ export default class TOOL_ALL extends TOOLS_COMPONENTS {
       elem_setting: document.querySelector(".header-panel-settings-text"),
       elem: document.querySelector(".text-badge"),
       class_name: ".text-badge",
+      event: "mouse:down",
       func_event: this.text_func_event.bind(this),
       func_start: this.text_func_start.bind(this),
       func_end: this.text_func_end.bind(this),
@@ -63,6 +67,7 @@ export default class TOOL_ALL extends TOOLS_COMPONENTS {
       elem_setting: document.querySelector(".header-panel-settings-pouring"),
       elem: document.querySelector(".pouring-badge"),
       class_name: ".pouring-badge",
+      event: "mouse:down",
       func_event: this.pouring_func_event.bind(this),
       func_start: this.pouring_func_start.bind(this),
       func_end: this.pouring_func_end.bind(this),
@@ -72,15 +77,19 @@ export default class TOOL_ALL extends TOOLS_COMPONENTS {
       elem_setting: document.querySelector(".header-panel-settings-rubber"),
       elem: document.querySelector(".rubber-badge"),
       class_name: ".rubber-badge",
+      event: "mouse:move",
       func_event: this.rubber_func_event.bind(this),
       func_start: this.rubber_func_start.bind(this),
       func_end: this.rubber_func_end.bind(this),
-      settings: {}
+      settings: {
+        stroke: "#000"
+      }
     };
     this.square = {
       elem_setting: document.querySelector(".header-panel-settings-square"),
       elem: document.querySelector(".square-badge"),
       class_name: ".square-badge",
+      event: "mouse:down",
       func_event: this.square_func_event.bind(this),
       func_start: this.square_func_start.bind(this),
       func_end: this.square_func_end.bind(this),
@@ -92,6 +101,7 @@ export default class TOOL_ALL extends TOOLS_COMPONENTS {
       elem_setting: document.querySelector(".header-panel-settings-line"),
       elem: document.querySelector(".line-badge"),
       class_name: ".line-badge",
+      event: "mouse:down",
       func_event: this.line_func_event.bind(this),
       func_start: this.line_func_start.bind(this),
       func_end: this.line_func_end.bind(this),
@@ -103,11 +113,11 @@ export default class TOOL_ALL extends TOOLS_COMPONENTS {
 
   // START
   move_func_start() {
+    APP.canvas.on(this.move.event, this.move.func_event);
+
     APP.canvas.selection = true;
-    console.log();
-    APP.canvas.getActiveObjects().forEach(item => {
-      console.log(item);
-    });
+
+    APP.canvas.getActiveObjects().forEach(item => {});
 
     APP.canvas.forEachObject(item => {
       item.hasControls = true;
@@ -120,15 +130,28 @@ export default class TOOL_ALL extends TOOLS_COMPONENTS {
   pencil_func_start() {
     APP.canvas.selection = false;
     APP.canvas.isDrawingMode = true;
+    APP.canvas.on(this.pencil.event, this.pencil.func_event);
   }
-  text_func_start() {}
-  pouring_func_start() {}
-  rubber_func_start() {}
-  square_func_start() {}
-  line_func_start() {}
+  text_func_start() {
+    APP.canvas.on(this.text.event, this.text.func_event);
+  }
+  pouring_func_start() {
+    APP.canvas.on(this.pouring.event, this.pouring.func_event);
+  }
+  rubber_func_start() {
+    APP.canvas.on(this.rubber.event, this.rubber.func_event);
+  }
+  square_func_start() {
+    APP.canvas.on(this.square.event, this.square.func_event);
+  }
+  line_func_start() {
+    APP.canvas.on(this.line.event, this.line.func_event);
+  }
 
   //END
   move_func_end() {
+    APP.canvas.off(this.move.event, this.move.func_event);
+
     APP.canvas.forEachObject(item => {
       item.hasControls = false;
       item.hasBorders = false;
@@ -138,25 +161,33 @@ export default class TOOL_ALL extends TOOLS_COMPONENTS {
     });
   }
   pencil_func_end() {
+    APP.canvas.off(this.pencil.event, this.pencil.func_event);
+
     APP.canvas.isDrawingMode = false;
   }
   text_func_end() {
+    APP.canvas.off(this.text.event, this.text.func_event);
+
     try {
       APP.canvas.item(APP.canvas.size() - 1).exitEditing();
     } catch (e) {}
   }
-  pouring_func_end() {}
-  rubber_func_end() {}
-  square_func_end() {}
-  line_func_end() {}
+  pouring_func_end() {
+    APP.canvas.off(this.pouring.event, this.pouring.func_event);
+  }
+  rubber_func_end() {
+    APP.canvas.off(this.rubber.event, this.rubber.func_event);
+  }
+  square_func_end() {
+    APP.canvas.off(this.square.event, this.square.func_event);
+  }
+  line_func_end() {
+    APP.canvas.off(this.line.event, this.line.func_event);
+  }
 
   //EVENT
   move_func_event(e) {}
   pencil_func_event(props) {
-    let e = props.e;
-    let x = get_x(e);
-    let y = get_y(e);
-
     APP.canvas.freeDrawingBrush.width = this.pencil.settings.width;
     APP.canvas.freeDrawingBrush.color = this.pencil.settings.color;
   }
@@ -176,14 +207,28 @@ export default class TOOL_ALL extends TOOLS_COMPONENTS {
     text.enterEditing();
 
     text.on("editing:exited", () => {
-      
       if (text.text === "") APP.canvas.remove(text);
-      console.log(APP.canvas.getObjects());
     });
   }
 
   pouring_func_event(e) {}
-  rubber_func_event(e) {}
+  rubber_func_event({ e }) {
+    let x = get_x(e);
+    let y = get_y(e);
+
+    this.rubber.settings.radius = 16;
+    this.rubber.settings.left = x - 16;
+    this.rubber.settings.top = y - 16;
+    this.rubber.settings.fill = "transparent";
+
+    let circle = new fabric.Circle(this.rubber.settings);
+
+    APP.canvas.renderAll();
+
+    console.log(123);
+
+    circle.render(APP.canvas.getContext());
+  }
   square_func_event(props) {
     APP.canvas.selection = false;
 

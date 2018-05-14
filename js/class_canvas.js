@@ -14,7 +14,10 @@ export default class CANVAS extends APP {
       backgroundColor: background_color,
       interactive: true,
       fireRightClick: true,
-      stopContextMenu: true
+      stopContextMenu: true,
+      fireRightClick: false,
+      fireMiddleClick: false,
+      preserveObjectStacking: true
     });
 
     this.c.wrapper_zoom = wrapper_zoom;

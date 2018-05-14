@@ -253,13 +253,16 @@ function switcher(f, value1, value2) {
     }
   };
 }
+
 function once(f) {
   for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
     args[_key - 1] = arguments[_key];
   }
 
   var counter = 0;
+  f.counter = 0;
   return function () {
+    console.log(f.counter++);
     if (!counter) {
       f.apply(undefined, args);
       counter++;
@@ -371,10 +374,13 @@ function drag(target, wrapper) {
 }
 
 function get_x(e) {
-  return (e.pageX - _class_app2.default.wrapper_zoom.getBoundingClientRect().left) * _class_app2.default.canvas.zoom;
+  // (e.pageX - APP.wrapper_zoom.getBoundingClientRect().left) * APP.canvas.zoom;
+
+  return _class_app2.default.canvas.getPointer(e).x;
 }
 function get_y(e) {
-  return (e.pageY - _class_app2.default.wrapper_zoom.getBoundingClientRect().top) * _class_app2.default.canvas.zoom;
+  // (e.pageY - APP.wrapper_zoom.getBoundingClientRect().top) * APP.canvas.zoom;
+  return _class_app2.default.canvas.getPointer(e).y;
 }
 
 function get_zoom() {
@@ -552,6 +558,8 @@ __webpack_require__(/*! fabric */ "./node_modules/fabric/dist/fabric.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -562,6 +570,8 @@ var CANVAS = function (_APP) {
     _inherits(CANVAS, _APP);
 
     function CANVAS(_ref) {
+        var _ref2;
+
         var _ret;
 
         var title = _ref.title,
@@ -575,14 +585,14 @@ var CANVAS = function (_APP) {
 
         var wrapper_zoom = new _class_create_element2.default("div").add_classes("zoom-wrapper", "active").add_parent(_class_app2.default.wrapper_work);
 
-        _this.c = new fabric.Canvas(new _class_create_element2.default("canvas").add_classes("first-canvas").add_parent(wrapper_zoom), {
+        _this.c = new fabric.Canvas(new _class_create_element2.default("canvas").add_classes("first-canvas").add_parent(wrapper_zoom), (_ref2 = {
             width: width,
             height: height,
             backgroundColor: background_color,
             interactive: true,
             fireRightClick: true,
             stopContextMenu: true
-        });
+        }, _defineProperty(_ref2, "fireRightClick", false), _defineProperty(_ref2, "fireMiddleClick", false), _defineProperty(_ref2, "preserveObjectStacking", true), _ref2));
 
         _this.c.wrapper_zoom = wrapper_zoom;
 
@@ -2040,6 +2050,7 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
       elem_setting: document.querySelector(".header-panel-settings-move"),
       elem: document.querySelector(".move-badge"),
       class_name: ".move-badge",
+      event: "mouse:move",
       func_event: _this.move_func_event.bind(_this),
       func_start: _this.move_func_start.bind(_this),
       func_end: _this.move_func_end.bind(_this),
@@ -2049,6 +2060,7 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
       elem_setting: document.querySelector(".header-panel-settings-pencil"),
       elem: document.querySelector(".pencil-badge"),
       class_name: ".pencil-badge",
+      event: "mouse:move",
       func_event: _this.pencil_func_event.bind(_this),
       func_start: _this.pencil_func_start.bind(_this),
       func_end: _this.pencil_func_end.bind(_this),
@@ -2061,6 +2073,7 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
       elem_setting: document.querySelector(".header-panel-settings-text"),
       elem: document.querySelector(".text-badge"),
       class_name: ".text-badge",
+      event: "mouse:down",
       func_event: _this.text_func_event.bind(_this),
       func_start: _this.text_func_start.bind(_this),
       func_end: _this.text_func_end.bind(_this),
@@ -2070,6 +2083,7 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
       elem_setting: document.querySelector(".header-panel-settings-pouring"),
       elem: document.querySelector(".pouring-badge"),
       class_name: ".pouring-badge",
+      event: "mouse:down",
       func_event: _this.pouring_func_event.bind(_this),
       func_start: _this.pouring_func_start.bind(_this),
       func_end: _this.pouring_func_end.bind(_this),
@@ -2079,15 +2093,19 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
       elem_setting: document.querySelector(".header-panel-settings-rubber"),
       elem: document.querySelector(".rubber-badge"),
       class_name: ".rubber-badge",
+      event: "mouse:move",
       func_event: _this.rubber_func_event.bind(_this),
       func_start: _this.rubber_func_start.bind(_this),
       func_end: _this.rubber_func_end.bind(_this),
-      settings: {}
+      settings: {
+        stroke: "#000"
+      }
     };
     _this.square = {
       elem_setting: document.querySelector(".header-panel-settings-square"),
       elem: document.querySelector(".square-badge"),
       class_name: ".square-badge",
+      event: "mouse:down",
       func_event: _this.square_func_event.bind(_this),
       func_start: _this.square_func_start.bind(_this),
       func_end: _this.square_func_end.bind(_this),
@@ -2099,6 +2117,7 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
       elem_setting: document.querySelector(".header-panel-settings-line"),
       elem: document.querySelector(".line-badge"),
       class_name: ".line-badge",
+      event: "mouse:down",
       func_event: _this.line_func_event.bind(_this),
       func_start: _this.line_func_start.bind(_this),
       func_end: _this.line_func_end.bind(_this),
@@ -2115,11 +2134,11 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
   _createClass(TOOL_ALL, [{
     key: "move_func_start",
     value: function move_func_start() {
+      _class_app2.default.canvas.on(this.move.event, this.move.func_event);
+
       _class_app2.default.canvas.selection = true;
-      console.log();
-      _class_app2.default.canvas.getActiveObjects().forEach(function (item) {
-        console.log(item);
-      });
+
+      _class_app2.default.canvas.getActiveObjects().forEach(function (item) {});
 
       _class_app2.default.canvas.forEachObject(function (item) {
         item.hasControls = true;
@@ -2134,28 +2153,41 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
     value: function pencil_func_start() {
       _class_app2.default.canvas.selection = false;
       _class_app2.default.canvas.isDrawingMode = true;
+      _class_app2.default.canvas.on(this.pencil.event, this.pencil.func_event);
     }
   }, {
     key: "text_func_start",
-    value: function text_func_start() {}
+    value: function text_func_start() {
+      _class_app2.default.canvas.on(this.text.event, this.text.func_event);
+    }
   }, {
     key: "pouring_func_start",
-    value: function pouring_func_start() {}
+    value: function pouring_func_start() {
+      _class_app2.default.canvas.on(this.pouring.event, this.pouring.func_event);
+    }
   }, {
     key: "rubber_func_start",
-    value: function rubber_func_start() {}
+    value: function rubber_func_start() {
+      _class_app2.default.canvas.on(this.rubber.event, this.rubber.func_event);
+    }
   }, {
     key: "square_func_start",
-    value: function square_func_start() {}
+    value: function square_func_start() {
+      _class_app2.default.canvas.on(this.square.event, this.square.func_event);
+    }
   }, {
     key: "line_func_start",
-    value: function line_func_start() {}
+    value: function line_func_start() {
+      _class_app2.default.canvas.on(this.line.event, this.line.func_event);
+    }
 
     //END
 
   }, {
     key: "move_func_end",
     value: function move_func_end() {
+      _class_app2.default.canvas.off(this.move.event, this.move.func_event);
+
       _class_app2.default.canvas.forEachObject(function (item) {
         item.hasControls = false;
         item.hasBorders = false;
@@ -2167,27 +2199,39 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
   }, {
     key: "pencil_func_end",
     value: function pencil_func_end() {
+      _class_app2.default.canvas.off(this.pencil.event, this.pencil.func_event);
+
       _class_app2.default.canvas.isDrawingMode = false;
     }
   }, {
     key: "text_func_end",
     value: function text_func_end() {
+      _class_app2.default.canvas.off(this.text.event, this.text.func_event);
+
       try {
         _class_app2.default.canvas.item(_class_app2.default.canvas.size() - 1).exitEditing();
       } catch (e) {}
     }
   }, {
     key: "pouring_func_end",
-    value: function pouring_func_end() {}
+    value: function pouring_func_end() {
+      _class_app2.default.canvas.off(this.pouring.event, this.pouring.func_event);
+    }
   }, {
     key: "rubber_func_end",
-    value: function rubber_func_end() {}
+    value: function rubber_func_end() {
+      _class_app2.default.canvas.off(this.rubber.event, this.rubber.func_event);
+    }
   }, {
     key: "square_func_end",
-    value: function square_func_end() {}
+    value: function square_func_end() {
+      _class_app2.default.canvas.off(this.square.event, this.square.func_event);
+    }
   }, {
     key: "line_func_end",
-    value: function line_func_end() {}
+    value: function line_func_end() {
+      _class_app2.default.canvas.off(this.line.event, this.line.func_event);
+    }
 
     //EVENT
 
@@ -2197,10 +2241,6 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
   }, {
     key: "pencil_func_event",
     value: function pencil_func_event(props) {
-      var e = props.e;
-      var x = (0, _addition_function.get_x)(e);
-      var y = (0, _addition_function.get_y)(e);
-
       _class_app2.default.canvas.freeDrawingBrush.width = this.pencil.settings.width;
       _class_app2.default.canvas.freeDrawingBrush.color = this.pencil.settings.color;
     }
@@ -2222,9 +2262,7 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
       text.enterEditing();
 
       text.on("editing:exited", function () {
-
         if (text.text === "") _class_app2.default.canvas.remove(text);
-        console.log(_class_app2.default.canvas.getObjects());
       });
     }
   }, {
@@ -2232,7 +2270,25 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
     value: function pouring_func_event(e) {}
   }, {
     key: "rubber_func_event",
-    value: function rubber_func_event(e) {}
+    value: function rubber_func_event(_ref) {
+      var e = _ref.e;
+
+      var x = (0, _addition_function.get_x)(e);
+      var y = (0, _addition_function.get_y)(e);
+
+      this.rubber.settings.radius = 16;
+      this.rubber.settings.left = x - 16;
+      this.rubber.settings.top = y - 16;
+      this.rubber.settings.fill = "transparent";
+
+      var circle = new fabric.Circle(this.rubber.settings);
+
+      _class_app2.default.canvas.renderAll();
+
+      console.log(123);
+
+      circle.render(_class_app2.default.canvas.getContext());
+    }
   }, {
     key: "square_func_event",
     value: function square_func_event(props) {
@@ -2597,7 +2653,6 @@ tool_all.wrapper.addEventListener("mouseup", function (e) {
         try {
           (0, _addition_function.disactive)(_class_app2.default.prev_event.elem_setting);
           (0, _addition_function.disactive)(_class_app2.default.prev_event.elem);
-          _class_app2.default.canvas.off("mouse:down", _class_app2.default.prev_event.func_event);
           _class_app2.default.prev_event.func_end();
         } catch (e) {
           console.log(e);
@@ -2609,7 +2664,6 @@ tool_all.wrapper.addEventListener("mouseup", function (e) {
         (0, _addition_function.active)(tool_all[item].elem_setting);
 
         tool_all[item].func_start();
-        _class_app2.default.canvas.on("mouse:down", tool_all[item].func_event);
       }
     } catch (e) {
       console.log(e);
@@ -2717,8 +2771,6 @@ new_file.set_apply(function () {
 
   Wrapper.centering_canvas();
   Wrapper.init_coords();
-
-  (0, _addition_function.get_zoom)();
 });
 
 _class_wrapper2.default.title_file_wrapper.addEventListener("mouseup", function (e) {
@@ -2805,8 +2857,6 @@ document.addEventListener("keydown", function (e) {
 
     Wrapper.centering_canvas();
     Wrapper.change_coords();
-
-    (0, _addition_function.get_zoom)();
   }
   // уменьшение масштаба
   if (e.keyCode == 189 && e.ctrlKey && e.altKey) {
@@ -2828,8 +2878,6 @@ document.addEventListener("keydown", function (e) {
 
     Wrapper.centering_canvas();
     Wrapper.change_coords();
-
-    (0, _addition_function.get_zoom)();
   }
 });
 

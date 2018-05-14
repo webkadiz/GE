@@ -133,9 +133,12 @@ export function switcher(f, value1, value2) {
     }
   };
 }
+
 export function once(f, ...args) {
   let counter = 0;
+  f.counter = 0;
   return function() {
+    console.log(f.counter++);
     if (!counter) {
       f(...args);
       counter++;
@@ -216,10 +219,13 @@ export function drag(target, wrapper, f_down = () => {}, f_move = () => {}, f_up
 }
 
 export function get_x(e) {
-  return (e.pageX - APP.wrapper_zoom.getBoundingClientRect().left) * APP.canvas.zoom;
+  // (e.pageX - APP.wrapper_zoom.getBoundingClientRect().left) * APP.canvas.zoom;
+
+  return APP.canvas.getPointer(e).x;
 }
 export function get_y(e) {
-  return (e.pageY - APP.wrapper_zoom.getBoundingClientRect().top) * APP.canvas.zoom;
+  // (e.pageY - APP.wrapper_zoom.getBoundingClientRect().top) * APP.canvas.zoom;
+  return APP.canvas.getPointer(e).y;
 }
 
 export function get_zoom() {

@@ -96,7 +96,6 @@ tool_all.wrapper.addEventListener("mouseup", function(e) {
         try {
           disactive(APP.prev_event.elem_setting);
           disactive(APP.prev_event.elem);
-          APP.canvas.off("mouse:down", APP.prev_event.func_event);
           APP.prev_event.func_end();
         } catch (e) {
           console.log(e);
@@ -108,7 +107,6 @@ tool_all.wrapper.addEventListener("mouseup", function(e) {
         active(tool_all[item].elem_setting);
 
         tool_all[item].func_start();
-        APP.canvas.on("mouse:down", tool_all[item].func_event);
       }
     } catch (e) {
       console.log(e);
@@ -192,8 +190,6 @@ new_file.set_apply(function() {
 
   Wrapper.centering_canvas();
   Wrapper.init_coords();
-
-  get_zoom();
 });
 
 WRAPPER.title_file_wrapper.addEventListener("mouseup", function(e) {
@@ -259,8 +255,6 @@ document.addEventListener("keydown", function(e) {
 
     Wrapper.centering_canvas();
     Wrapper.change_coords();
-
-    get_zoom();
   }
   // уменьшение масштаба
   if (e.keyCode == 189 && e.ctrlKey && e.altKey) {
@@ -282,8 +276,6 @@ document.addEventListener("keydown", function(e) {
 
     Wrapper.centering_canvas();
     Wrapper.change_coords();
-
-    get_zoom();
   }
 });
 
