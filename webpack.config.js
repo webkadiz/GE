@@ -1,31 +1,39 @@
 const webpack = require("webpack");
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const VueLoaderPlugin = require("vue-loader/lib/plugin");
 
 module.exports = {
-  entry: ["./js/paint.js", "./sass/main.sass"],
+  entry: ["./src/js/paint.js"],
   output: {
     path: __dirname + "/build",
-    filename: "build.js"
+    filename: "build.js",
+    publicPath: "build"
   },
   module: {
     rules: [
       {
         test: /\.js$/,
+        use: "babel-loader"
+      },
+      {
+        test: /\.vue$/,
+        use: "vue-loader"
+      },
+      {
+        test: /\.sass$/,
         use: [
+          "vue-style-loader",
+          "css-loader",
           {
-            loader: "babel-loader",
+            loader: "sass-loader",
             options: {
-              presets: ["es2015", "react"]
+              indentedSyntax: true
             }
           }
         ]
       },
       {
-        test: /\.sass$/,
-        use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: ["css-loader", "sass-loader"]
-        })
+        test: /\.css$/,
+        loader: ["vue-style-loader", "css-loader"]
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
@@ -33,7 +41,11 @@ module.exports = {
       }
     ]
   },
-  plugins: [new ExtractTextPlugin("css/main.css")],
+
+  devServer: {
+    overlay: true
+  },
+  plugins: [new VueLoaderPlugin()],
   devtool: "source-map",
   mode: "development",
   watch: true

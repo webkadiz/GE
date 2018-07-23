@@ -1,0 +1,13 @@
+{
+	"plugins": [
+		"syntax-dynamic-import",
+		"transform-object-rest-spread",
+		"transform-async-to-generator"
+	],
+	"presets": [["env", {
+      "targets": {
+        "browsers": ["last 2 Chrome versions"]
+      }
+		}]
+	]
+}

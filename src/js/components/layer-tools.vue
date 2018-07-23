@@ -1,0 +1,139 @@
+<template>
+	<div class="layer-wrapper" >
+		<div ref="layers" class="layers">
+			<div @click="activeLayerAlias($event, layer)" 
+					 :class="['layer', {active: activeLayer === layer}]" 
+					 v-for="layer in layers" :key="layer.id" :data-id="layer.id">
+
+				<img :src="`img/${layer.visible ? 'eye.png' : 'eye-cross.png'}`" alt="eye">
+				{{layer.title}}
+			</div>
+		</div>
+		<div v-if="$store.state.canvas" class="layers-tools">
+			<div @click="layerTool.event" class="layers-tool bg-anim-icon" v-for="(layerTool, index) in layerTools" :key="index">
+				<img  :src="'img/' + layerTool.img">
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+import { mapState } from "vuex";
+import interact from "interactjs";
+import Sortable from "sortablejs";
+
+export default {
+  methods: {
+    layerUp() {
+      let index;
+      this.c.bringForward(this.activeLayer.group);
+      index = this.c.getObjects().findIndex(object => object === this.activeLayer.group);
+      this.layers.splice(index, 0, this.layers.remove(this.activeLayer));
+    },
+    layerDown() {
+      let index;
+      this.c.sendBackwards(this.activeLayer.group);
+      index = this.c.getObjects().findIndex(object => object === this.activeLayer.group);
+      this.layers.splice(index, 0, this.layers.remove(this.activeLayer));
+    },
+    layerNew() {},
+    layerDelete() {
+      this.c.remove(this.activeLayer.group);
+      this.layers.remove(this.activeLayer);
+      this.canvas.activeLayer = null;
+    },
+    activeLayerAlias(e, layer) {
+      this.canvas.activeLayer = layer;
+      if (e.target.tagName === "IMG") {
+        layer.visible = layer.group.visible = !layer.group.visible;
+        this.c.renderAll();
+      }
+    }
+  },
+  mounted() {
+    new Sortable(this.$refs.layers, {
+      onUpdate: e => {
+				
+				this.layers.splice(e.newIndex, 0, this.layers.removeIndex(e.oldIndex))
+				this.layers[e.newIndex].group.moveTo(e.newIndex)
+				
+				console.log(this.c.getObjects())
+      }
+    });
+    // $('.layers').sortable({
+    // 	axis: "y",
+    // 	containment: "parent",
+    // 	opacity: 0.5,
+    // 	tolerance: "pointer",
+    // 	update: function( event, ui ) {
+    // 		let id = ui.item.attr('data-id');
+    // 		console.log(ui)
+
+    // 	}
+    // })
+  },
+  computed: {
+    activeLayer() {
+      return this.canvas.activeLayer;
+    },
+    layers() {
+      if (this.canvas) return this.canvas.layers;
+      return [];
+    },
+    c() {
+      return this.canvas.c;
+    },
+    ...mapState(["canvas"])
+  },
+  data() {
+    return {
+      layerTools: [
+        { img: "arrow-up.png", event: this.layerUp },
+        { img: "arrow-down.png", event: this.layerDown },
+        { img: "add-layer.png", event: this.layerNew },
+        { img: "delete.png", event: this.layerDelete }
+      ],
+      layerActive: null,
+      reverse: reverse
+    };
+  }
+};
+</script>
+
+<style lang="sass">
+@import '../../sass/_help'
+
+.layer-wrapper
+	background: $main-color
+	.layers
+		display: flex
+		flex-direction: column-reverse
+		.layer
+			position: relative
+			padding: 10px 6px
+			display: flex
+			align-items: center
+			color: $text-color
+			background: $main-color
+			+bb()
+			img
+				padding-right: 13px
+		.layer::after
+			content: ''
+			position: absolute
+			height: 100%
+			top: 0
+			left: 28px
+			+br()
+		.layer.active
+			background: $bg-color
+
+
+.layers-tools
+	display: flex
+	.layers-tool
+		padding: 5px
+
+
+
+</style>

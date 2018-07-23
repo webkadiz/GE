@@ -592,7 +592,7 @@ var CANVAS = function (_APP) {
             interactive: true,
             fireRightClick: true,
             stopContextMenu: true
-        }, _defineProperty(_ref2, "fireRightClick", false), _defineProperty(_ref2, "fireMiddleClick", false), _defineProperty(_ref2, "preserveObjectStacking", true), _ref2));
+        }, _defineProperty(_ref2, "fireRightClick", false), _defineProperty(_ref2, "fireMiddleClick", false), _defineProperty(_ref2, "preserveObjectStacking", true), _defineProperty(_ref2, "skipTargetFind", true), _ref2));
 
         _this.c.wrapper_zoom = wrapper_zoom;
 
@@ -1454,7 +1454,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       layout: "full",
       submit: 1,
       submitText: "ПРИМЕНИТЬ",
-      height: 200,
+      height: 350,
       polyfill: false,
       styles: false
     },
@@ -2036,16 +2036,6 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
 
     var _this = _possibleConstructorReturn(this, (TOOL_ALL.__proto__ || Object.getPrototypeOf(TOOL_ALL)).call(this, wrapper, func_panel));
 
-    _this.default_settings = {
-      hasControls: false,
-      hasBorders: false,
-      lockMovementX: true,
-      lockMovementY: true,
-      width: 0,
-      height: 0,
-      hoverCursor: "default"
-    };
-
     _this.move = {
       elem_setting: document.querySelector(".header-panel-settings-move"),
       elem: document.querySelector(".move-badge"),
@@ -2087,7 +2077,9 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
       func_event: _this.pouring_func_event.bind(_this),
       func_start: _this.pouring_func_start.bind(_this),
       func_end: _this.pouring_func_end.bind(_this),
-      settings: {}
+      settings: {
+        fill: "#000"
+      }
     };
     _this.rubber = {
       elem_setting: document.querySelector(".header-panel-settings-rubber"),
@@ -2137,16 +2129,7 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
       _class_app2.default.canvas.on(this.move.event, this.move.func_event);
 
       _class_app2.default.canvas.selection = true;
-
-      _class_app2.default.canvas.getActiveObjects().forEach(function (item) {});
-
-      _class_app2.default.canvas.forEachObject(function (item) {
-        item.hasControls = true;
-        item.hasBorders = true;
-        item.hoverCursor = "move";
-        item.lockMovementX = false;
-        item.lockMovementY = false;
-      });
+      _class_app2.default.canvas.skipTargetFind = false;
     }
   }, {
     key: "pencil_func_start",
@@ -2163,12 +2146,70 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
   }, {
     key: "pouring_func_start",
     value: function pouring_func_start() {
-      _class_app2.default.canvas.on(this.pouring.event, this.pouring.func_event);
+      var _this2 = this;
+
+      _class_app2.default.canvas.on("mouse:down", function (_ref) {
+        var e = _ref.e;
+
+        var x = (0, _addition_function.get_x)(e);
+        var y = (0, _addition_function.get_y)(e);
+
+        _class_app2.default.canvas.forEachObject(function (item, i) {
+          return _class_app2.default.canvas.containsPoint(e, item, { x: x, y: y }) ? _class_app2.default.canvas.item(i).set({ fill: _this2.pouring.settings.fill }) : void 0;
+        });
+      });
     }
   }, {
     key: "rubber_func_start",
     value: function rubber_func_start() {
-      _class_app2.default.canvas.on(this.rubber.event, this.rubber.func_event);
+      var _this3 = this;
+
+      _class_app2.default.canvas.on("mouse:move", function (_ref2) {
+        var e = _ref2.e;
+
+        var x = (0, _addition_function.get_x)(e);
+        var y = (0, _addition_function.get_y)(e);
+
+        _this3.rubber.settings.radius = 16;
+        _this3.rubber.settings.left = x - 16;
+        _this3.rubber.settings.top = y - 16;
+        _this3.rubber.settings.fill = "transparent";
+        _this3.rubber.settings.stroke = "black";
+
+        var circle = new fabric.Circle(_this3.rubber.settings);
+
+        _class_app2.default.canvas.renderAll();
+
+        console.log(123);
+
+        circle.render(_class_app2.default.canvas.getContext());
+      });
+      _class_app2.default.canvas.on("mouse:down", function (_ref3) {
+        var e = _ref3.e;
+
+        var x = (0, _addition_function.get_x)(e);
+        var y = (0, _addition_function.get_y)(e);
+
+        //APP.canvas.getContext().globalCompositeOperation = "destination-out";
+
+        _this3.rubber.settings.radius = 16;
+        _this3.rubber.settings.left = x - 16;
+        _this3.rubber.settings.top = y - 16;
+        _this3.rubber.settings.globalCompositeOperation = "destination-out";
+        _this3.rubber.settings.fill = "red";
+
+        _class_app2.default.canvas.freeDrawingBrush.width = 12;
+
+        _class_app2.default.canvas.isDrawingMode = true;
+
+        _class_app2.default.canvas.getContext().globalCompositeOperation = "destination-out";
+
+        //let circle = new fabric.Circle(this.rubber.settings);
+
+        //APP.canvas.add(circle);
+
+        _class_app2.default.canvas.renderAll();
+      });
     }
   }, {
     key: "square_func_start",
@@ -2187,14 +2228,10 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
     key: "move_func_end",
     value: function move_func_end() {
       _class_app2.default.canvas.off(this.move.event, this.move.func_event);
+      _class_app2.default.canvas.skipTargetFind = true;
+      _class_app2.default.canvas.selection = false;
 
-      _class_app2.default.canvas.forEachObject(function (item) {
-        item.hasControls = false;
-        item.hasBorders = false;
-        item.hoverCursor = "default";
-        item.lockMovementX = true;
-        item.lockMovementY = true;
-      });
+      _class_app2.default.canvas.discardActiveObject();
     }
   }, {
     key: "pencil_func_end",
@@ -2215,12 +2252,15 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
   }, {
     key: "pouring_func_end",
     value: function pouring_func_end() {
-      _class_app2.default.canvas.off(this.pouring.event, this.pouring.func_event);
+      _class_app2.default.canvas.off("mouse:down");
     }
   }, {
     key: "rubber_func_end",
     value: function rubber_func_end() {
-      _class_app2.default.canvas.off(this.rubber.event, this.rubber.func_event);
+      _class_app2.default.canvas.off("mouse:move");
+      _class_app2.default.canvas.off("mouse:down");
+
+      _class_app2.default.canvas.getContext().globalCompositeOperation = "source-over";
     }
   }, {
     key: "square_func_end",
@@ -2250,7 +2290,7 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
       var x = (0, _addition_function.get_x)(props.e);
       var y = (0, _addition_function.get_y)(props.e);
 
-      Object.assign(this.text.settings, this.default_settings, {
+      Object.assign(this.text.settings, {
         left: x,
         top: y
       });
@@ -2270,24 +2310,8 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
     value: function pouring_func_event(e) {}
   }, {
     key: "rubber_func_event",
-    value: function rubber_func_event(_ref) {
-      var e = _ref.e;
-
-      var x = (0, _addition_function.get_x)(e);
-      var y = (0, _addition_function.get_y)(e);
-
-      this.rubber.settings.radius = 16;
-      this.rubber.settings.left = x - 16;
-      this.rubber.settings.top = y - 16;
-      this.rubber.settings.fill = "transparent";
-
-      var circle = new fabric.Circle(this.rubber.settings);
-
-      _class_app2.default.canvas.renderAll();
-
-      console.log(123);
-
-      circle.render(_class_app2.default.canvas.getContext());
+    value: function rubber_func_event(_ref4) {
+      var e = _ref4.e;
     }
   }, {
     key: "square_func_event",
@@ -2296,8 +2320,6 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
 
       var x1 = (0, _addition_function.get_x)(props.e);
       var y1 = (0, _addition_function.get_y)(props.e);
-
-      Object.assign(this.square.settings, this.default_settings);
 
       this.square.settings.left = x1;
       this.square.settings.top = y1;
@@ -2341,8 +2363,6 @@ var TOOL_ALL = function (_TOOLS_COMPONENTS) {
 
       var x = (0, _addition_function.get_x)(props.e);
       var y = (0, _addition_function.get_y)(props.e);
-
-      Object.assign(this.line.settings, this.default_settings);
 
       var line = new fabric.Line([x, y, x, y], this.line.settings);
 

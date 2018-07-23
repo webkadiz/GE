@@ -1,0 +1,41 @@
+
+$levelNeg: -10
+$level0: 0
+$level1: 10
+$level2: 100
+$level3: 1000
+	
+$border-color: #8F9491
+$bg-body: #282828
+$main-color: #535353	 
+$bg-color: #424242
+$text-color: white
+$label-color: #d6d6d6
+
+
+=b()
+	border: 1px solid $border-color
+
+=bb()
+	border-bottom: 1px solid $border-color
+=bt()
+	border-top: 1px solid $border-color
+=br()
+	border-right: 1px solid $border-color
+=bl()
+	border-left: 1px solid $border-color
+
+
+=index($index)
+	z-index: $index
+
+
+%input
+	display: block
+	font-size: 0.9rem
+	background: transparent
+	color: $text-color
+	border: none	
+	outline: none
+	+bb()
+
