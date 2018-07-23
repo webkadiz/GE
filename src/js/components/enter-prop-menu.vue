@@ -17,8 +17,6 @@
 </template>
 
 <script>
-
-
 export default {
   props: ["title", "input", "select", "id", "options", "enter"],
   methods: {

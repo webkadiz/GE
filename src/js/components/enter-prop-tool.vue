@@ -46,8 +46,6 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
 export default {
   components: {
     EnterPropColor: () => import("./enter-prop-color.vue")
@@ -91,7 +89,7 @@ export default {
     storeTool() {
       return this.$store.state[this.tool];
     },
-    ...mapState(['canvas'])
+    ...Vuex.mapState(['canvas'])
   },
   methods: {
     enterUpdate(newValue) {

@@ -18,10 +18,6 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import interact from "interactjs";
-import Sortable from "sortablejs";
-
 export default {
   methods: {
     layerUp() {
@@ -60,17 +56,6 @@ export default {
 				console.log(this.c.getObjects())
       }
     });
-    // $('.layers').sortable({
-    // 	axis: "y",
-    // 	containment: "parent",
-    // 	opacity: 0.5,
-    // 	tolerance: "pointer",
-    // 	update: function( event, ui ) {
-    // 		let id = ui.item.attr('data-id');
-    // 		console.log(ui)
-
-    // 	}
-    // })
   },
   computed: {
     activeLayer() {
@@ -83,7 +68,7 @@ export default {
     c() {
       return this.canvas.c;
     },
-    ...mapState(["canvas"])
+    ...Vuex.mapState(["canvas"])
   },
   data() {
     return {
@@ -101,7 +86,7 @@ export default {
 </script>
 
 <style lang="sass">
-@import '../../sass/_help'
+@import '../../../sass/_help'
 
 .layer-wrapper
 	background: $main-color

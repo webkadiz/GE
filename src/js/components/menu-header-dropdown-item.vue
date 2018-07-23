@@ -1,7 +1,7 @@
 <template >
 
 <div v-show="isActive" 
-  @keyup.enter="$store.commit(connector) , $store.commit('closeHeaderDropdownItem', connector)"  
+  @keyup.enter="apply() , $store.commit('closeHeaderDropdownItem', connector)"  
   class="menu-header-dropdown-item animated">  
   <button @click.stop="$store.commit('closeHeaderDropdownItem', connector)" class="close"></button>
   
@@ -25,8 +25,6 @@
 </template>
 
 <script>
-import { mapState} from 'vuex';
-
 export default {
   components: {
     EnterPropMenu: () => import("./enter-prop-menu.vue")

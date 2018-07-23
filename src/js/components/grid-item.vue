@@ -14,22 +14,16 @@
 </template>
 
 <script>
-import interact from "interactjs";
-
 export default {
   components: {
     CanvasWrapper: () => import("./canvas-wrapper.vue"),
-    CommonTools: () => import("./common-tools.vue"),
-    TextTools: () => import("./text-tools.vue"),
-    LayerTools: () => import("./layer-tools.vue"),
+    CommonTools: () => import("./tools/common-tools.vue"),
+    TextTools: () => import("./tools/text-tools.vue"),
+    LayerTools: () => import("./tools/layer-tools.vue"),
+    PencilTools: () => import("./tools/pencil-tools.vue"),
     Casing: () => import("./casing.vue")
   },
-  props: ["component"],
-  methods: {
-    focus() {
-      console.log("focus");
-    }
-  },
+  props: ["component", 'rowsAmount'],
   mounted() {
     if (this.component !== "CanvasWrapper") {
       interact(this.$el).draggable({
@@ -50,19 +44,17 @@ export default {
 
           if (el.classList.contains("in-grid")) {
             let gridRow, component = el.getAttribute("data-component");
-            for (let gridCol of this.$store.state.grid) {
-              if ((gridRow = gridCol.find(row => row.component === component))) {
-                if (gridCol.length !== 1) gridCol.remove(gridRow);
-                else this.$store.state.grid.remove(gridCol);
-              }
-            }
-            //el.setAttribute('data-x', 0);
-            //el.setAttribute('data-y', 0)
-
-            // el.style.webkitTransform = el.style.transform = "translate(" + 0 + "px, " + 0 + "px)";
+            this.$store.state.grid.forEach( gridCol => 
+              gridRow = gridCol.find(row => row.component === component)
+                ? gridCol.length !== 1 
+                    ? gridCol.remove(gridRow)
+                    : this.$store.state.grid.remove(gridCol) : void 0)
+            
+            el.setAttribute("data-x", el.getBoundingClientRect().left);
+            el.setAttribute("data-y", el.getBoundingClientRect().top);
           }
           el.style.pointerEvents = "none";
-          $(".casing").css("z-index", 100);
+          $(".casing").css("z-index", 1000000000);         
         },
         onend: e => {
           e.target.style.pointerEvents = "auto";
@@ -80,7 +72,7 @@ export default {
     },
     computeRow() {
       for (let gridCol of this.$store.state.grid) {
-        let k = this.$store.state.rowsCount / gridCol.length;
+        let k = this.rowsAmount / gridCol.length;
         let index;
         if (~(index = gridCol.findIndex(gridRow => gridRow.component === this.component))) {
           return `${index * k + 1} / ${index * k + k + 1}`;
@@ -108,6 +100,7 @@ export default {
   position: relative
   border-radius: 0
   box-shadow: none
+  display: grid
   .casing
     display: block
 

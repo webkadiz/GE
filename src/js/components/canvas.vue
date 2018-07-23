@@ -15,18 +15,13 @@
 </template>
 
 <script>
-import Tool from "./class_tool_all.js";
-import { mapState } from "vuex";
-
 export default {
   data() {
     return {
       canvasInner: ""
     };
   },
-  computed: {
-    ...mapState(["canvas"])
-  },
+  computed: Vuex.mapState(["canvas"]),
   mounted() {
     let counter = 1; //счетчик слоев
     this.canvasInner = this.$refs.canvasInner;

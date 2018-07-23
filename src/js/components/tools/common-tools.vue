@@ -7,11 +7,9 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
 export default {
   components: {
-    Casing: () => import("./casing.vue")
+    Casing: () => import("../casing.vue")
   },
   computed: {
     canvas() {
@@ -59,12 +57,7 @@ export default {
       self.c.on('mouse:down', down = e => {
         let {x ,y} = self.c.getPointer()
 
-        path = new fabric.Path(`M ${x} ${y}`, {
-          fill: 'transparent',
-          stroke: 'red',
-          strokeWidth: 10,
-          strokeLineCap: 'round',
-        });	
+        path = new fabric.Path(`M ${x} ${y}`, this.$store.state.pencil);	
 
         self.c.add(path)
 
@@ -73,12 +66,7 @@ export default {
           
           self.c.remove(path);
       
-          path = new fabric.Path(path.path,{
-            fill: 'transparent',
-            stroke: 'red',
-            strokeWidth: 10,
-            strokeLineCap: 'round',
-          })
+          path = new fabric.Path(path.path, this.$store.state.pencil)
 
           path.path.push(['L', x, y])
 
@@ -259,7 +247,7 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-@import '../../sass/_help'
+@import '../../../sass/_help'
 
 .tools-wrapper
   flex-shrink: 0

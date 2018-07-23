@@ -1,16 +1,16 @@
 <template>
-	<main :style="{ gridTemplateColumns: computeCols , gridTemplateRows: $store.state.rows} " class="main">	
+	<main :style="{ gridTemplateColumns: computeCols , gridTemplateRows: computeRows} " class="grid">	
 
     <GridItem @mousedown="gridItem.component !== 'CanvasWrapper' ? activeGridItem = gridItem: void 0" 
               :component="gridItem.component" 
               :key="gridItem.id" v-for="gridItem in grid"
-              :style="{'z-index': computeZIndex(gridItem)}">
+              :style="{'z-index': computeZIndex(gridItem)}"
+              :rowsAmount="computeRows.match(/[0-9]+/)[0]">
     </GridItem>
 	</main>
 </template>
 
 <script>
-
 export default {
   components: {
     GridItem: () => import('./grid-item.vue'),  
@@ -32,6 +32,10 @@ export default {
           : (cols += "auto ");
       }
       return cols;
+    },
+    computeRows(){
+      return `repeat(${this.$store.state.grid.reduce((prev, gridCol) => 
+        prev > gridCol.length ? prev : gridCol.length, 0)}, auto)`
     }
   },
   methods: {
@@ -53,7 +57,7 @@ export default {
 <style lang="sass" scoped>
 @import '../../sass/_help'
 
-main
+.grid
   height: calc(100% - 52px)
   position: relative
   display: grid

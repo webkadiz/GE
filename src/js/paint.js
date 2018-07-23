@@ -8,15 +8,17 @@ import "../css/animate.css";
 import "jquery-colpick"; // jquery плагин для полосы прокрутки
 import "nicescroll"; // jquery плагин для цвета
 import "jquery-ui-dist/jquery-ui";
-import vSelect from "vue-select";
+import "./addition_function.js"; // набор функций
 
 import "vue/dist/vue.runtime.js";
 import Vue from "vue/dist/vue.js";
 import Vuex from "vuex";
+import Sortable from "vue-sortable";
+import vSelect from "vue-select";
 import MenuHeader from "./components/menu-header.vue";
 import MenuHeaderDropdownItem from "./components/menu-header-dropdown-item.vue";
 import PanelHeaderTools from "./components/panel-header-tools.vue";
-import CanvasMain from "./components/canvas-main.vue";
+import Grid from "./components/grid.vue";
 //импортирую для отладки
 import "./components/canvas-wrapper.vue";
 import "./components/canvas.vue";
@@ -25,10 +27,8 @@ import "./components/enter-prop-menu.vue";
 import "./components/enter-prop-tool.vue";
 import "./components/casing.vue";
 import "./components/grid-item.vue";
-import "./components/text-tools.vue";
-import "./components/common-tools.vue";
-
-import Sortable from "vue-sortable";
+import "./components/tools/text-tools.vue";
+import "./components/tools/common-tools.vue";
 
 Vue.config.devtools = true;
 Vue.config.performance = true;
@@ -46,15 +46,19 @@ const store = new Vuex.Store({
       { component: "CanvasWrapper", id: 0 },
       { component: "CommonTools", id: 1 },
       { component: "TextTools", id: 2 },
-      { component: "LayerTools", id: 3 }
+      { component: "LayerTools", id: 3 },
+      { component: "PencilTools", id: 4 }
     ],
-    columns: "1fr",
-    rows: "repeat(12, 1fr)",
-    rowsCount: 12,
     canvases: [],
     canvas: null,
     move: {},
-    pencil: {},
+    pencil: {
+      fill: "transparent",
+      stroke: "black",
+      strokeWidth: 5,
+      strokeLineCap: "round",
+      strokeLineJoin: "round"
+    },
     text: {
       fill: "black",
       fontStyle: "normal",
@@ -70,8 +74,7 @@ const store = new Vuex.Store({
     pouring: {},
     eraser: {},
     square: {},
-    line: {
-    }
+    line: {}
   },
   mutations: {
     openHeaderDropdownItem: (state, connector) =>
@@ -152,7 +155,7 @@ let app = new Vue({
     MenuHeader,
     MenuHeaderDropdownItem,
     PanelHeaderTools,
-    CanvasMain
+    Grid
   },
   computed: Vuex.mapState(["headerDropdownItem"]),
   methods: {}

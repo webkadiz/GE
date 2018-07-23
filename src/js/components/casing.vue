@@ -7,10 +7,7 @@
 	</div>		
 </template>
 
-
 <script>
-import interact from "interactjs";
-
 export default {
   props: ["TopNot", "BottomNot", "LeftNot", "RightNot"],
   mounted() {
@@ -19,7 +16,6 @@ export default {
     interact(".casing").dropzone({
       accept: ".grid-item",
       ondrop: event => {
-        console.log("drop");
         //prettier-ignore
         let el                = event.relatedTarget, 
             dropzone          = event.target,
@@ -27,35 +23,21 @@ export default {
             dropzoneComponent = dropzone.parentElement.getAttribute("data-component"),
             flagPlace, flagGrid;
         
-        if (dropzone.classList.contains("casing-right")) {
-          flagPlace = 1;
-          flagGrid = "COL";
-        } else if (dropzone.classList.contains("casing-left")) {
-          flagPlace = 0;
-          flagGrid = "COL";
-        } else if (dropzone.classList.contains("casing-bottom")) {
-          flagPlace = 1;
-          flagGrid = "ROW";
-        } else if (dropzone.classList.contains("casing-top")) {
-          flagPlace = 0;
-          flagGrid = "ROW";
-        }
-
+        if (dropzone.classList.contains("casing-right")) 
+          [flagPlace, flagGrid] = [1, "COL"];
+        else if (dropzone.classList.contains("casing-left")) 
+          [flagPlace, flagGrid] = [0, "COL"];
+        else if (dropzone.classList.contains("casing-bottom")) 
+          [flagPlace, flagGrid] = [1, "ROW"];
+        else if (dropzone.classList.contains("casing-top")) 
+          [flagPlace, flagGrid] = [0, "ROW"];
+        
         this.$store.commit({
           type: "gridLoop",
-          component,
-          dropzoneComponent,
-          flagPlace,
-          flagGrid
+          component, dropzoneComponent, flagPlace, flagGrid
         });
 
-        $(el).css({
-          opacity: "1",
-          transform: "translate(0,0)"
-        });
-
-        el.setAttribute("data-x", $(el).position().x);
-        el.setAttribute("data-y", $(el).position().y);
+				$(el).css({ opacity: "1", transform: "translate(0, 0)" });
       },
       ondragenter : e => e.relatedTarget.style.opacity = ".5",
       ondragleave: e => e.relatedTarget.style.opacity = "1"     

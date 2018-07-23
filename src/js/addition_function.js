@@ -1,6 +1,9 @@
-// набор функций и свойств
+// набор функций, свойств, методов и объявление глобальный переменных
 import $ from "jquery";
+import interact from "interactjs";
+import Sortable from "sortablejs";
 import "fabric";
+import Vuex from "vuex";
 
 window.levelNeg = -10;
 window.level0 = 0;
@@ -11,7 +14,10 @@ window.level4 = 10000;
 
 window.html = document.documentElement;
 window.$ = $;
+window.interact = interact;
+window.Sortable = Sortable;
 window.fabric = fabric;
+window.Vuex = Vuex;
 
 Object.defineProperty(fabric.Group.prototype, "object", {
   get() {

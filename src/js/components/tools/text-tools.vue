@@ -1,5 +1,5 @@
 <template>
-	<div class="text">
+	<div class="text-tools">
 
     <div class="col-center"  v-for="setting in ['fontStyle']" :key="props[setting].id">
       <EnterPropTool :tool="tool" v-bind="props[setting]"></EnterPropTool>
@@ -16,11 +16,9 @@
 </template>
 
 <script>
-import $ from "jquery";
-
 export default {
   components: {
-    EnterPropTool: () => import("./enter-prop-tool.vue")
+    EnterPropTool: () => import("../enter-prop-tool.vue")
   },
   data() {
     return {
@@ -93,11 +91,10 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-@import '../../sass/_help'
+@import '../../../sass/_help'
 
-.text
+.text-tools
   background: $main-color
-  z-index: 100000
 
 .col-center
   display: flex

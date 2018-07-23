@@ -13,17 +13,13 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
 export default {
   components: {
     Canvas: () => import("./canvas.vue"),
     CanvasTitle: () => import("./canvas-title.vue"),
     Casing: () => import("./casing.vue")
   },
-  computed: {
-    ...mapState(["canvases", "canvas"])
-  },
+	computed: Vuex.mapState(["canvases", "canvas"]),
 };
 </script>
 

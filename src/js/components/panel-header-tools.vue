@@ -9,7 +9,6 @@
 </template>
 
 <script>
-
 export default {
   components: {
     PanelHeaderTool: () => import("./panel-header-tool.vue")
