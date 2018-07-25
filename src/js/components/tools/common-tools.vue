@@ -1,5 +1,5 @@
 <template>
-	<div class="tools-wrapper">    
+	<div class="tools-wrapper tools">    
     <div :class="[{active: currentTool === tool} , 'tool','bg-anim-icon' ]"  @click="active(tool)" :key="index" v-for="(tool, index) in tools">
       <img :src="'img/' + tool.img" alt="" />
     </div>

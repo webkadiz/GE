@@ -63,7 +63,7 @@ export default class WRAPPER extends APP {
     this.s_canvas_wrapper = canvas.s_canvas_wrapper;
   }
   init() {
-    this.title_canvas_wrapper.height(this.title_height);
+    //this.title_canvas_wrapper.height(this.title_height);
 
     this.h_canvas_wrapper.height(get_height(html) - get_height(APP.header));
 
@@ -314,51 +314,49 @@ export default class WRAPPER extends APP {
   }
 
   centering_canvas() {
-    elem_center({
-      elem: APP.wrapper_zoom,
-      elem_wrapper: APP.wrapper_work,
-      left_add: WRAPPER.SIZE_COORDS,
-      top_add: WRAPPER.SIZE_COORDS
-    });
+    // elem_center({
+    //   elem: APP.wrapper_zoom,
+    //   elem_wrapper: APP.wrapper_work,
+    //   left_add: WRAPPER.SIZE_COORDS,
+    //   top_add: WRAPPER.SIZE_COORDS
+    // });
 
     if (get_left(APP.wrapper_zoom) && get_top(APP.wrapper_zoom) < WRAPPER.SIZE_COORDS) {
-      APP.wrapper_coords_x.set_width(get_width(APP.wrapper_zoom) + WRAPPER.ADD_SIZE);
-
-      APP.wrapper_coords_y.set_height(get_height(APP.wrapper_zoom) + WRAPPER.ADD_SIZE);
-
-      APP.wrapper_zoom.set_left(WRAPPER.ADD_SIZE / 2);
-      APP.wrapper_zoom.set_top(WRAPPER.ADD_SIZE / 2);
+      //APP.wrapper_coords_x.set_width(get_width(APP.wrapper_zoom) + WRAPPER.ADD_SIZE);
+      //APP.wrapper_coords_y.set_height(get_height(APP.wrapper_zoom) + WRAPPER.ADD_SIZE);
+      //APP.wrapper_zoom.set_left(WRAPPER.ADD_SIZE / 2);
+      //APP.wrapper_zoom.set_top(WRAPPER.ADD_SIZE / 2);
     } else if (get_left(APP.wrapper_zoom) < WRAPPER.SIZE_COORDS) {
-      APP.wrapper_coords_x.set_width(get_width(APP.wrapper_zoom) + WRAPPER.ADD_SIZE);
+      //APP.wrapper_coords_x.set_width(get_width(APP.wrapper_zoom) + WRAPPER.ADD_SIZE);
 
       if (get_top(APP.wrapper_zoom) > WRAPPER.SIZE_COORDS) {
-        APP.wrapper_coords_y.set_height(APP.wrapper_work);
+        //APP.wrapper_coords_y.set_height(APP.wrapper_work);
       }
 
-      elem_center({
-        only_top: true,
-        elem: APP.wrapper_zoom,
-        elem_wrapper: APP.wrapper_work,
-        left_add: WRAPPER.ADD_SIZE / 2,
-        top_add: WRAPPER.SIZE_COORDS
-      });
+      // elem_center({
+      //   only_top: true,
+      //   elem: APP.wrapper_zoom,
+      //   elem_wrapper: APP.wrapper_work,
+      //   left_add: WRAPPER.ADD_SIZE / 2,
+      //   top_add: WRAPPER.SIZE_COORDS
+      // });
     } else if (get_top(APP.wrapper_zoom) < WRAPPER.SIZE_COORDS) {
-      APP.wrapper_coords_y.set_height(get_height(APP.wrapper_zoom) + WRAPPER.ADD_SIZE);
+      //APP.wrapper_coords_y.set_height(get_height(APP.wrapper_zoom) + WRAPPER.ADD_SIZE);
 
       if (get_left(APP.wrapper_zoom) > WRAPPER.SIZE_COORDS) {
-        APP.wrapper_coords_x.set_width(APP.wrapper_work);
+        //APP.wrapper_coords_x.set_width(APP.wrapper_work);
       }
 
-      elem_center({
-        only_left: true,
-        elem: APP.wrapper_zoom,
-        elem_wrapper: APP.wrapper_work,
-        top_add: WRAPPER.ADD_SIZE / 2,
-        left_add: WRAPPER.SIZE_COORDS
-      });
+      // elem_center({
+      //   only_left: true,
+      //   elem: APP.wrapper_zoom,
+      //   elem_wrapper: APP.wrapper_work,
+      //   top_add: WRAPPER.ADD_SIZE / 2,
+      //   left_add: WRAPPER.SIZE_COORDS
+      // });
     } else {
-      APP.wrapper_coords_x.set_width(get_width(APP.wrapper_work));
-      APP.wrapper_coords_y.set_height(get_height(APP.wrapper_work));
+      //APP.wrapper_coords_x.set_width(get_width(APP.wrapper_work));
+      //APP.wrapper_coords_y.set_height(get_height(APP.wrapper_work));
     }
 
     return this;

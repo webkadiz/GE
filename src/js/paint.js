@@ -43,11 +43,11 @@ const store = new Vuex.Store({
     headerDropdownItem: [{ connector: "newFile", isActive: false }, { connector: "windowSize", isActive: false }],
     grid: [],
     gridTools: [
-      { component: "CanvasWrapper", id: 0 },
-      { component: "CommonTools", id: 1 },
-      { component: "TextTools", id: 2 },
-      { component: "LayerTools", id: 3 },
-      { component: "PencilTools", id: 4 }
+      { component: "CanvasWrapper", id: 0, isFold: false, switcher: true, title: "canvas" },
+      { component: "CommonTools", id: 1, isFold: false, switcher: true, title: "инструменты" },
+      { component: "TextTools", id: 2, isFold: false, switcher: true, title: "Текст" },
+      { component: "LayerTools", id: 3, isFold: false, switcher: true, title: "Слои" },
+      { component: "PencilTools", id: 4, isFold: false, switcher: true, title: "Мелок" }
     ],
     canvases: [],
     canvas: null,
@@ -98,11 +98,14 @@ const store = new Vuex.Store({
           if (gridRow.component === dropzoneComponent) {
             if (flagGrid === "COL") {
               let index = state.grid.indexOf(gridCol);
-              state.grid.splice(index + flagPlace, 0, [state.gridTools.find(tool => tool.component === component)]);
+              let tool = state.gridTools.find(tool => tool.component === component);
+              state.grid.splice(index + flagPlace, 0, [tool]);
               return;
             } else if (flagGrid === "ROW") {
               let index = gridCol.indexOf(gridRow);
-              gridCol.splice(index + flagPlace, 0, state.gridTools.find(tool => tool.component === component));
+              let tool = state.gridTools.find(tool => tool.component === component);
+              gridCol.splice(index + flagPlace, 0, tool);
+              tool.isFold = gridCol[0].isFold;
               return;
             }
           }

@@ -10,7 +10,7 @@
 
 	<div ref="canvasInner" class="canvas-wrapper-inner">
 		<canvas ref="canvas"></canvas>
-	</div>
+	</div>  
 </div>	
 </template>
 
@@ -93,7 +93,7 @@ export default {
     //центрируем холст
     elemCenter(this.canvasInner, 20, 20);
     //кастомные полосы прокрутки
-    $(this.$el).niceScroll({
+    $(this.$el).niceScroll(this.canvasInner, {
       cursorcolor: "#535353",
       cursorborder: "1px solid #535353",
       autohidemode: "leave",

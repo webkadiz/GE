@@ -5,11 +5,35 @@
 		:data-component="component" 
     @mousedown="$emit('mousedown')">
 
+    <GridArrow v-if=" component !== 'CanvasWrapper' 
+                      && inGrid 
+                      && $store.state.grid.find(col => col[0].component === component)"
+               @switcherArrowInGrid="switcherArrowInGrid"
+               :class="{fold: isFold }" :component="component">
+    </GridArrow>
+
+    <DragTools @switchArrow="switchArrow" 
+               v-if="component !== 'CanvasWrapper' && !inGrid"
+               :class="{fold: isFold}">
+    </DragTools>
+
 		<keep-alive>
-			<component :is="component"></component>
+			<component 
+          :class="{'component-fold' : isFold}" 
+          :style="computePosition()"
+          :is="component"
+          v-show="computeDisplayComponent">
+      </component>
 		</keep-alive>
+
+    <FoldTools @switcher="switcher = !switcher" 
+               v-show="isFold" 
+               :title="title" 
+               :active="switcher">
+    </FoldTools>
+
 		<Casing v-if="component !== 'CanvasWrapper'"></Casing>
-		<Casing v-else BottomNot="true" TopNot="true"></Casing>
+		<Casing v-else-if="component === 'CanvasWrapper'" BottomNot="true" TopNot="true"></Casing>
 	</div>
 </template>
 
@@ -17,14 +41,20 @@
 export default {
   components: {
     CanvasWrapper: () => import("./canvas-wrapper.vue"),
+    GridArrow: () => import("./grid-arrow.vue"),
+    Casing: () => import("./casing.vue"),
+    DragTools: () => import("./tools/drag-tools.vue"),
+    TabsTools: () => import("./tools/tabs-tools.vue"),
+    FoldTools: () => import("./tools/fold-tools.vue"),
     CommonTools: () => import("./tools/common-tools.vue"),
     TextTools: () => import("./tools/text-tools.vue"),
     LayerTools: () => import("./tools/layer-tools.vue"),
-    PencilTools: () => import("./tools/pencil-tools.vue"),
-    Casing: () => import("./casing.vue")
+    PencilTools: () => import("./tools/pencil-tools.vue"),    
   },
-  props: ["component", 'rowsAmount'],
+  props: ["component", 'rowsAmount', 'isFold', 'title'],
   mounted() {
+    bus.$on('switchArrow', this.switchArrow) // вызывавший здесь же
+
     if (this.component !== "CanvasWrapper") {
       interact(this.$el).draggable({
         ignoreFrom: ".layers",
@@ -44,17 +74,17 @@ export default {
 
           if (el.classList.contains("in-grid")) {
             let gridRow, component = el.getAttribute("data-component");
-            this.$store.state.grid.forEach( gridCol => 
-              gridRow = gridCol.find(row => row.component === component)
-                ? gridCol.length !== 1 
-                    ? gridCol.remove(gridRow)
-                    : this.$store.state.grid.remove(gridCol) : void 0)
+            this.$store.state.grid.forEach( gridCol => {
+              if(gridRow = gridCol.find(row => row.component === component)) {
+                gridCol.length !== 1 ? gridCol.remove(gridRow) : this.$store.state.grid.remove(gridCol)
+              }
+            })
             
             el.setAttribute("data-x", el.getBoundingClientRect().left);
             el.setAttribute("data-y", el.getBoundingClientRect().top);
           }
           el.style.pointerEvents = "none";
-          $(".casing").css("z-index", 1000000000);         
+          $(".casing").css("z-index", 1000000000);        
         },
         onend: e => {
           e.target.style.pointerEvents = "auto";
@@ -78,6 +108,31 @@ export default {
           return `${index * k + 1} / ${index * k + k + 1}`;
         }
       }
+    },
+    computeDisplayComponent() {
+      if(!this.isFold) return true
+      return this.switcher;
+    }
+  },
+  methods: {
+    computePosition() {
+      if(this.$el && this.isFold) return {
+        left: this.$el.getBoundingClientRect().left < $('html').width() / 2 ? '103%' : '',
+        right: this.$el.getBoundingClientRect().left > $('html').width() / 2 ? '103%' : ''
+      }
+    },
+    switchArrow(col) {
+      if(col && !col.find(row => row.component === this.component)) return     
+      this.switcher = this.isFold ? true : false;
+      this.$emit('fold');
+    },
+    switcherArrowInGrid() {
+      bus.$emit('switchArrow', this.$store.state.grid.find(col => col[0].component === this.component)) // обработчик здесь же
+    } 
+  },
+  data() {
+    return {
+      switcher: true
     }
   }
 };
@@ -89,20 +144,31 @@ export default {
 .grid-item
   transition: opacity .8s
   display: flex
+  flex-direction: column
   position: absolute
   border-radius: 3px
   box-shadow: 0 0px 14px 2px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2)
   +b()
   .casing
     display: none
+  .component-fold
+    position: absolute
+    top: 14px
+    +b()
 
 .grid-item.in-grid
   position: relative
   border-radius: 0
   box-shadow: none
-  display: grid
   .casing
     display: block
+  .tools
+    height: 100%
+  .tools.component-fold
+    height: auto
+    top: 0
+  .fold-wrapper
+    height: 100%
 
 </style>
 

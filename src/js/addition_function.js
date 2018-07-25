@@ -18,6 +18,7 @@ window.interact = interact;
 window.Sortable = Sortable;
 window.fabric = fabric;
 window.Vuex = Vuex;
+window.genID = generatorID();
 
 Object.defineProperty(fabric.Group.prototype, "object", {
   get() {
@@ -84,6 +85,11 @@ Object.defineProperty(Array.prototype, "unique", {
   enumerable: false
 });
 
+Object.defineProperty(Object.prototype, "genID", {
+  get: () => genID.next().value,
+  enumerable: false
+});
+
 window.reverse = arr => arr.reduceRight((prev, item) => prev.concat(item), []);
 
 // window.reverse = arr => {
@@ -146,6 +152,10 @@ window.spreadArray2 = function(arr) {
   }
   return newArr;
 };
+
+function* generatorID() {
+  for (let i = 1000; i < 10000000; i++) yield i;
+}
 
 // window.arr1 = [];
 // window.arr2 = [];

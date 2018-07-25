@@ -1,5 +1,5 @@
 <template>
-	<div class="layer-wrapper" >
+	<div class="layers-wrapper tools" >
 		<div ref="layers" class="layers">
 			<div @click="activeLayerAlias($event, layer)" 
 					 :class="['layer', {active: activeLayer === layer}]" 
@@ -88,8 +88,7 @@ export default {
 <style lang="sass">
 @import '../../../sass/_help'
 
-.layer-wrapper
-	background: $main-color
+.layers-wrapper
 	.layers
 		display: flex
 		flex-direction: column-reverse

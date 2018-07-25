@@ -1,5 +1,5 @@
 <template>
-	<div class="text-tools">
+	<div class="text-tools tools">
 
     <div class="col-center"  v-for="setting in ['fontStyle']" :key="props[setting].id">
       <EnterPropTool :tool="tool" v-bind="props[setting]"></EnterPropTool>
@@ -92,9 +92,6 @@ export default {
 
 <style lang="sass" scoped>
 @import '../../../sass/_help'
-
-.text-tools
-  background: $main-color
 
 .col-center
   display: flex
