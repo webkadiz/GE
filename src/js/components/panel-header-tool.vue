@@ -22,7 +22,7 @@ export default {
 		margin-left: 10px
 		display: flex
 		align-items: center	
-		color: $label-color
+		color: var(--label-color)
 	img
 		margin-left: 8px			
 	input[type="color"]

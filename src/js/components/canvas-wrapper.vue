@@ -35,6 +35,6 @@ export default {
 	.canvas-wrapper-title
 		font-size: 1.2rem
 		line-height: 25px
-		background: $bg-color
+		background: var(--bg-color)
 		+bb()
 </style>

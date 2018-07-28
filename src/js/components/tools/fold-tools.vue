@@ -15,13 +15,14 @@ export default {
 
 .fold-wrapper
 	padding: 5px
-	background: $main-color
+	background: var(--main-color)
 	.fold
-		padding: 10px
-		color: $text-color
-		background: $main-color
+		cursor: pointer
+		padding: 8px
+		color: var(--text-color)
+		background: var(--main-color)
 		&:hover
-			background: $bg-color
+			background: var(--bg-color)
 	.fold.active
-		background: $bg-color
+		background: var(--bg-color)
 </style>

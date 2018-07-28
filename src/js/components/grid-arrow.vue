@@ -29,7 +29,7 @@ export default {
 
 .grid-arrow-wrapper
 	height: 10px
-	background: $bg-color
+	background: var(--bg-color)
 	+bb()
 	position: relative
 	.grid-arrow
@@ -39,7 +39,7 @@ export default {
 		height: 100%
 		padding: 0
 		top: 0
-		background: $bg-color
+		background: var(--bg-color)
 		cursor: pointer
 		outline: none
 		border: none
@@ -61,7 +61,7 @@ export default {
 			+br()
 			&::before
 				border:
-					right: 4px solid white
+					right: 4px solid var(--text-color)
 					top: 4px solid transparent
 					bottom: 4px solid transparent
 					left: 4px solid transparent
@@ -74,7 +74,7 @@ export default {
 			+bl()
 			&::before
 				border:
-					left: 4px solid white
+					left: 4px solid var(--text-color)
 					top: 4px solid transparent
 					bottom: 4px solid transparent
 					right: 4px solid transparent

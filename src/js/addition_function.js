@@ -100,18 +100,6 @@ window.reverse = arr => arr.reduceRight((prev, item) => prev.concat(item), []);
 //   return newArr;
 // };
 
-export function switcher(f, value1, value2) {
-  let flag = true;
-  return function() {
-    if (flag) {
-      f(value1);
-      flag = false;
-    } else {
-      f(value2);
-      flag = true;
-    }
-  };
-}
 
 window.elemCenter = function(elem, left = 0, top = 0) {
   elem = $(elem);
@@ -167,64 +155,6 @@ function* generatorID() {
 //   else if (i > 60000) arr3.push(i);
 // }
 
-//реализация drag'n'drop
-export function drag(target, wrapper, f_down = () => {}, f_move = () => {}, f_up = () => {}) {
-  target.ondragstart = () => {
-    return false;
-  };
-
-  target.onmousedown = e => {
-    let x = e.pageX;
-    let y = e.pageY;
-    let begin_x = get_left(wrapper);
-    let begin_y = get_top(wrapper);
-
-    f_down();
-
-    document.onmousemove = e => {
-      wrapper.style.left = begin_x + (e.pageX - x) + "px";
-      wrapper.style.top = begin_y + (e.pageY - y) + "px";
-
-      f_move();
-    };
-  };
-
-  document.onmouseup = e => {
-    document.onmousemove = null;
-  };
-
-  target.onmouseup = e => {
-    document.onmousemove = null;
-
-    f_up();
-  };
-}
-
-export function get_x(e) {
-  // (e.pageX - APP.wrapper_zoom.getBoundingClientRect().left) * APP.canvas.zoom;
-
-  return APP.canvas.getPointer(e).x;
-}
-export function get_y(e) {
-  // (e.pageY - APP.wrapper_zoom.getBoundingClientRect().top) * APP.canvas.zoom;
-  return APP.canvas.getPointer(e).y;
-}
-
-export function get_zoom() {
-  APP.canvas.zoom = parseFloat(APP.canvas.getWidth()) / get_width(APP.canvas.wrapperEl);
-}
-
-export function active(...value) {
-  for (let item of value) {
-    item.classList.add("active");
-  }
-}
-
-export function disactive(...value) {
-  for (let item of value) {
-    item.classList.remove("active");
-  }
-}
 
 window.getPropFromInput = function(input_values, ...lists) {
   let obj = {};

@@ -6,7 +6,8 @@
               :key="gridItem.id" v-for="gridItem in grid"
               :style="{'z-index': computeZIndex(gridItem)}"
               :rowsAmount="computeRows.match(/[0-9]+/)[0]"
-              @fold="gridItem.isFold = !gridItem.isFold">
+              @fold="gridItem.isFold = !gridItem.isFold"
+              @closeComponent="gridItem.isActive = false">
     </GridItem>
 	</main>
 </template>
@@ -15,11 +16,6 @@
 export default {
   components: {
     GridItem: () => import('./grid-item.vue'),  
-  },
-  mounted() {   
-    if(!this.$store.state.grid.length){
-      this.$store.state.grid.push([{component: 'CanvasWrapper', id: 0}]);   
-    }
   },
   computed: {
     grid() {

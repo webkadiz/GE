@@ -22,15 +22,11 @@ export default {
             component         = el.getAttribute("data-component"),
             dropzoneComponent = dropzone.parentElement.getAttribute("data-component"),
 						flagPlace, flagGrid;
-						
-						console.log(event);
         
         if (dropzone.classList.contains("casing-right")) [flagPlace, flagGrid] = [1, "COL"];
         else if (dropzone.classList.contains("casing-left")) [flagPlace, flagGrid] = [0, "COL"];
         else if (dropzone.classList.contains("casing-bottom")) [flagPlace, flagGrid] = [1, "ROW"];
 				else if (dropzone.classList.contains("casing-top")) [flagPlace, flagGrid] = [0, "ROW"];
-				
-				console.log(dropzone.parentElement)
         
         this.$store.commit({
           type: "gridLoop",

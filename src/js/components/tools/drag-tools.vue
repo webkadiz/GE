@@ -1,6 +1,6 @@
 <template>
  	<div class="drag drag-wrapper">
-		<div class="drag-close"></div>	 
+		<div @click="$emit('closeComponent')" class="drag-close"></div>	 
 		<div @click="$emit('switchArrow')" class="drag-arrow"></div>
 	</div>		
 </template>
@@ -13,7 +13,7 @@ export default {}
 @import '../../../sass/_help'
 
 .drag-wrapper
-	background: $bg-color
+	background: var(--bg-color)
 	height: 14px
 	width: 100%
 	+bb()
@@ -27,7 +27,7 @@ export default {}
 		height: 20px
 		padding: 0
 		border-radius: 50%
-		background: $bg-color
+		background: var(--bg-color)
 		cursor: pointer
 		outline: none
 		border: none
@@ -44,7 +44,7 @@ export default {}
 			top: 50%
 			margin: -1px -4px
 			transform: rotate(45deg)
-			background: white
+			background: var(--text-color)
 			cursor: pointer
 		&::after
 			@extend .drag-close::before
@@ -59,7 +59,7 @@ export default {}
 		height: 20px
 		padding: 0
 		border-radius: 50%
-		background: $bg-color
+		background: var(--bg-color)
 		cursor: pointer
 		outline: none
 		border: none
@@ -76,7 +76,7 @@ export default {}
 			margin: -4px -5px
 			cursor: pointer
 			border:
-				right: 4px solid white
+				right: 4px solid var(--text-color)
 				top: 4px solid transparent
 				bottom: 4px solid transparent
 		&::after

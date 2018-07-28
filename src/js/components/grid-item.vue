@@ -3,7 +3,8 @@
 		:style="{'grid-row': computeRow}" 
 		:class="['grid-item', {'in-grid': inGrid}]" 
 		:data-component="component" 
-    @mousedown="$emit('mousedown')">
+    @mousedown="$emit('mousedown')"
+    v-show="isActive">
 
     <GridArrow v-if=" component !== 'CanvasWrapper' 
                       && inGrid 
@@ -12,14 +13,14 @@
                :class="{fold: isFold }" :component="component">
     </GridArrow>
 
-    <DragTools @switchArrow="switchArrow" 
+    <DragTools @closeComponent="$emit('closeComponent')" @switchArrow="switchArrow" 
                v-if="component !== 'CanvasWrapper' && !inGrid"
                :class="{fold: isFold}">
     </DragTools>
 
 		<keep-alive>
 			<component 
-          :class="{'component-fold' : isFold}" 
+          :class="[{'component-fold': isFold}, {tools: component !== 'CanvasWrapper'}]" 
           :style="computePosition()"
           :is="component"
           v-show="computeDisplayComponent">
@@ -44,20 +45,19 @@ export default {
     GridArrow: () => import("./grid-arrow.vue"),
     Casing: () => import("./casing.vue"),
     DragTools: () => import("./tools/drag-tools.vue"),
-    TabsTools: () => import("./tools/tabs-tools.vue"),
     FoldTools: () => import("./tools/fold-tools.vue"),
     CommonTools: () => import("./tools/common-tools.vue"),
     TextTools: () => import("./tools/text-tools.vue"),
     LayerTools: () => import("./tools/layer-tools.vue"),
     PencilTools: () => import("./tools/pencil-tools.vue"),    
   },
-  props: ["component", 'rowsAmount', 'isFold', 'title'],
+  props: ["component", 'rowsAmount', 'isFold', "isActive", 'title'],
   mounted() {
     bus.$on('switchArrow', this.switchArrow) // вызывавший здесь же
 
     if (this.component !== "CanvasWrapper") {
       interact(this.$el).draggable({
-        ignoreFrom: ".layers",
+        allowFrom: '.drag, .in-grid, .fold-wrapper',
         onmove(e) {
           //prettier-ignore
           let el = e.target,

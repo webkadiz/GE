@@ -1,7 +1,8 @@
 <template>
 	<div class="tools-wrapper tools">    
     <div :class="[{active: currentTool === tool} , 'tool','bg-anim-icon' ]"  @click="active(tool)" :key="index" v-for="(tool, index) in tools">
-      <img :src="'img/' + tool.img" alt="" />
+      <img v-if="tool.img" :src="'img/' + tool.img" alt="" />
+      <Icon v-else-if="tool.icon" :icon="tool.icon"></Icon>
     </div>
 	</div>	
 </template>
@@ -9,7 +10,8 @@
 <script>
 export default {
   components: {
-    Casing: () => import("../casing.vue")
+    Casing: () => import("../casing.vue"),
+    Icon: () => import("../icon.vue")
   },
   computed: {
     canvas() {
@@ -231,13 +233,13 @@ export default {
   data() {
     return {
       tools: [
-        { img: "move.png", connector: "move", event: this.move, isActive: false },
-        { img: "pencil.png", connector: "pencil", event: this.pencil, isActive: false },
-        { img: "text.png", connector: "text", event: this.text, isActive: false },
-        { img: "paint-bucket.png", connector: "pouring", event: this.rubber, isActive: false },
-        { img: "eraser.png", connector: "eraser", event: this.eraser, isActive: false },
-        { img: "square.png", connector: "square", event: this.square, isActive: false },
-        { img: "line.png", connector: "line", event: this.line, isActive: false }
+        { icon: "move", connector: "move", event: this.move, isActive: false },
+        { icon: "pencil1", connector: "pencil", event: this.pencil, isActive: false },
+        { icon: "text", connector: "text", event: this.text, isActive: false },
+        { icon: "pouring", connector: "pouring", event: this.rubber, isActive: false },
+        { icon: "eraser", connector: "eraser", event: this.eraser, isActive: false },
+        { icon: "square", connector: "square", event: this.square, isActive: false },
+        { icon: "line", connector: "line", event: this.line, isActive: false }
       ],
       currentTool: null,
       generator: null
@@ -252,7 +254,7 @@ export default {
 .tools-wrapper
   flex-shrink: 0
   z-index: 1000
-  background: $main-color
+  background: var(--main-color)
   display: flex
   flex-wrap: wrap
   justify-content: center
@@ -268,9 +270,9 @@ export default {
   justify-content: center
   cursor: pointer
   &:hover
-    background: $bg-color    
+    background: var(--bg-color)    
 .tool.active 
-  background: $bg-color
+  background: var(--bg-color)
 
 
 </style>

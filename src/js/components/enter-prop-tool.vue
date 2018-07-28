@@ -1,15 +1,15 @@
 <template>
 	<div class="input-wrapper">
 		<label v-if="type === 'input'" :style="{cursor: computeCursor}" @mousedown="slider">
-			<img v-if="alt" :src="'img/' + label" :alt="alt"/>
-			{{ alt ? '' : label }}
+			<Icon v-if="icon" :icon="icon"></Icon>
+			{{ label }}
 			<input :style="{width : computeWidthInput}" 
              :value="computeEnter" @input="enterUpdate($event.target.value)">
 		</label>
 
     <label @click="focusTextarea" v-if="type === 'textarea'" for="">
-			<img v-if="alt" :src="'img/' + label" :alt="alt"/>
-			{{ alt ? '' : label }}
+			<Icon v-if="icon" :icon="icon"></Icon>
+			{{ label }}
       <span :style="{width : computeWidthSpan}" class="span-textarea">{{computeSpan}}</span>  
 			<textarea :style="{width : computeWidthTextarea, 
                 height: computeHeightTextarea}" @blur="blurTextarea" 
@@ -18,8 +18,8 @@
 		</label>
 
     <label v-else-if="type === 'select'" for="">
-			<img v-if="alt" :src="'img/' + label" :alt="alt"/>
-			{{ alt ? '' : label }}
+			<Icon v-if="icon" :icon="icon"></Icon>
+			{{ label }}
 			<v-select :value="computeEnter" @input="enterSelectUpdate($event)" :options="options">
       </v-select>
 		</label>
@@ -30,8 +30,8 @@
 
 
     <label v-else-if="type === 'checkbox'" @click="enterUpdate(!$refs.checkbox.checked)" for="">
-      <img v-if="alt" :src="'img/' + label" :alt="alt"/>
-			{{ alt ? '' : label }}
+      <Icon v-if="icon" :icon="icon"></Icon>
+			{{ label }}
       <input ref="checkbox" :checked="computeEnter" type="checkbox" class="check-input" >
 
       <label class="check-label">
@@ -48,9 +48,10 @@
 <script>
 export default {
   components: {
-    EnterPropColor: () => import("./enter-prop-color.vue")
+    EnterPropColor: () => import("./enter-prop-color.vue"),
+    Icon: () => import('./icon.vue')
   },
-  props: ["number", "type", "tool", "label", "setting", "alt", "options"],
+  props: ["number", "type", "tool", "label", "icon", "setting", "options"],
   computed: {
     computeCursor() {
       return this.number ? "ew-resize" : "pointer";
@@ -187,7 +188,7 @@ export default {
     display: flex
     align-items: center
     white-space: nowrap
-    color: $label-color
+    color: var(--label-color)
 
   .check-input
     display: none
@@ -218,7 +219,7 @@ export default {
     fill: none
     stroke-linecap: round
     stroke-linejoin: round
-    stroke: $text-color
+    stroke: var(--text-color)
     stroke-width: 1.5
     transform: translate3d(0,0,0)
     transition: all .2s ease
@@ -232,11 +233,11 @@ export default {
     &:before
       opacity: 1
     svg
-      stroke: $label-color
+      stroke: var(--label-color)
 
 .check-input:checked + .check-label
   svg
-    stroke: $text-color
+    stroke: var(--text-color)
     path
       stroke-dashoffset: 60
       transition: all .3s linear
@@ -255,7 +256,7 @@ main
     input[type="search"],input[type="search"]:focus
       padding: 3px 0 1.7px 5px
       margin-left: 8px
-      color: $text-color
+      color: var(--text-color)
   .v-select.single
     .selected-tag
       padding: 0 0 3.7px 5px

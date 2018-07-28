@@ -22,26 +22,17 @@ $middle: 100
 $low: 10
 
 
-label 
-	display: block
-
-
-
-
-
-	
-
 .colpick_full
-	border: 1px solid $border_color 
-	z-index: $very_high 
-	background: $main-color
-	color: $text-color 		
+	+b()
+	+index($level5)
+	background: var(--main-color)
+	color: var(--text-color) 		
 	.colpick_submit
-		color: $text-color 
-		border: 1px solid $border_color 		
-		background: $bg-color 
+		color: var(--text-color) 
+		+b() 		
+		background: var(--bg-color) 
 		&:hover
-			background: darken($bg-color , 10%) 
+			background: var(--bg-color) 
 
 	.colpick_field , .colpick_hex_field
 		border: none
@@ -52,31 +43,31 @@ label
 			padding: 0 4px
 			width: auto
 			background: none
-			color: $text-color
+			color: var(--text-color)
 		input
 			width: 47px
 			padding-right: 4px
 			position: static
-			color: $text-color 					
-			background: $bg-color
+			color: var(--text-color) 					
+			background: var(--bg-color)
 			+b()
 		.colpick_field_arrs
 			padding: 2px 2px
 			width: auto
 			height: auto 
 			position: static
-			color: $text-color 					
-			background: $bg-color
+			color: var(--text-color) 					
+			background: var(--bg-color)
 			+b()
 			border-left: none
 			.colpick_field_uarr
 				margin: 2px 0
 				position: static
-				border-bottom-color: $text-color 
+				border-bottom-color: var(--text-color) 
 			.colpick_field_darr
 				margin: 2px 0
 				position: static
-				border-top-color: $text-color 							
+				border-top-color: var(--text-color) 							
 			
 	.colpick_hex_field
 		input
@@ -93,15 +84,22 @@ html
 	overflow: hidden
 	font-size: 14px
 	user-select: none
+	color: var(--text-color)
+
+html.invert
+	filter: invert(100%)
+	.no-invert
+		filter: invert(100%)
 
 body
-	background: $bg-body
+	background: var(--bg-body)
 	box-sizing: border-box
 	font-family: sans-serif
 	font-size: 1rem
 	height: 100%
 	margin: 0
 	position: relative
+	
 
 
 ul
@@ -120,7 +118,7 @@ ul
 .bg-anim-icon
 	position: relative
 	cursor: pointer
-	img
+	img, svg
 		position: relative	
 .bg-anim-icon::before
 	content: ''
@@ -132,70 +130,72 @@ ul
 	transition: transform .2s, opacity .3s
 	transform: scale(1.3)
 	opacity: 0
-	background: $bg-color
+	background: var(--bg-color)
 .bg-anim-icon:hover::before
 	opacity: 1
 	transform: scale(1)
 
 
+
+
 .tools
-	background: $main-color
+	background: var(--main-color)
 
 
 
-.header
-	margin: 0
-	background: $main-color
-	+index($level0)
-	.header-options
-		height: 100%
-		+bb()
-		display: flex	
-		&-item
-			color: white
-			position: relative
-			.header-options-badge
-				height: 100%
-			&:hover
-				.header-options-dropdown
-					visibility: visible
-				.header-options-badge
-					color: black
-					cursor: pointer
-					background: MINTCREAM
-					svg
-						transform: rotate(180deg)
+// .header
+// 	margin: 0
+// 	background: $main-color
+// 	+index($level0)
+// 	.header-options
+// 		height: 100%
+// 		+bb()
+// 		display: flex	
+// 		&-item
+// 			color: white
+// 			position: relative
+// 			.header-options-badge
+// 				height: 100%
+// 			&:hover
+// 				.header-options-dropdown
+// 					visibility: visible
+// 				.header-options-badge
+// 					color: black
+// 					cursor: pointer
+// 					background: MINTCREAM
+// 					svg
+// 						transform: rotate(180deg)
 
 
-		&-dropdown
-			border: 1px solid black
-			z-index: $very_very_high
-			visibility: hidden	
-			position: absolute
-			left: -1px
-			top: 100%
-			background: #eee
-			& > div
-				cursor: pointer
-				text-align: center
-				font-size: .9rem
-				white-space: nowrap
-				color: $link_color
-				text-decoration: none
-				background: #eee
-				padding: 8px 8px	
-				display: block
-				&:hover
-					background: $vk_color	
-		&-badge
-			color: MINTCREAM
-			padding: 0px 10px
-			transition: .3s
-			display: flex
-			align-items: center
-			svg
-				margin-left: 5px
-				transition: .2s transform
+// 		&-dropdown
+// 			border: 1px solid black
+// 			z-index: $very_very_high
+// 			visibility: hidden	
+// 			position: absolute
+// 			left: -1px
+// 			top: 100%
+// 			background: #eee
+// 			& > div
+// 				cursor: pointer
+// 				text-align: center
+// 				font-size: .9rem
+// 				white-space: nowrap
+// 				color: $link_color
+// 				text-decoration: none
+// 				background: #eee
+// 				padding: 8px 8px	
+// 				display: block
+// 				&:hover
+// 					background: $vk_color	
+// 		&-badge
+// 			color: MINTCREAM
+// 			padding: 0px 10px
+// 			transition: .3s
+// 			display: flex
+// 			align-items: center
+// 			svg
+// 				margin-left: 5px
+// 				transition: .2s transform
 						
 
 

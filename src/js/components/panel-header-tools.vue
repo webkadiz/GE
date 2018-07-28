@@ -45,7 +45,8 @@ export default {
 @import '../../sass/_help'
 
 .panel-header-tools-wrapper
-	color: $text-color
+	background: var(--main-color)
+	color: var(--text-color)
 	display: flex
 	height: 35px
 	+bb()

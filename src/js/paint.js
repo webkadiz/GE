@@ -15,10 +15,6 @@ import Vue from "vue/dist/vue.js";
 import Vuex from "vuex";
 import Sortable from "vue-sortable";
 import vSelect from "vue-select";
-import MenuHeader from "./components/menu-header.vue";
-import MenuHeaderDropdownItem from "./components/menu-header-dropdown-item.vue";
-import PanelHeaderTools from "./components/panel-header-tools.vue";
-import Grid from "./components/grid.vue";
 //импортирую для отладки
 import "./components/canvas-wrapper.vue";
 import "./components/canvas.vue";
@@ -29,6 +25,7 @@ import "./components/casing.vue";
 import "./components/grid-item.vue";
 import "./components/tools/text-tools.vue";
 import "./components/tools/common-tools.vue";
+import "./components/menu-badge.vue";
 
 Vue.config.devtools = true;
 Vue.config.performance = true;
@@ -40,15 +37,42 @@ Vue.use(Sortable);
 
 const store = new Vuex.Store({
   state: {
-    headerDropdownItem: [{ connector: "newFile", isActive: false }, { connector: "windowSize", isActive: false }],
-    grid: [],
-    gridTools: [
-      { component: "CanvasWrapper", id: 0, isFold: false, switcher: true, title: "canvas" },
-      { component: "CommonTools", id: 1, isFold: false, switcher: true, title: "инструменты" },
-      { component: "TextTools", id: 2, isFold: false, switcher: true, title: "Текст" },
-      { component: "LayerTools", id: 3, isFold: false, switcher: true, title: "Слои" },
-      { component: "PencilTools", id: 4, isFold: false, switcher: true, title: "Мелок" }
+    headerDropdownItem: [
+      { event: "newFile", isActive: false },
+      { event: "windowSize", isActive: false },
+      { event: "themeNew", isActive: false }
     ],
+    grid: [[{ component: "CanvasWrapper", id: 0, isFold: false, isActive: true, title: "canvas" }]],
+    gridTools: [
+      { component: "CommonTools", id: 1, isFold: false, isActive: true, title: "инструменты" },
+      { component: "TextTools", id: 2, isFold: false, isActive: true, title: "Текст" },
+      { component: "LayerTools", id: 3, isFold: false, isActive: true, title: "Слои" },
+      { component: "PencilTools", id: 4, isFold: false, isActive: true, title: "Мелок" }
+    ],
+    themes: {
+      light: {
+        textColor: "black",
+        mainColor: "WHITESMOKE",
+        bgColor: "oldlace",
+        bgBody: "gainsboro",
+        borderColor: "#8F9491",
+        labelColor: "dimgray",
+        theme: "light",
+        title: "Светлая"
+      },
+      dark: {
+        textColor: "white",
+        mainColor: "#535353",
+        bgColor: "#424242",
+        bgBody: "#282828",
+        borderColor: "#8F9491",
+        labelColor: "#d6d6d6",
+        theme: "dark",
+        title: "Темная"
+      },
+      currentTheme: null,
+      invert: false
+    },
     canvases: [],
     canvas: null,
     move: {},
@@ -77,10 +101,10 @@ const store = new Vuex.Store({
     line: {}
   },
   mutations: {
-    openHeaderDropdownItem: (state, connector) =>
-      (state.headerDropdownItem.find(item => item.connector === connector).isActive = true),
-    closeHeaderDropdownItem: (state, connector) =>
-      (state.headerDropdownItem.find(item => item.connector === connector).isActive = false),
+    openHeaderDropdownItem: (state, event) =>
+      (state.headerDropdownItem.find(item => item.event === event).isActive = true),
+    closeHeaderDropdownItem: (state, event) =>
+      (state.headerDropdownItem.find(item => item.event === event).isActive = false),
 
     activeLayerUpdate(state, { newValue, setting }) {
       state.canvas.activeLayer.object.set(setting, newValue);
@@ -140,11 +164,84 @@ const store = new Vuex.Store({
         height,
         title,
         background,
+        zoom: 1,
         c: null,
         layers: [],
         activeLayer: null
       });
       state.canvas = state.canvases.last;
+    },
+    setZoom(state, zoom) {
+      state.canvas.zoom = zoom;
+      canvas.setZoom(zoom);
+      canvas.setHeight(state.canvas.height * zoom);
+      canvas.setWidth(state.canvas.width * zoom);
+      canvas.renderAll();
+    },
+    themeChange(state, theme) {
+      html.style.setProperty("--text-color", state.themes[theme].textColor);
+      html.style.setProperty("--main-color", state.themes[theme].mainColor);
+      html.style.setProperty("--bg-color", state.themes[theme].bgColor);
+      html.style.setProperty("--bg-body", state.themes[theme].bgBody);
+      html.style.setProperty("--label-color", state.themes[theme].labelColor);
+      html.style.setProperty("--border-color", state.themes[theme].borderColor);
+      state.themes.currentTheme = state.themes[theme];
+      bus.$emit("updateAnimationText"); //обработчик в menu-badge.vue
+    },
+    themeInvert(state) {
+      $(html).toggleClass("invert");
+      state.themes.invert = $(html).hasClass("invert");
+    },
+    themeNew(state, colors) {
+      //prettier-ignore
+      console.log(colors);
+      let { theme, bgColor, bgBody, mainColor, labelColor, textColor, borderColor } = getPropFromInput(
+        colors,
+        "theme",
+        "bgColor",
+        "bgBody",
+        "mainColor",
+        "labelColor",
+        "textColor",
+        "borderColor"
+      );
+      //prettier-ignore
+      localStorage.setItem('themes', JSON.stringify(Object.assign(state.themes, {
+        [theme]: {
+          textColor,
+          mainColor,
+          bgColor,
+          bgBody,
+          borderColor,
+          labelColor,
+          theme
+        }
+      })))
+
+      console.log(state.themes);
+    },
+
+    switchTool(state, tool) {
+      //prettier-ignore
+      state.gridTools.find(gridTool => gridTool.component === tool).isActive = !state.gridTools.find(gridTool => gridTool.component === tool).isActive
+    }
+  },
+  getters: {
+    getCurrentTheme: state => theme => state.themes.currentTheme.theme === theme,
+    getGridTool: state => tool => state.gridTools.find(gridTool => gridTool.component === tool).isActive,
+    getInvertTheme: state => () => state.themes.invert,
+    genThemes: function*(state) {
+      for (let theme in state.themes) {
+        console.log(state.themes[theme]);
+        if (typeof state.themes[theme] === "object")
+          yield {
+            event: "themeChange",
+            getter: "getCurrentTheme",
+            title: state.themes[theme].title,
+            type: "apply",
+            value: state.themes[theme].theme
+          };
+      }
     }
   }
 });
@@ -155,11 +252,14 @@ let app = new Vue({
   el: "#app",
   store,
   components: {
-    MenuHeader,
-    MenuHeaderDropdownItem,
-    PanelHeaderTools,
-    Grid
+    MenuAlias: () => import("./components/menu.vue"),
+    MenuHeaderDropdownItem: () => import("./components/menu-header-dropdown-item.vue"),
+    PanelHeaderTools: () => import("./components/panel-header-tools.vue"),
+    Grid: () => import("./components/grid.vue")
   },
   computed: Vuex.mapState(["headerDropdownItem"]),
-  methods: {}
+  methods: {},
+  mounted() {
+    this.$store.commit("themeChange", "dark");
+  }
 });

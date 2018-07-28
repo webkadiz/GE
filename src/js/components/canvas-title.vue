@@ -18,7 +18,7 @@ export default {
 	height: 100%
 	padding: 0px 8px 0px 8px
 	transition: .3s
-	color: $text-color
+	color: var(--text-color)
 	display: inline-block
 	cursor: pointer
 	span

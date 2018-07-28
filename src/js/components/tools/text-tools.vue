@@ -1,11 +1,11 @@
 <template>
-	<div class="text-tools tools">
+	<div class="text-tools">
 
     <div class="col-center"  v-for="setting in ['fontStyle']" :key="props[setting].id">
       <EnterPropTool :tool="tool" v-bind="props[setting]"></EnterPropTool>
     </div>
 
-    <div class="col-space"  v-for="settings in [['fontSize','fill'],['lineHeight'],['wordSpace'],['text']]" :key="props[settings[0]].id">
+    <div class="col-space"  v-for="settings in [['fontSize','fill'],['lineHeight'],['charSpacing'],['text']]" :key="props[settings[0]].id">
       <EnterPropTool :tool="tool" v-bind="props[setting]" v-for="setting in settings" :key="setting.id"></EnterPropTool>
     </div>
 
@@ -36,7 +36,7 @@ export default {
         },
         fontSize: {
           id: 2,
-          label: "font-size.png",
+          icon: "font-size",
           setting: 'fontSize',
           alt: "font-size", 
           type: 'input',
@@ -50,15 +50,15 @@ export default {
         },
         lineHeight: {
           id: 4,
-          label: "font-line-height.png",
+          icon: "line-height",
           setting:'lineHeight',
           alt: "font-line-height",      
           type: 'input',
           number: true         
         },
-        wordSpace: {
+        charSpacing: {
           id: 5,
-          label: "font-word-space.png",
+          icon: "char-spacing",
           setting: 'charSpacing',
           alt: "font-word-space",
           type: 'input',
@@ -66,7 +66,7 @@ export default {
         },        
         underline: {
           id: 6,
-          label: "underline.png",
+          icon: "underline",
           alt: 'underline',
           setting: 'underline',        
           type: 'checkbox',

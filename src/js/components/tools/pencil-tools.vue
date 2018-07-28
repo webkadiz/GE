@@ -1,5 +1,5 @@
 <template>
-	<div class="pencil-tools tools">
+	<div class="pencil-tools">
 		<div class="col-center" v-for="setting in ['strokeLineCap', 'strokeLineJoin']" :key="props[setting].id">
 			<EnterPropTool v-bind="props[setting]" :tool="tool"></EnterPropTool>
 		</div>

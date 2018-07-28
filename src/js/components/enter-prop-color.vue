@@ -4,11 +4,12 @@
     <div  class="main-color color" ref="color"></div>
     <div v-show="isActive" class="dropdown-color">
 			<div class="dropdown-color-panel">
-				<div ref="tabs" :style="{ background : computeBackground(tab.connector)}" 
-				v-for="(tab, index) in tabs"
-				:key="index"
-				:class="['color', {active : current[1] === tab.connector}]" 
-				@click="current = [tab.tab, tab.connector]"></div>
+				<div 	ref="tabs" :style="{ background : computeBackground(tab.connector)}" 
+						 	v-for="(tab, index) in tabs"
+						 	:key="index"
+						 	:class="['color', {active : current[1] === tab.connector}]" 
+						 	@click="current = [tab.tab, tab.connector]">
+				</div>
 			</div>
 			<div class="dropdown-color-tab">
 				<keep-alive>
@@ -81,11 +82,11 @@ export default {
 	height: 15px
 	background: black
 	margin: 8px
-	box-shadow: 0 0 0 2px #535353, 0 0 0 3px rgba(245, 255, 250, 0.5)
+	box-shadow: 0 0 0 2px var(--main-color), 0 0 0 3px var(--border-color)
 	background-size: cover
 
 .color.active
-	box-shadow: 0 0 0 2px #535353, 0 0 0 3px rgba(245, 255, 250, 0.5), 0 0 0 7px #424242
+	box-shadow: 0 0 0 2px var(--main-color), 0 0 0 3px var(--border-color), 0 0 0 7px #424242
 
 .main-color
 	margin: 3px
@@ -97,7 +98,7 @@ export default {
 	top: 100%
 	left: 0
 	height: 200px
-	background: $main-color
+	background: var(--main-color)
 	margin-left: 8px
 	+b()
 

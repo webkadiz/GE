@@ -1,17 +1,17 @@
 <template>
-	<div class="layers-wrapper tools" >
+	<div class="layers-wrapper" >
 		<div ref="layers" class="layers">
 			<div @click="activeLayerAlias($event, layer)" 
 					 :class="['layer', {active: activeLayer === layer}]" 
 					 v-for="layer in layers" :key="layer.id" :data-id="layer.id">
 
-				<img :src="`img/${layer.visible ? 'eye.png' : 'eye-cross.png'}`" alt="eye">
+        <Icon class="eye" :icon="layer.visible ? 'eye' : 'eye-cross'"></Icon>
 				{{layer.title}}
 			</div>
 		</div>
 		<div v-if="$store.state.canvas" class="layers-tools">
 			<div @click="layerTool.event" class="layers-tool bg-anim-icon" v-for="(layerTool, index) in layerTools" :key="index">
-				<img  :src="'img/' + layerTool.img">
+				<Icon :icon="layerTool.icon"></Icon>
 			</div>
 		</div>
 	</div>
@@ -19,6 +19,9 @@
 
 <script>
 export default {
+  components: {
+    Icon: () => import('../icon.vue')
+  },
   methods: {
     layerUp() {
       let index;
@@ -40,7 +43,7 @@ export default {
     },
     activeLayerAlias(e, layer) {
       this.canvas.activeLayer = layer;
-      if (e.target.tagName === "IMG") {
+      if (e.target.closest('.eye')) {
         layer.visible = layer.group.visible = !layer.group.visible;
         this.c.renderAll();
       }
@@ -73,10 +76,10 @@ export default {
   data() {
     return {
       layerTools: [
-        { img: "arrow-up.png", event: this.layerUp },
-        { img: "arrow-down.png", event: this.layerDown },
-        { img: "add-layer.png", event: this.layerNew },
-        { img: "delete.png", event: this.layerDelete }
+        { icon: "layer-up", event: this.layerUp },
+        { icon: "layer-down", event: this.layerDown },
+        { icon: "layer-add", event: this.layerNew },
+        { icon: "delete", event: this.layerDelete }
       ],
       layerActive: null,
       reverse: reverse
@@ -97,11 +100,9 @@ export default {
 			padding: 10px 6px
 			display: flex
 			align-items: center
-			color: $text-color
-			background: $main-color
+			color: var(--text-color)
+			background: var(--main-color)
 			+bb()
-			img
-				padding-right: 13px
 		.layer::after
 			content: ''
 			position: absolute
@@ -110,7 +111,7 @@ export default {
 			left: 28px
 			+br()
 		.layer.active
-			background: $bg-color
+			background: var(--bg-color)
 
 
 .layers-tools

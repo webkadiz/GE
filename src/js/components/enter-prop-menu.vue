@@ -1,24 +1,36 @@
 <template>
 	<div v-if="input" class="input-wrapper"> 	
 		<input 
-		autocomplete="off" 
-		@focus="focus" @blur="blur" 
-		type="text" 
-		:name="title"
-		@input="$emit('input', $event.target.value)">
+			autocomplete="off"
+			type="text" 
+			@focus="focus" @blur="blur" 			
+			:name="title"
+			@input="$emit('input', $event.target.value)">
   	
-		<label>{{title}}</label> 
+		<label ref="label">{{title}}</label> 
 	</div>
 
 	<div v-else-if="select" class="input-wrapper">	
 		<v-select  @input="renewal" :options="options"></v-select>	
-		<label for="">{{title}}</label>
+		<label ref="label" for="">{{title}}</label>
+	</div>
+
+	<div v-else-if="color" class="input-wrapper">	
+		<input 
+			autocomplete="off"
+			type="text" 
+			@focus="focus" @blur="blur" 
+			:name="title"
+			@input="$emit('input', $event.target.value)"
+			ref="colorAccept">	
+		<label ref="label" for="">{{title}}</label>
+		<div ref="colorpicker" class="colorpicker"></div>
 	</div>
 </template>
 
 <script>
 export default {
-  props: ["title", "input", "select", "id", "options", "enter"],
+  props: ["title", "input", "select", "color",  "id", "options", "enter"],
   methods: {
 		// применяется на обычном input при фокусе
 		focus: event => $(event.target).addClass("active"),
@@ -26,11 +38,12 @@ export default {
 		blur: event => ($(event.target).val() === "" ? $(event.target).removeClass("active") : void 0),
 		// применяется на select при обновлении данных
     renewal(event) {
+			console.log('renewal in enter menu');
       if (event) this.$emit("input", event.value);
       else this.$emit("input", event);
       $('input[type="search"]', this.$el).blur();
-    }
-  },
+		},
+	},
   mounted() {
     if (this.select) {
 			// фокус на select
@@ -39,7 +52,22 @@ export default {
       $('input[type="search"]', this.$el).blur(e =>
         this.$nextTick(() => (!this.enter ? $(e.target.closest(".v-select")).removeAttr("data-active") : void 0))
       );
-    }
+		}
+		if(this.color) {
+			$(this.$refs.colorpicker).colpick({
+				onShow: () => this.$refs.colorAccept.focus(),
+				onChange: (rgb, hex, hsl, el) => {
+					$(el).css('background', `#${hex}`)
+					$(this.$refs.colorAccept).val(`#${hex}`);
+					this.$emit('input', `#${hex}`)
+				},
+				onSubmit: (rgb, hex) => $(this.$refs.colorpicker).colpickHide()
+			})
+		}
+		this.$nextTick(() => {
+				console.log(this.$refs.label.clientWidth)
+				console.log($(this.$refs.label).width());
+		})
   }
 };
 </script>
@@ -59,17 +87,38 @@ export default {
 	input.active + label, .v-select[data-active] + label
 		transform: translateY(-25px)
 		font-size: 0.9rem				
-	input + label, .v-select + label
+	// input + label, .v-select + label
+	// 	padding-bottom: 4px
+	// 	padding-left: 15px
+	// 	transition: .3s
+	// 	font-size: 1.2rem 
+	// 	color: var(--label-color)			
+	// 	display: block
+	// 	position: absolute
+	// 	left: 0
+	// 	bottom: 0
+	// 	pointer-events: none
+	label
 		padding-bottom: 4px
 		padding-left: 15px
 		transition: .3s
 		font-size: 1.2rem 
-		color: $label-color			
+		color: var(--label-color)			
 		display: block
 		position: absolute
 		left: 0
 		bottom: 0
 		pointer-events: none
+		white-space: nowrap
+	.colorpicker
+		position: absolute
+		right: 10px
+		bottom: 8px
+		width: 20px
+		height: 12px
+		background: black
+		box-shadow: 0 0 0 2px var(--bg-body), 0 0 0 3px var(--border-color)
+		cursor: pointer
 
 
 </style>
@@ -85,14 +134,14 @@ export default {
 			height: 20px
 			width: 10px
 			bottom: 6px
-			color: rgba($label-color, .9)
+			color: rgba(var(--label-color), .9)
 	input[type=search],  input[type=search]:focus	
 		padding: 15px
 		padding-bottom: 6px	
 		height: 100%
 		line-height: 1
 		font-size: 0.9rem
-		color: $text-color
+		color: var(--text-color)
 		+bb()
 	.open-indicator
 		&::before
@@ -101,7 +150,7 @@ export default {
 			position: absolute
 			width: 2px
 			height: 10px
-			background: $label-color
+			background: var(--label-color)
 			left: 50%
 			top: 50%
 			margin: -5px -1.5px
@@ -130,7 +179,7 @@ export default {
 	padding-left: 15px
 	padding-bottom: 8px
 	border: none
-	color: $text-color
+	color: var(--text-color)
 	font-size: 0.9rem
 	margin: 0
 	height: auto

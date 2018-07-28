@@ -8,23 +8,16 @@
 		<div style="height: 20px ; width: 20px ; flex-shrink: 0"></div>
 	</div>
 
-	<div ref="canvasInner" class="canvas-wrapper-inner">
-		<canvas ref="canvas"></canvas>
-	</div>  
+	<canvas class="no-invert" ref="canvas"></canvas>
+  
 </div>	
 </template>
 
 <script>
 export default {
-  data() {
-    return {
-      canvasInner: ""
-    };
-  },
   computed: Vuex.mapState(["canvas"]),
   mounted() {
     let counter = 1; //счетчик слоев
-    this.canvasInner = this.$refs.canvasInner;
 
     this.canvas.c = this.c = new fabric.Canvas(this.$refs.canvas, {
       width: this.canvas.width,
@@ -34,6 +27,7 @@ export default {
       selection: false,
       preserveObjectStacking: true
     });
+    this.canvas.el = this.canvas.c.wrapperEl;
     this.c.renderAll();
     // this.c.on('object:modified', e => {
     // 	console.log(e);
@@ -91,13 +85,13 @@ export default {
 
 
     //центрируем холст
-    elemCenter(this.canvasInner, 20, 20);
+    elemCenter(this.canvas.el, 20, 20);
     //кастомные полосы прокрутки
-    $(this.$el).niceScroll(this.canvasInner, {
+    $(this.canvas.el).css('position', 'absolute');
+    $(this.$el).niceScroll(this.canvas.el, {
       cursorcolor: "#535353",
       cursorborder: "1px solid #535353",
       autohidemode: "leave",
-      zindex: 10000000
     });
 
     bus.$emit("toolEventActive"); // обработчик в common-tools
@@ -127,8 +121,8 @@ export default {
 	z-index: 20
 	height: 20px
 	width: 100%
-	background: $bg-color
-	color: $text-color
+	background: var(--bg-color)
+	color: var(--text-color)
 	.coords-x
 		width: calc(100% - 20px)
 		display: flex
@@ -136,7 +130,7 @@ export default {
 			flex-shrink: 0
 			height: 20px
 			text-indent: 2px
-			border-left: 1px solid #888
+			+bl()
 .coords-y-wrapper
 	@extend .coords-x-wrapper
 	line-height: inherit
@@ -152,7 +146,7 @@ export default {
 			flex-shrink: 0
 			white-space: pre-wrap
 			text-align: center
-			border-top: 1px solid #888
+			+bt()
 			width: 20px
 
 </style>
