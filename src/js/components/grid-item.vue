@@ -90,7 +90,7 @@ export default {
           e.target.style.pointerEvents = "auto";
           $(".casing").css("z-index", -100);
         }
-      });
+      }).resizable();
     }
   },
   computed: {

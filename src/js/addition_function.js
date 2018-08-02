@@ -2,6 +2,7 @@
 import $ from "jquery";
 import interact from "interactjs";
 import Sortable from "sortablejs";
+import PerfectScrollbar from "perfect-scrollbar";
 import "fabric";
 import Vuex from "vuex";
 
@@ -18,11 +19,19 @@ window.interact = interact;
 window.Sortable = Sortable;
 window.fabric = fabric;
 window.Vuex = Vuex;
+window.PerfectScrollbar = PerfectScrollbar;
 window.genID = generatorID();
 
 Object.defineProperty(fabric.Group.prototype, "object", {
   get() {
     return this.item(0);
+  },
+  enumerable: false
+});
+
+Object.defineProperty(fabric.Canvas.prototype, "getPixel", {
+  value(left, top, width, height) {
+    return this.getContext().getImageData(left, top, width, height).data;
   },
   enumerable: false
 });
@@ -100,7 +109,6 @@ window.reverse = arr => arr.reduceRight((prev, item) => prev.concat(item), []);
 //   return newArr;
 // };
 
-
 window.elemCenter = function(elem, left = 0, top = 0) {
   elem = $(elem);
   if (left && !top)
@@ -118,6 +126,18 @@ window.elemCenter = function(elem, left = 0, top = 0) {
       left: (elem.offsetParent().width() + left) / 2 - elem.width() / 2,
       top: (elem.offsetParent().height() + top) / 2 - elem.height() / 2
     });
+};
+
+window.canvasCenter = function(canvas) {
+  canvas = $(canvas);
+  //prettier-ignore
+  let left = (canvas.offsetParent().width() + 20) / 2 - canvas.width() / 2,
+      top  = (canvas.offsetParent().height() + 20) / 2 - canvas.height() / 2;
+  canvas.css({ left, top });
+
+  if (top < 20 && left < 20) canvas.css({ left: "200px", top: "200px" });
+  else if (top < 20) canvas.css("top", "200px");
+  else if (left < 20) canvas.css("left", "200px");
 };
 
 window.maxId = arr => Math.max(...arr.map(item => item.id));
@@ -154,7 +174,6 @@ function* generatorID() {
 //   else if (i > 30000 && i < 60000) arr2.push(i);
 //   else if (i > 60000) arr3.push(i);
 // }
-
 
 window.getPropFromInput = function(input_values, ...lists) {
   let obj = {};

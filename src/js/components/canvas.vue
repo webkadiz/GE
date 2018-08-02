@@ -1,21 +1,30 @@
 <template>
 <div class="canvas-wrapper">
 
-	<div class="coords-x-wrapper">
-		<div style="height: 20px ; width: 20px ;flex-shrink: 0"></div>
-	</div>
-	<div class="coords-y-wrapper">
-		<div style="height: 20px ; width: 20px ; flex-shrink: 0"></div>
-	</div>
+  <CanvasCoords :width="width()" :scrollTop="scrollTop" axis="x"></CanvasCoords>
+  <CanvasCoords :height="height()" :scrollTop="scrollTop" axis="y"></CanvasCoords>
 
-	<canvas class="no-invert" ref="canvas"></canvas>
+	<canvas class="no-invert canvas" ref="canvas"></canvas>
   
 </div>	
 </template>
 
 <script>
 export default {
+  components: {
+    CanvasCoords: () => import('./canvas-coords.vue')
+  },
   computed: Vuex.mapState(["canvas"]),
+  methods: {
+    width() {     
+      if(this.c)
+        return +this.c.getWidth() 
+    },
+    height() {
+      if(this.c)
+        return +this.c.getHeight()
+    }
+  },
   mounted() {
     let counter = 1; //счетчик слоев
 
@@ -82,19 +91,30 @@ export default {
 			}
     });
     this.c.on("object:removed", e => {});
-
+    
 
     //центрируем холст
-    elemCenter(this.canvas.el, 20, 20);
+    this.$store.commit('canvasCenter');
     //кастомные полосы прокрутки
     $(this.canvas.el).css('position', 'absolute');
-    $(this.$el).niceScroll(this.canvas.el, {
-      cursorcolor: "#535353",
-      cursorborder: "1px solid #535353",
-      autohidemode: "leave",
+    // $(this.$el).niceScroll('.scroll', {
+    //   cursorcolor: "#535353",
+    //   cursorborder: "1px solid #535353",
+    //   autohidemode: "leave",
+    //   enablecrollonselectionL: false
+    // });
+    this.ps = new PerfectScrollbar(this.$el);
+
+    this.$el.addEventListener('ps-scroll-y', () => {
+      this.scrollTop = this.$el.scrollTop;
     });
 
     bus.$emit("toolEventActive"); // обработчик в common-tools
+  },
+  data () {
+    return {
+      scrollTop: 0
+    }
   }
 };
 </script>
@@ -109,6 +129,9 @@ export default {
 	.canvas-wrapper-inner
 		position: absolute
 		display: inline-block
+
+.lower-canvas
+  background-image: url(data:image/gif;base64,R0lGODlhCgAKAIAAAOLi4v///yH5BAAHAP8ALAAAAAAKAAoAAAIRhB2ZhxoM3GMSykqd1VltzxQAOw==)
 
 
 .coords-x-wrapper

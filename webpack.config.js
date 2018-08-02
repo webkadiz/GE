@@ -1,12 +1,13 @@
 const webpack = require("webpack");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
+const NODE_ENV = process.env.NODE_ENV || "development";
 
 module.exports = {
   entry: ["./src/js/paint.js"],
   output: {
-    path: __dirname + "/build",
+    path: __dirname + "/build/js",
     filename: "build.js",
-    publicPath: "build"
+    publicPath: "/build/js/"
   },
   module: {
     rules: [
@@ -45,8 +46,11 @@ module.exports = {
   devServer: {
     overlay: true
   },
-  plugins: [new VueLoaderPlugin()],
-  devtool: "source-map",
+  plugins: [new webpack.NoEmitOnErrorsPlugin(), new VueLoaderPlugin()],
+  devtool: "eval",
   mode: "development",
-  watch: true
+  watch: true,
+  watchOptions: {
+    aggregateTimeout: 100
+  }
 };

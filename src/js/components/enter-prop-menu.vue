@@ -64,10 +64,6 @@ export default {
 				onSubmit: (rgb, hex) => $(this.$refs.colorpicker).colpickHide()
 			})
 		}
-		this.$nextTick(() => {
-				console.log(this.$refs.label.clientWidth)
-				console.log($(this.$refs.label).width());
-		})
   }
 };
 </script>
@@ -132,9 +128,9 @@ export default {
 		border: none
 		.clear
 			height: 20px
-			width: 10px
-			bottom: 6px
-			color: rgba(var(--label-color), .9)
+			width: 20px
+			bottom: 3px
+			color: var(--label-color)
 	input[type=search],  input[type=search]:focus	
 		padding: 15px
 		padding-bottom: 6px	
@@ -144,6 +140,8 @@ export default {
 		color: var(--text-color)
 		+bb()
 	.open-indicator
+		width: 20px
+		bottom: 3px
 		&::before
 			border: none
 			content: ''
@@ -163,7 +161,7 @@ export default {
 
 .v-select.open
 	.open-indicator	
-		bottom: 6px
+		bottom: 3px
 		&::before			
 			transform: rotate(45deg)
 			transform-origin: top

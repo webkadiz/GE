@@ -1,9 +1,10 @@
 "use strict";
 
 import "../css/apply_button.css";
-import "../css/colpick.css";
-import "../sass/main.sass";
+import "jquery-colpick/css/colpick.css";
 import "../css/animate.css";
+import "perfect-scrollbar/css/perfect-scrollbar.css";
+import "../sass/main.sass";
 
 import "jquery-colpick"; // jquery плагин для полосы прокрутки
 import "nicescroll"; // jquery плагин для цвета
@@ -26,6 +27,7 @@ import "./components/grid-item.vue";
 import "./components/tools/text-tools.vue";
 import "./components/tools/common-tools.vue";
 import "./components/menu-badge.vue";
+import Themes from "./themes.js";
 
 Vue.config.devtools = true;
 Vue.config.performance = true;
@@ -45,34 +47,11 @@ const store = new Vuex.Store({
     grid: [[{ component: "CanvasWrapper", id: 0, isFold: false, isActive: true, title: "canvas" }]],
     gridTools: [
       { component: "CommonTools", id: 1, isFold: false, isActive: true, title: "инструменты" },
-      { component: "TextTools", id: 2, isFold: false, isActive: true, title: "Текст" },
-      { component: "LayerTools", id: 3, isFold: false, isActive: true, title: "Слои" },
+      { component: "TextTools", id: 2, isFold: false, isActive: false, title: "Текст" },
+      { component: "LayerTools", id: 3, isFold: false, isActive: false, title: "Слои" },
       { component: "PencilTools", id: 4, isFold: false, isActive: true, title: "Мелок" }
     ],
-    themes: {
-      light: {
-        textColor: "black",
-        mainColor: "WHITESMOKE",
-        bgColor: "oldlace",
-        bgBody: "gainsboro",
-        borderColor: "#8F9491",
-        labelColor: "dimgray",
-        theme: "light",
-        title: "Светлая"
-      },
-      dark: {
-        textColor: "white",
-        mainColor: "#535353",
-        bgColor: "#424242",
-        bgBody: "#282828",
-        borderColor: "#8F9491",
-        labelColor: "#d6d6d6",
-        theme: "dark",
-        title: "Темная"
-      },
-      currentTheme: null,
-      invert: false
-    },
+    themes: getLocalStorageField("themes") || Themes.themesDefault,
     canvases: [],
     canvas: null,
     move: {},
@@ -138,6 +117,14 @@ const store = new Vuex.Store({
     },
     download(state) {
       console.log("download");
+      store.commit("setZoom", 1);
+      let base = state.canvas.c.toDataURL("png");
+
+      let link = document.createElement("a");
+      link.href = base;
+      link.download = true;
+      link.click();
+      store.commit("setZoom", state.canvas.zoom);
     },
     canvasActive(state, title) {
       state.canvas = state.canvases.find(canvas => canvas.title === title);
@@ -151,7 +138,17 @@ const store = new Vuex.Store({
       if (state.canvases[index]) store.commit("canvasActive", state.canvases[index].title);
       else if (state.canvases[index - 1]) store.commit("canvasActive", state.canvases[index - 1].title);
     },
+    canvasCenter(state) {
+      let canvas = $(state.canvas.el);
+      //prettier-ignore
+      let left = (canvas.offsetParent().width() + 20) / 2 - canvas.width() / 2,
+          top  = (canvas.offsetParent().height() + 20) / 2 - canvas.height() / 2;
+      canvas.css({ left, top });
 
+      if (top < 20 && left < 20) canvas.css({ left: "200px", top: "200px" });
+      else if (top < 20) canvas.css("top", "200px");
+      else if (left < 20) canvas.css("left", "200px");
+    },
     newFile(state, props) {
       let { width, height, title, background } = getPropFromInput(props, "width", "height", "title", "background");
 
@@ -173,10 +170,10 @@ const store = new Vuex.Store({
     },
     setZoom(state, zoom) {
       state.canvas.zoom = zoom;
-      canvas.setZoom(zoom);
-      canvas.setHeight(state.canvas.height * zoom);
-      canvas.setWidth(state.canvas.width * zoom);
-      canvas.renderAll();
+      state.canvas.c.setZoom(zoom);
+      state.canvas.c.setHeight(state.canvas.height * zoom);
+      state.canvas.c.setWidth(state.canvas.width * zoom);
+      state.canvas.c.renderAll();
     },
     themeChange(state, theme) {
       html.style.setProperty("--text-color", state.themes[theme].textColor);
@@ -185,16 +182,16 @@ const store = new Vuex.Store({
       html.style.setProperty("--bg-body", state.themes[theme].bgBody);
       html.style.setProperty("--label-color", state.themes[theme].labelColor);
       html.style.setProperty("--border-color", state.themes[theme].borderColor);
-      state.themes.currentTheme = state.themes[theme];
       bus.$emit("updateAnimationText"); //обработчик в menu-badge.vue
+      state.themes.currentTheme = state.themes[theme];
+      setLocalStorageField("themes", state.themes);
     },
     themeInvert(state) {
-      $(html).toggleClass("invert");
-      state.themes.invert = $(html).hasClass("invert");
+      state.themes.invert = !state.themes.invert;
+      setLocalStorageField("themes", state.themes);
     },
     themeNew(state, colors) {
       //prettier-ignore
-      console.log(colors);
       let { theme, bgColor, bgBody, mainColor, labelColor, textColor, borderColor } = getPropFromInput(
         colors,
         "theme",
@@ -206,21 +203,22 @@ const store = new Vuex.Store({
         "borderColor"
       );
       //prettier-ignore
-      localStorage.setItem('themes', JSON.stringify(Object.assign(state.themes, {
-        [theme]: {
-          textColor,
-          mainColor,
-          bgColor,
-          bgBody,
-          borderColor,
-          labelColor,
-          theme
-        }
-      })))
-
-      console.log(state.themes);
+      Vue.set(state.themes, theme , {
+        textColor,
+        mainColor,
+        bgColor,
+        bgBody,
+        borderColor,
+        labelColor,
+        theme
+      })
+      setLocalStorageField("themes", state.themes);
     },
-
+    themeDelete(state) {
+      let theme = state.themes.currentTheme.theme;
+      if (theme !== "Темная" && theme !== "Светлая") Vue.set(state.themes, theme, undefined);
+      setLocalStorageField("themes", state.themes);
+    },
     switchTool(state, tool) {
       //prettier-ignore
       state.gridTools.find(gridTool => gridTool.component === tool).isActive = !state.gridTools.find(gridTool => gridTool.component === tool).isActive
@@ -230,18 +228,20 @@ const store = new Vuex.Store({
     getCurrentTheme: state => theme => state.themes.currentTheme.theme === theme,
     getGridTool: state => tool => state.gridTools.find(gridTool => gridTool.component === tool).isActive,
     getInvertTheme: state => () => state.themes.invert,
-    genThemes: function*(state) {
+    genThemes: state => {
+      let themes = [];
       for (let theme in state.themes) {
-        console.log(state.themes[theme]);
-        if (typeof state.themes[theme] === "object")
-          yield {
+        if (typeof state.themes[theme] === "object" && theme !== "currentTheme") {
+          themes.push({
             event: "themeChange",
             getter: "getCurrentTheme",
-            title: state.themes[theme].title,
+            title: theme,
             type: "apply",
-            value: state.themes[theme].theme
-          };
+            value: theme
+          });
+        }
       }
+      return themes;
     }
   }
 });
@@ -260,6 +260,34 @@ let app = new Vue({
   computed: Vuex.mapState(["headerDropdownItem"]),
   methods: {},
   mounted() {
-    this.$store.commit("themeChange", "dark");
+    this.$store.commit("themeChange", "currentTheme");
+
+    window.addEventListener("keydown", e => {
+      //prettier-ignore
+      if (e.ctrlKey && e.keyCode === 187) { // increase   
+        e.returnValue = false;
+        
+        if (this.$store.state.canvas) {
+          this.$store.commit("setZoom", this.$store.state.canvas.zoom + 0.1);
+          this.$store.commit('canvasCenter');
+        }
+      }
+      //prettier-ignore
+      if (e.ctrlKey && e.keyCode === 189) { // decrease       
+        e.returnValue = false;
+
+        if (this.$store.state.canvas) {
+          this.$store.commit("setZoom", this.$store.state.canvas.zoom - 0.1);
+          this.$store.commit('canvasCenter');
+        }
+      }
+    });
   }
 });
+
+function getLocalStorageField(title) {
+  return JSON.parse(localStorage.getItem(title));
+}
+function setLocalStorageField(title, data) {
+  localStorage.setItem(title, JSON.stringify(data));
+}

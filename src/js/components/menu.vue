@@ -2,7 +2,7 @@
   <nav class="menu">
     <div class="menu-item" v-for="(menuItem, index) in menuItems" :key="index" >
       <MenuBadge v-bind="menuItem.badge"></MenuBadge>
-      <MenuDropdown :dropdownList="menuItem.dropdown"></MenuDropdown>     
+      <MenuDropdown :dropdownList="menuItemDropdown(index)"></MenuDropdown>     
     </div>
     <div class="fill-space"></div>
     <div class="lower-band"></div>
@@ -16,7 +16,14 @@ export default {
     MenuDropdown: () => import("./menu-dropdown.vue")
   },
   methods: {
-    getThemes(){}
+    menuItemDropdown(index) {
+      let theme = this.menuItems[index].dropdown.find(item => item.event === "theme");
+      if (this.menuItems[index].dropdown.find(item => item.event === "theme")) {
+        this.$set(theme, "subdropdown", [...this.$store.getters.genThemes, ...theme.staticdropdown]);
+      }
+
+      return this.menuItems[index].dropdown;
+    }
   },
   data() {
     return {
@@ -27,92 +34,84 @@ export default {
             {
               event: "newFile",
               title: "новый файл",
-              type: 'open'
+              type: "open"
             },
             {
               event: "download",
               title: "скачать",
-              type: 'apply'
+              type: "apply"
             }
           ]
         },
         {
-          badge: { title: 'вид', color: "#ff84fd" },
+          badge: { title: "вид", color: "#ff84fd" },
           dropdown: [
             {
-              event: "windowSize", 
-              title: "размер холста", 
-              type: 'open'
+              event: "windowSize",
+              title: "размер холста",
+              type: "open"
             },
-            { 
+            {
+              event: "theme",
               title: "Тема",
-              type: 'dropdown',
-              subdropdown: [
-                this.$store.getters.genThemes,
+              type: "dropdown",
+              staticdropdown: [
                 {
-                  event: 'themeChange', 
-                  getter: 'getCurrentTheme',
-                  title: 'Светлая', 
-                  type: 'apply', 
-                  value:'light',                   
+                  event: "themeInvert",
+                  getter: "getInvertTheme",
+                  title: "Инвертировать тему",
+                  type: "apply"
                 },
                 {
-                  event: 'themeChange', 
-                  getter: 'getCurrentTheme',
-                  title: 'Темная', 
-                  type: 'apply', 
-                  value: 'dark',                   
+                  event: "themeNew",
+                  title: "Создать тему",
+                  type: "open"
                 },
                 {
-                  event: 'themeInvert', 
-                  getter: 'getInvertTheme',
-                  title: 'Инвертировать тему', 
-                  type: 'apply',                    
-                },
-                {
-                  event: 'themeNew', 
-                  title: 'Создать тему', 
-                  type: 'open',                    
+                  event: "themeDelete",
+                  title: "Удалить выбранную тему",
+                  type: "apply"
                 }
-              ]
+              ],
+              subdropdown: []
             }
           ]
         },
         {
-          badge: { title: 'окно', color: "#6cccff" },
+          badge: { title: "окно", color: "#6cccff" },
           dropdown: [
             {
-              event: 'switchTool',
-              getter: 'getGridTool', 
-              title: 'Инструменты', 
-              type: 'apply', 
-              value:'CommonTools',
+              event: "switchTool",
+              getter: "getGridTool",
+              title: "Инструменты",
+              type: "apply",
+              value: "CommonTools"
             },
             {
-              event: 'switchTool',
-              getter: 'getGridTool', 
-              title: 'Текст', 
-              type: 'apply', 
-              value:'TextTools',
+              event: "switchTool",
+              getter: "getGridTool",
+              title: "Текст",
+              type: "apply",
+              value: "TextTools"
             },
             {
-              event: 'switchTool',
-              getter: 'getGridTool', 
-              title: 'Слои', 
-              type: 'apply', 
-              value:'LayerTools',
+              event: "switchTool",
+              getter: "getGridTool",
+              title: "Слои",
+              type: "apply",
+              value: "LayerTools"
             },
             {
-              event: 'switchTool',
-              getter: 'getGridTool', 
-              title: 'Карандаш', 
-              type: 'apply', 
-              value:'PencilTools',
+              event: "switchTool",
+              getter: "getGridTool",
+              title: "Карандаш",
+              type: "apply",
+              value: "PencilTools"
             }
           ]
         },
         {
-          badge: { title: 'помощь', color: "#3dd2c1" },
+          badge: { title: "помощь", color: "#3dd2c1" },
           dropdown: [
             {
               event: "newFile",

@@ -1,5 +1,8 @@
 <template>
-	<main :style="{ gridTemplateColumns: computeCols , gridTemplateRows: computeRows} " class="grid">	
+	<main :style="{ gridTemplateColumns: computeCols, 
+        gridTemplateRows: computeRows,
+        height: computeHeight()}" 
+        class="grid">	
 
     <GridItem @mousedown="gridItem.component !== 'CanvasWrapper' ? activeGridItem = gridItem: void 0" 
               v-bind="gridItem" 
@@ -23,11 +26,10 @@ export default {
     },
     computeCols() {
       let cols = "";
-      for (let gridCol of this.$store.state.grid) {
+      for (let gridCol of this.$store.state.grid) 
         ~gridCol.findIndex(gridRow => gridRow.component === "CanvasWrapper")
           ? (cols += "1fr ")
           : (cols += "auto ");
-      }
       return cols;
     },
     computeRows(){
@@ -39,6 +41,10 @@ export default {
     computeZIndex(gridItem) {
       if(gridItem.component === 'CanvasWrapper') return level0
       return this.activeGridItem === gridItem ? level3 : level2
+    },
+    computeHeight() {
+      if(this.$el) 
+        return `calc(100% - ${$('header').outerHeight()}px)`
     }
   },
   data() {
@@ -55,7 +61,6 @@ export default {
 @import '../../sass/_help'
 
 .grid
-  height: calc(100% - 52px)
   position: relative
   display: grid
   grid-auto-flow: column

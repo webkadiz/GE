@@ -10,7 +10,7 @@
       v-bind="setting" 
       :key="i" 
       v-for="(setting, i) in settings[index].props"
-      v-model.trim.number="setting.enter">   
+      v-model.trim="setting.enter">   
     </EnterPropMenu>
   </form>
   
@@ -69,7 +69,7 @@ export default {
         },
         {
           props: [
-            { title: "Название темы", id: 0, subtitle: "theme", enter: null, color: true },
+            { title: "Название темы", id: 0, subtitle: "theme", enter: null, input: true },
             { title: "Цвет текста", id: 1, subtitle: "textColor", enter: null, color: true },
             { title: "Цвет подписей и иконок", id: 2, subtitle: "labelColor", enter: null, color: true },
             { title: "Задний фон", id: 3, subtitle: "bgBody", enter: null, color: true },

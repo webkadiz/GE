@@ -3,7 +3,6 @@
 		<span v-for="char in title.length" :key="char">
 			{{ title[char - 1].toUpperCase()}}
 		</span>
-		<!-- <i class="fas fa-angle-up"></i> -->
 	</div>
 </template>
 

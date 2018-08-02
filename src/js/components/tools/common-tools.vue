@@ -1,8 +1,8 @@
 <template>
 	<div class="tools-wrapper tools">    
-    <div :class="[{active: currentTool === tool} , 'tool','bg-anim-icon' ]"  @click="active(tool)" :key="index" v-for="(tool, index) in tools">
-      <img v-if="tool.img" :src="'img/' + tool.img" alt="" />
-      <Icon v-else-if="tool.icon" :icon="tool.icon"></Icon>
+    <div  :class="[{active: currentTool === tool} , 'tool','bg-anim-icon' ]"  
+          @click="active(tool)" :key="index" v-for="(tool, index) in tools">
+      <Icon :icon="tool.icon"></Icon>
     </div>
 	</div>	
 </template>
@@ -54,25 +54,77 @@ export default {
       self.c.selection = false;
     },
     pencil: function*() {
-      let down, move, up, path, group, self = this.canvas;
+      //prettier-ignore
+      let down, move, moveCursor, up, path, group, cursor, self = this.canvas;
+
+      self.c.defaultCursor = "none";
+
+      moveCursor = e => {
+        let { x: left, y: top } = self.c.getPointer();
+        let width, height, color, imageData;
+        width = height = this.$store.state.pencil.strokeWidth;
+
+        imageData = self.c.getContext().getImageData(self.zoom * left + width/2,self.zoom * top + height / 2, 1,1)
+
+        if(imageData.data[0] < 50 && imageData.data[1] < 50 && imageData.data[2] < 50) {
+          color = 'white'
+        }
+        else color = 'black';
+        console.log(self.c.viewportTransform);
+        console.log(self.c.vptCoords)
+        console.log(self.c.scaleX);
+
+        self.c.remove(cursor);
+        cursor = new fabric.Rect({
+          left,
+          top,
+          width: width + 0.1,
+          height: height + 0.1,
+          fill: "transparent",
+          stroke: color,
+          shadow: 'rgba(0,0,0,.3) 0 0 3px'
+        });
+
+        self.c.add(cursor);
+
+      };
+
+      self.c.on("mouse:move", moveCursor);
+
+      self.c.on("mouse:out", () => {
+        self.c.remove(cursor);
+      });
+
       //prettier-ignore
       self.c.on('mouse:down', down = e => {
-        let {x ,y} = self.c.getPointer()
+        let {x, y} = self.c.getPointer(), counter = 0;
 
-        path = new fabric.Path(`M ${x} ${y}`, this.$store.state.pencil);	
+        path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.pencil, {
+          strokeLineCap: 'square',
+          strokeLineJoin: 'bevil'
+        }));	
 
-        self.c.add(path)
-
+        self.c.add(path);
+        moveCursor()      
         self.c.on('mouse:move', move = e => {
-          ({x ,y} = self.c.getPointer());
+          let {x, y} = self.c.getPointer();
+          
+          if(!counter) {
+            path.path.pop();
+            counter++;
+          }
           
           self.c.remove(path);
+
+          path.path.push(['L', x , y])
       
-          path = new fabric.Path(path.path, this.$store.state.pencil)
+          path = new fabric.Path(path.path, Object.assign({}, this.$store.state.pencil, {
+            strokeLineCap: 'square',
+            strokeLineJoin: 'bevil'
+          }))
 
-          path.path.push(['L', x, y])
-
-          self.c.add(path);
+          self.c.add(path);         
+          moveCursor();
         })	
         self.c.on('mouse:up', up = e => {
           group = new fabric.Group([path])
@@ -81,14 +133,95 @@ export default {
 
           self.c.off('mouse:move', move)
           self.c.off('mouse:up', up);
+          moveCursor()
         })
-      }) 
+      })
 
       //console.log("before yield");
       yield;
       //console.log("after yield");
 
-      self.c.off('mouse:down', down);
+      self.c.off("mouse:down", down);
+      self.c.off("mouse:move", moveCursor);
+      self.c.defaultCursor = "default";
+    },
+    brush: function*() {
+      //prettier-ignore
+      let down, move, moveCursor, up, path, group, cursor, self = this.canvas;
+
+      self.c.defaultCursor = "none";
+
+      moveCursor = e => {
+        let { x: left, y: top } = self.c.getPointer();
+
+        self.c.remove(cursor);
+        cursor = new fabric.Circle({
+          left,
+          top,
+          radius: this.$store.state.pencil.strokeWidth / 2,
+          fill: "transparent",
+          stroke: "grey"
+        });
+
+        self.c.add(cursor);
+      };
+
+      self.c.on("mouse:move", moveCursor);
+
+      self.c.on("mouse:out", () => {
+        self.c.remove(cursor);
+      });
+
+      //prettier-ignore
+      self.c.on('mouse:down', down = e => {
+        let {x, y} = self.c.getPointer(), counter = 0;
+
+        path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.pencil, {
+          strokeLineCap: 'round',
+          strokeLineJoin: 'round'
+        }));	
+
+        self.c.add(path);
+
+        moveCursor()     
+        self.c.on('mouse:move', move = e => {
+          let {x, y} = self.c.getPointer();
+          
+          if(!counter) {
+            path.path.pop();
+            counter++;
+          }
+          
+          self.c.remove(path);
+
+          path.path.push(['L', x , y])
+      
+          path = new fabric.Path(path.path, Object.assign({}, this.$store.state.pencil, {
+            strokeLineCap: 'round',
+            strokeLineJoin: 'round'
+          }))
+
+          self.c.add(path);          
+          moveCursor();
+        })	
+        self.c.on('mouse:up', up = e => {
+          group = new fabric.Group([path])
+          self.c.add(group)
+          self.c.remove(path)
+
+          self.c.off('mouse:move', move)
+          self.c.off('mouse:up', up);
+          moveCursor()
+        })
+      })
+
+      //console.log("before yield");
+      yield;
+      //console.log("after yield");
+
+      self.c.off("mouse:down", down);
+      self.c.off("mouse:move", moveCursor);
+      self.c.defaultCursor = "default";
     },
     text: function*() {
       //prettier-ignore
@@ -122,18 +255,76 @@ export default {
     },
     pouring: function*() {},
     eraser: function*() {
-      let self = this.canvas;
+      //prettier-ignore
+      let down, move, moveCursor, up, path, group, cursor, self = this.canvas;
 
-      self.c.globalCompositeOperation = "destination-out";
-      self.c.isDrawingMode = true;
-      self.c.freeDrawingBrush.width = 12;
-      self.c.freeDrawingBrush.color = "rgba(0,0,0,0)";
+      self.c.defaultCursor = "none";
+
+      moveCursor = e => {
+        let { x: left, y: top } = self.c.getPointer();
+
+        self.c.remove(cursor);
+        cursor = new fabric.Circle({
+          left,
+          top,
+          radius: this.$store.state.pencil.strokeWidth / 2,
+          fill: "transparent",
+          stroke: "grey"
+        });
+
+        self.c.add(cursor);
+      };
+
+      self.c.on("mouse:move", moveCursor);
+
+      self.c.on("mouse:out", () => {
+        self.c.remove(cursor);
+      });
+
+      //prettier-ignore
+      self.c.on('mouse:down', down = e => {
+        let {x, y} = self.c.getPointer(), counter = 0;
+
+        path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.pencil, {
+          globalCompositeOperation: 'destination-out'
+        }));	
+
+        self.activeLayer.group.addWithUpdate(path);
+        moveCursor()      
+        self.c.on('mouse:move', move = e => {
+          let {x, y} = self.c.getPointer();
+          
+          if(!counter) {
+            path.path.pop();
+            counter++;
+          }
+          
+          self.activeLayer.group.remove(path);
+
+          path.path.push(['L', x , y])
+      
+          path = new fabric.Path(path.path, Object.assign({}, this.$store.state.pencil, {
+            globalCompositeOperation: 'destination-out'
+          }))
+
+          self.activeLayer.group.addWithUpdate(path);
+          
+          moveCursor();
+        })	
+        self.c.on('mouse:up', up = e => {
+          self.c.off('mouse:move', move)
+          self.c.off('mouse:up', up);
+          moveCursor();
+        })
+      })
 
       //console.log("before yield");
       yield;
       //console.log("after yield");
 
-      self.c.isDrawingMode = false;
+      self.c.off("mouse:down", down);
+      self.c.off("mouse:move", moveCursor);
+      self.c.defaultCursor = "default";
     },
     square: function*() {
       //prettier-ignore
@@ -142,12 +333,10 @@ export default {
       self.c.on("mouse:down", down = e => {
         let { x: left, y: top } = self.c.getPointer();
 
-        Object.assign(this.$store.state.square, {
+        rect = new fabric.Rect(Object.assign({}, this.$store.state.square, {
           left,
           top
-        });
-
-        rect = new fabric.Rect(this.$store.state.square);
+        }));
 
         self.c.on("mouse:move", move = e => {
           let { x, y } = self.c.getPointer(),
@@ -235,6 +424,7 @@ export default {
       tools: [
         { icon: "move", connector: "move", event: this.move, isActive: false },
         { icon: "pencil1", connector: "pencil", event: this.pencil, isActive: false },
+        { icon: "brush", connector: "brush", event: this.brush, isActive: false },
         { icon: "text", connector: "text", event: this.text, isActive: false },
         { icon: "pouring", connector: "pouring", event: this.rubber, isActive: false },
         { icon: "eraser", connector: "eraser", event: this.eraser, isActive: false },

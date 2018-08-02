@@ -4,13 +4,15 @@
 				 v-for="(dropdown, index) in dropdownList" :key="index">
       <Icon v-if="isActive(dropdown)" icon="checked"></Icon>
 			{{dropdown.title}}
-      <div class="menu-subdropdown">
+
+      <div class="menu-subdropdown">    
         <div  class="menu-dropdown-item menu-subdropdown-item"  
               v-if="dropdown.type === 'dropdown'" @click="isOpen(subdropdown)"
               v-for="(subdropdown, index) in dropdown.subdropdown" :key="index">
           <Icon v-if="isActive(subdropdown)" icon="checked"></Icon>
           {{subdropdown.title}}
         </div>
+
       </div>			
 		</div>
 	</div>
@@ -33,16 +35,18 @@ export default {
         this.$store.commit("openHeaderDropdownItem", dropdown.event)
       else if(dropdown.type === 'apply') 
         this.$store.commit(dropdown.event, dropdown.value);
+    },
+    firefly() {
+      Array.from(this.$el.querySelectorAll(".menu-dropdown-item"), function(el) {
+        el.addEventListener("mousemove", function(e) {
+          el.style.setProperty("--px", e.clientX - el.getBoundingClientRect().left);
+          el.style.setProperty("--py", e.clientY - el.getBoundingClientRect().top);
+        });
+      });
     }
   },
-  mounted() {
-    Array.from(this.$el.querySelectorAll(".menu-dropdown-item"), function(el) {
-      el.addEventListener("mousemove", function(e) {
-        el.style.setProperty("--px", e.clientX - el.getBoundingClientRect().left);
-        el.style.setProperty("--py", e.clientY - el.getBoundingClientRect().top);
-      });
-    });
-  }
+  mounted() {this.firefly()},
+  updated() {this.firefly()}
 };
 </script>
 
@@ -128,8 +132,4 @@ export default {
     transform: translateX(0) rotateY(0)
   
 
-
-
-
-	
 </style>
