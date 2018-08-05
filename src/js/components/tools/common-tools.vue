@@ -49,9 +49,10 @@ export default {
       self.c.renderAll();
 
       yield;
-
+      self.c.discardActiveObject()
       self.c.skipTargetFind = true;
       self.c.selection = false;
+      self.c.requestRenderAll();
     },
     pencil: function*() {
       //prettier-ignore
@@ -70,9 +71,6 @@ export default {
           color = 'white'
         }
         else color = 'black';
-        console.log(self.c.viewportTransform);
-        console.log(self.c.vptCoords)
-        console.log(self.c.scaleX);
 
         self.c.remove(cursor);
         cursor = new fabric.Rect({

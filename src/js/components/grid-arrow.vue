@@ -28,6 +28,7 @@ export default {
 @import '../../sass/_help'
 
 .grid-arrow-wrapper
+	flex-shrink: 0
 	height: 10px
 	background: var(--bg-color)
 	+bb()

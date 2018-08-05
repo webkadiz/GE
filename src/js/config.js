@@ -1,10 +1,15 @@
-// набор функций, свойств, методов и объявление глобальный переменных
-import $ from "jquery";
-import interact from "interactjs";
-import Sortable from "sortablejs";
-import PerfectScrollbar from "perfect-scrollbar";
-import "fabric";
-import Vuex from "vuex";
+// набор плагинов, библиотек, функций, свойств, методов и объявление глобальных переменных
+
+import "vue/dist/vue.runtime.js"; // компилятор Vue js
+import Vue from "vue/dist/vue.js"; // фреймворк Vue js
+import Vuex from "vuex"; // паттерн управления состоянием приложения и библиотека Vue.js
+import $ from "jquery"; // многофункциональная библиотека для работы с DOM
+import interact from "interactjs"; // библиотека для работы с drag and drop, resizing and multi-touch gestures
+import Sortable from "sortablejs"; // библиотека для переупорядочиваемых списков перетаскивания
+import PerfectScrollbar from "perfect-scrollbar"; // плагин прокрутки
+import "fabric"; // библиотека для работы с HTML5 canvas
+import "jquery-colpick"; // jquery плагин color picker
+import "nicescroll"; // jquery плагин прокрутки
 
 window.levelNeg = -10;
 window.level0 = 0;
@@ -13,12 +18,14 @@ window.level2 = 100;
 window.level3 = 1000;
 window.level4 = 10000;
 
+window.Vue = Vue;
+window.Vuex = Vuex;
+window.bus = new Vue(); //глобальная шина
 window.html = document.documentElement;
 window.$ = $;
 window.interact = interact;
 window.Sortable = Sortable;
 window.fabric = fabric;
-window.Vuex = Vuex;
 window.PerfectScrollbar = PerfectScrollbar;
 window.genID = generatorID();
 
@@ -165,6 +172,13 @@ function* generatorID() {
   for (let i = 1000; i < 10000000; i++) yield i;
 }
 
+window.getLocalStorageField = function(title) {
+  return JSON.parse(localStorage.getItem(title));
+};
+window.setLocalStorageField = function(title, data) {
+  localStorage.setItem(title, JSON.stringify(data));
+};
+
 // window.arr1 = [];
 // window.arr2 = [];
 // window.arr3 = [];
@@ -185,4 +199,37 @@ window.getPropFromInput = function(input_values, ...lists) {
     }
   }
   return obj;
+};
+
+window.config = {
+  themes: {
+    ["Светлая"]: {
+      textColor: "black",
+      mainColor: "WHITESMOKE",
+      bgColor: "oldlace",
+      bgBody: "gainsboro",
+      borderColor: "#8F9491",
+      labelColor: "dimgray",
+      theme: "Светлая"
+    },
+    ["Темная"]: {
+      textColor: "white",
+      mainColor: "#535353",
+      bgColor: "#424242",
+      bgBody: "#282828",
+      borderColor: "#8F9491",
+      labelColor: "#d6d6d6",
+      theme: "Темная"
+    },
+    currentTheme: {
+      textColor: "white",
+      mainColor: "#535353",
+      bgColor: "#424242",
+      bgBody: "#282828",
+      borderColor: "#8F9491",
+      labelColor: "#d6d6d6",
+      theme: "Темная"
+    },
+    invert: false
+  }
 };

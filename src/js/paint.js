@@ -1,22 +1,22 @@
 "use strict";
 
+// импорт стилей
 import "../css/apply_button.css";
 import "jquery-colpick/css/colpick.css";
 import "../css/animate.css";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
 import "../sass/main.sass";
 
-import "jquery-colpick"; // jquery плагин для полосы прокрутки
-import "nicescroll"; // jquery плагин для цвета
-import "jquery-ui-dist/jquery-ui";
-import "./addition_function.js"; // набор функций
+import "./config.js"; // файл конфигурации
 
-import "vue/dist/vue.runtime.js";
-import Vue from "vue/dist/vue.js";
-import Vuex from "vuex";
-import Sortable from "vue-sortable";
+// импорт компонентов
 import vSelect from "vue-select";
-//импортирую для отладки
+import MenuAlias from "./components/menu.vue";
+import Grid from "./components/grid.vue";
+import MenuHeaderDropdownItem from "./components/menu-header-dropdown-item.vue";
+import PanelHeaderTools from "./components/panel-header-tools.vue";
+
+//импорт компонентов для отладки
 import "./components/canvas-wrapper.vue";
 import "./components/canvas.vue";
 import "./components/enter-prop-color.vue";
@@ -27,15 +27,11 @@ import "./components/grid-item.vue";
 import "./components/tools/text-tools.vue";
 import "./components/tools/common-tools.vue";
 import "./components/menu-badge.vue";
-import Themes from "./themes.js";
 
 Vue.config.devtools = true;
 Vue.config.performance = true;
 
-window.bus = new Vue(); //глобальная шина
-
 Vue.use(Vuex);
-Vue.use(Sortable);
 
 const store = new Vuex.Store({
   state: {
@@ -51,7 +47,7 @@ const store = new Vuex.Store({
       { component: "LayerTools", id: 3, isFold: false, isActive: false, title: "Слои" },
       { component: "PencilTools", id: 4, isFold: false, isActive: true, title: "Мелок" }
     ],
-    themes: getLocalStorageField("themes") || Themes.themesDefault,
+    themes: getLocalStorageField("themes") || config.themes,
     canvases: [],
     canvas: null,
     move: {},
@@ -116,15 +112,31 @@ const store = new Vuex.Store({
       }
     },
     download(state) {
-      console.log("download");
-      store.commit("setZoom", 1);
+      store.commit({ type: "setZoom", zoom: 1, unsafe: true });
+
+      state.canvas.c.clipTo = ctx => {
+        ctx.rect(0, 0, state.canvas.wrapperWidth, state.canvas.wrapperHeight);
+      };
+      state.canvas.c.requestRenderAll();
+
+      state.canvas.c.setViewportTransform([
+        1,
+        0,
+        0,
+        1,
+        -(state.canvas.wrapperWidth / 2 - state.canvas.width / 2),
+        -(state.canvas.wrapperHeight / 2 - state.canvas.height / 2)
+      ]);
+      state.canvas.c.setWidth(state.canvas.width);
+      state.canvas.c.setHeight(state.canvas.height);
+
       let base = state.canvas.c.toDataURL("png");
 
       let link = document.createElement("a");
       link.href = base;
       link.download = true;
       link.click();
-      store.commit("setZoom", state.canvas.zoom);
+      store.commit({ type: "setZoom", zoom: state.canvas.zoom });
     },
     canvasActive(state, title) {
       state.canvas = state.canvases.find(canvas => canvas.title === title);
@@ -150,17 +162,23 @@ const store = new Vuex.Store({
       else if (left < 20) canvas.css("left", "200px");
     },
     newFile(state, props) {
-      let { width, height, title, background } = getPropFromInput(props, "width", "height", "title", "background");
+      let { width, height, title, background: backgroundColor } = getPropFromInput(
+        props,
+        "width",
+        "height",
+        "title",
+        "background"
+      );
 
       let id = state.canvases.last ? state.canvases.last.id + 1 : 1;
       title = title ? title : `Untitled-${id}`;
 
       state.canvases.push({
         id,
-        width,
-        height,
+        width: float(width),
+        height: float(height),
         title,
-        background,
+        backgroundColor,
         zoom: 1,
         c: null,
         layers: [],
@@ -168,12 +186,24 @@ const store = new Vuex.Store({
       });
       state.canvas = state.canvases.last;
     },
-    setZoom(state, zoom) {
-      state.canvas.zoom = zoom;
-      state.canvas.c.setZoom(zoom);
-      state.canvas.c.setHeight(state.canvas.height * zoom);
-      state.canvas.c.setWidth(state.canvas.width * zoom);
-      state.canvas.c.renderAll();
+    setZoom(state, { zoom, unsafe = false }) {
+      let point = new fabric.Point(state.canvas.el.clientWidth / 2, state.canvas.el.clientHeight / 2);
+      state.canvas.c.zoomToPoint(point, zoom);
+
+      if (!unsafe) {
+        state.canvas.c.clipTo = ctx =>
+          ctx.rect(
+            state.canvas.wrapperWidth / 2 - (state.canvas.width * zoom) / 2,
+            state.canvas.wrapperHeight / 2 - (state.canvas.height * zoom) / 2,
+            state.canvas.width * zoom,
+            state.canvas.height * zoom
+          );
+
+        state.canvas.zoom = zoom;
+      }
+      state.canvas.ps.update();
+      state.canvas.wrapper.scrollTop = -state.canvas.c.viewportTransform[5];
+      state.canvas.c.requestRenderAll();
     },
     themeChange(state, theme) {
       html.style.setProperty("--text-color", state.themes[theme].textColor);
@@ -252,10 +282,10 @@ let app = new Vue({
   el: "#app",
   store,
   components: {
-    MenuAlias: () => import("./components/menu.vue"),
-    MenuHeaderDropdownItem: () => import("./components/menu-header-dropdown-item.vue"),
-    PanelHeaderTools: () => import("./components/panel-header-tools.vue"),
-    Grid: () => import("./components/grid.vue")
+    MenuAlias,
+    MenuHeaderDropdownItem,
+    PanelHeaderTools,
+    Grid
   },
   computed: Vuex.mapState(["headerDropdownItem"]),
   methods: {},
@@ -268,8 +298,8 @@ let app = new Vue({
         e.returnValue = false;
         
         if (this.$store.state.canvas) {
-          this.$store.commit("setZoom", this.$store.state.canvas.zoom + 0.1);
-          this.$store.commit('canvasCenter');
+          this.$store.commit({type: "setZoom", zoom: this.$store.state.canvas.zoom + 0.1});
+          //this.$store.commit('canvasCenter');
         }
       }
       //prettier-ignore
@@ -277,17 +307,10 @@ let app = new Vue({
         e.returnValue = false;
 
         if (this.$store.state.canvas) {
-          this.$store.commit("setZoom", this.$store.state.canvas.zoom - 0.1);
-          this.$store.commit('canvasCenter');
+          this.$store.commit({type: "setZoom", zoom: this.$store.state.canvas.zoom - 0.1});
+         //this.$store.commit('canvasCenter');
         }
       }
     });
   }
 });
-
-function getLocalStorageField(title) {
-  return JSON.parse(localStorage.getItem(title));
-}
-function setLocalStorageField(title, data) {
-  localStorage.setItem(title, JSON.stringify(data));
-}

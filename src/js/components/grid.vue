@@ -1,7 +1,6 @@
 <template>
 	<main :style="{ gridTemplateColumns: computeCols, 
-        gridTemplateRows: computeRows,
-        height: computeHeight()}" 
+        gridTemplateRows: computeRows}" 
         class="grid">	
 
     <GridItem @mousedown="gridItem.component !== 'CanvasWrapper' ? activeGridItem = gridItem: void 0" 
@@ -10,7 +9,8 @@
               :style="{'z-index': computeZIndex(gridItem)}"
               :rowsAmount="computeRows.match(/[0-9]+/)[0]"
               @fold="gridItem.isFold = !gridItem.isFold"
-              @closeComponent="gridItem.isActive = false">
+              @closeComponent="gridItem.isActive = false"
+              v-if="gridItem.isActive">
     </GridItem>
 	</main>
 </template>
@@ -41,10 +41,6 @@ export default {
     computeZIndex(gridItem) {
       if(gridItem.component === 'CanvasWrapper') return level0
       return this.activeGridItem === gridItem ? level3 : level2
-    },
-    computeHeight() {
-      if(this.$el) 
-        return `calc(100% - ${$('header').outerHeight()}px)`
     }
   },
   data() {
@@ -65,6 +61,7 @@ export default {
   display: grid
   grid-auto-flow: column
   grid-gap: 2px
+  flex: 1
   +index($level0)
 	
 </style>

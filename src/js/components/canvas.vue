@@ -1,46 +1,76 @@
 <template>
-<div class="canvas-wrapper">
+  <div class="canvas-wrapper">
 
-  <CanvasCoords :width="width()" :scrollTop="scrollTop" axis="x"></CanvasCoords>
-  <CanvasCoords :height="height()" :scrollTop="scrollTop" axis="y"></CanvasCoords>
+    <CanvasCoords  :width="width()" :scrollTop="scrollTop" axis="x"></CanvasCoords>
+    <CanvasCoords  :height="height()" :scrollTop="scrollTop" axis="y"></CanvasCoords>
 
-	<canvas class="no-invert canvas" ref="canvas"></canvas>
-  
-</div>	
+    <canvas class="no-invert canvas" ref="canvas"></canvas>
+    
+  </div>	
 </template>
 
 <script>
 export default {
   components: {
-    CanvasCoords: () => import('./canvas-coords.vue')
+    CanvasCoords: () => import("./canvas-coords.vue")
   },
-  computed: Vuex.mapState(["canvas"]),
+  computed: {
+    ...Vuex.mapState(["canvas"])
+  },
   methods: {
-    width() {     
-      if(this.c)
-        return +this.c.getWidth() 
+    width() {
+      if (this.$el) return this.$el.clientWidth - 20;
     },
     height() {
-      if(this.c)
-        return +this.c.getHeight()
+      if (this.$el) return this.$el.clientHeight - 20;
+    },
+    
+    initCanvasBackground() {
+      let rect = new fabric.Rect({
+        left: this.canvas.wrapperWidth / 2 - this.canvas.width / 2,
+        top: this.canvas.wrapperHeight / 2 - this.canvas.height / 2,
+        width: this.canvas.width,
+        height: this.canvas.height,
+        fill: this.canvas.backgroundColor  
+      });
+      let group = this.canvas.background = new fabric.Group([rect], {
+        selectable: false
+      });
+      group.type = 'background'
+
+      this.c.add(group)
     }
   },
   mounted() {
     let counter = 1; //счетчик слоев
 
+    Object.defineProperty(this.canvas, 'wrapperWidth', {
+      get: () => this.$el.clientWidth - 20     
+    })
+     Object.defineProperty(this.canvas, 'wrapperHeight', {
+      get: () => this.$el.clientHeight - 20  
+    })
+
     this.canvas.c = this.c = new fabric.Canvas(this.$refs.canvas, {
-      width: this.canvas.width,
-      height: this.canvas.height,
-      backgroundColor: this.canvas.background,
+      width: this.canvas.wrapperWidth,
+      height: this.canvas.wrapperHeight,
       skipTargetFind: true,
       selection: false,
-      preserveObjectStacking: true
+      preserveObjectStacking: true,
+      clipTo: ctx => {ctx.rect(this.canvas.wrapperWidth / 2 - this.canvas.width / 2, 
+        this.canvas.wrapperHeight / 2 - this.canvas.height / 2,
+        this.canvas.width,
+        this.canvas.height)        
+      }
     });
     this.canvas.el = this.canvas.c.wrapperEl;
-    this.c.renderAll();
+    this.canvas.wrapper = this.$el
+  
+
     // this.c.on('object:modified', e => {
     // 	console.log(e);
     // })
+    
 
     this.c.on("selection:created", e => {
       //console.log(e, 'selection created');
@@ -57,7 +87,8 @@ export default {
     });
     this.c.on("selection:cleared", e => {
       //console.log(e, 'selection cleared');
-      this.canvas.activeLayer = null;
+      //console.log('cleared');
+      //this.canvas.activeLayer = null;
     });
 
     this.c.on("object:added", e => {
@@ -67,7 +98,10 @@ export default {
 					title, layer, type;
 
       if (object) {
-        if (object.type === "i-text") {
+        if (group.type === "background") {
+          type = "background";
+          title = `Фон ${this.canvas.layers.length + 1}`;
+        } else if (object.type === "i-text") {
           type = "text";
           title = `Текст ${this.canvas.layers.length + 1}`;
         } else if (object.type === "rect") {
@@ -79,42 +113,54 @@ export default {
         } else if (object.type === "line") {
           type = "line";
           title = `Линия ${this.canvas.layers.length + 1}`;
-        } else {
+        }  else {
           type = "nothing";
           title = `Слой ${this.canvas.layers.length + 1}`;
         }
 
         layer = { object, group, type, title, id: counter++, visible: true };
         this.canvas.layers.push(layer);
-				this.canvas.activeLayer = layer;
-				return
-			}
+        this.canvas.activeLayer = layer;
+        return;
+      }
     });
     this.c.on("object:removed", e => {});
-    
 
-    //центрируем холст
-    this.$store.commit('canvasCenter');
+    this.initCanvasBackground()
+
     //кастомные полосы прокрутки
-    $(this.canvas.el).css('position', 'absolute');
+    $(this.canvas.el).css({position:'absolute', left: 20, top: 20 });
     // $(this.$el).niceScroll('.scroll', {
     //   cursorcolor: "#535353",
     //   cursorborder: "1px solid #535353",
     //   autohidemode: "leave",
     //   enablecrollonselectionL: false
     // });
-    this.ps = new PerfectScrollbar(this.$el);
 
-    this.$el.addEventListener('ps-scroll-y', () => {
-      this.scrollTop = this.$el.scrollTop;
-    });
+    this.ps = this.canvas.ps = new PerfectScrollbar(this.$el);
+
+    this.$el.addEventListener('ps-scroll-y' , () => {
+      this.canvas.el.style.top = this.$el.scrollTop + 20 + 'px'
+    })
+    this.$el.addEventListener('ps-scroll-up' ,  () => {
+      let vpt = this.c.viewportTransform;
+      console.log(vpt);
+      vpt[5] = -this.$el.scrollTop;
+      this.c.setViewportTransform(vpt)
+    })
+    this.$el.addEventListener('ps-scroll-down' ,  () => {
+      let vpt = this.c.viewportTransform;
+      console.log(this.$el.scrollTop);
+      vpt[5] = -this.$el.scrollTop;
+      this.c.setViewportTransform(vpt)
+    })
 
     bus.$emit("toolEventActive"); // обработчик в common-tools
   },
-  data () {
+  data() {
     return {
       scrollTop: 0
-    }
+    };
   }
 };
 </script>
@@ -123,15 +169,15 @@ export default {
 @import '../../sass/_help'
 
 .canvas-wrapper
-	flex: 1
-	position: relative
-	overflow: scroll
-	.canvas-wrapper-inner
-		position: absolute
-		display: inline-block
+  flex: 1
+  position: relative
+  overflow: hidden
+  .canvas-wrapper-inner
+    position: absolute
+    display: inline-block
 
-.lower-canvas
-  background-image: url(data:image/gif;base64,R0lGODlhCgAKAIAAAOLi4v///yH5BAAHAP8ALAAAAAAKAAoAAAIRhB2ZhxoM3GMSykqd1VltzxQAOw==)
+// .lower-canvas
+//   background-image: url(data:image/gif;base64,R0lGODlhCgAKAIAAAOLi4v///yH5BAAHAP8ALAAAAAAKAAoAAAIRhB2ZhxoM3GMSykqd1VltzxQAOw==)
 
 
 .coords-x-wrapper

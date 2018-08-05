@@ -1,10 +1,9 @@
 <template>
 	<div 
 		:style="{'grid-row': computeRow}" 
-		:class="['grid-item', {'in-grid': inGrid}]" 
+		:class="['grid-item', {'in-grid': inGrid, 'in-fold': isFold}]" 
 		:data-component="component" 
-    @mousedown="$emit('mousedown')"
-    v-show="isActive">
+    @mousedown="$emit('mousedown')">
 
     <GridArrow v-if=" component !== 'CanvasWrapper' 
                       && inGrid 
@@ -28,7 +27,7 @@
 		</keep-alive>
 
     <FoldTools @switcher="switcher = !switcher" 
-               v-show="isFold" 
+               v-if="isFold" 
                :title="title" 
                :active="switcher">
     </FoldTools>
@@ -39,11 +38,14 @@
 </template>
 
 <script>
+import CanvasWrapper from "./canvas-wrapper.vue";
+import Casing from "./casing.vue";
+
 export default {
   components: {
-    CanvasWrapper: () => import("./canvas-wrapper.vue"),
+    CanvasWrapper,
+    Casing,
     GridArrow: () => import("./grid-arrow.vue"),
-    Casing: () => import("./casing.vue"),
     DragTools: () => import("./tools/drag-tools.vue"),
     FoldTools: () => import("./tools/fold-tools.vue"),
     CommonTools: () => import("./tools/common-tools.vue"),
@@ -53,6 +55,7 @@ export default {
   },
   props: ["component", 'rowsAmount', 'isFold', "isActive", 'title'],
   mounted() {
+    console.log('mounted');
     bus.$on('switchArrow', this.switchArrow) // вызывавший здесь же
 
     if (this.component !== "CanvasWrapper") {
@@ -157,6 +160,7 @@ export default {
     +b()
 
 .grid-item.in-grid
+  overflow: hidden
   position: relative
   border-radius: 0
   box-shadow: none
@@ -170,6 +174,8 @@ export default {
   .fold-wrapper
     height: 100%
 
+.grid-item.in-grid.in-fold
+  overflow: visible
 </style>
 
 

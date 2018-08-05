@@ -10,9 +10,10 @@
 </template>
 
 <script>
+import MenuBadge from "./menu-badge.vue";
 export default {
   components: {
-    MenuBadge: () => import("./menu-badge.vue"),
+    MenuBadge,
     MenuDropdown: () => import("./menu-dropdown.vue")
   },
   methods: {
