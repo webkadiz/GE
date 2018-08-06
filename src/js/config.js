@@ -247,6 +247,15 @@ window.config = {
       labelColor: "#d6d6d6",
       theme: "Темная"
     },
+    ["Серая"]: {
+      textColor: "black",
+      mainColor: "#f6f4f5",
+      bgColor: "#bfbbb5",
+      bgBody: "#877a79",
+      borderColor: "#301c0c",
+      labelColor: "#877a79",
+      theme: "Серая"
+    },
     currentTheme: {
       textColor: "white",
       mainColor: "#535353",

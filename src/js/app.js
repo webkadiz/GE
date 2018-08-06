@@ -58,7 +58,7 @@ const store = new Vuex.Store({
     },
     move: {},
     pencil: {
-      fill: "transparent",
+      //fill: "transparent",
       stroke: "black",
       strokeWidth: 5,
       strokeLineCap: "round",
@@ -95,8 +95,8 @@ const store = new Vuex.Store({
         state.canvas.activeLayer.object.set(setting, newValue);
         state.canvas.activeLayer.group.addWithUpdate();
         state.canvas.c.requestRenderAll();
-        return;
       }
+
       state[tool][setting] = newValue;
     },
 

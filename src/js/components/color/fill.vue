@@ -16,13 +16,11 @@ export default {
 			//allowEmpty: true,
 			showInitial : true ,
 			showAlpha: true,
-			selectText : "Alright" , 
+			chooseText : "Применить" , 
 			cancelText: "Отменить",
 			showPalette: true,
-			showSelectionPalette: true,
 			palette : [['black', 'white', 'blue'], ['red', 'green']],
 			change: color => {
-				console.log(color.toRgbString());
 				this.$store.commit({
 					type:'propUpdate', 
 					setting:'fill', 

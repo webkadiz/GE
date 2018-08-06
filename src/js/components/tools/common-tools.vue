@@ -284,6 +284,7 @@ export default {
         let {x, y} = self.c.getPointer(), counter = 0;
 
         path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.pencil, {
+          fill: 'transparent',
           globalCompositeOperation: 'destination-out'
         }));	
 
@@ -302,6 +303,7 @@ export default {
           path.path.push(['L', x , y])
       
           path = new fabric.Path(path.path, Object.assign({}, this.$store.state.pencil, {
+            fill: 'transparent',
             globalCompositeOperation: 'destination-out'
           }))
 
