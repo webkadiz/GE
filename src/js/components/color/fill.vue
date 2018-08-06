@@ -37,8 +37,6 @@ export default {
 			console.log($(this.$refs.colorpicker).spectrum('get'))
 			}
 		})
-		console.log($('.sp-palette-row-selection'));
-		//$('.sp-palette-row-selection').prependTo($('.sp-palette'))
 	}
 }
 </script>
