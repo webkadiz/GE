@@ -3,6 +3,7 @@
 // импорт стилей
 import "../css/apply_button.css";
 import "jquery-colpick/css/colpick.css";
+import "spectrum-colorpicker/spectrum.css";
 import "../css/animate.css";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
 import "../sass/main.sass";
@@ -33,6 +34,7 @@ Vue.config.performance = true;
 
 Vue.use(Vuex);
 
+// глобальное хранилище
 const store = new Vuex.Store({
   state: {
     headerDropdownItem: [
@@ -45,11 +47,15 @@ const store = new Vuex.Store({
       { component: "CommonTools", id: 1, isFold: false, isActive: true, title: "инструменты" },
       { component: "TextTools", id: 2, isFold: false, isActive: false, title: "Текст" },
       { component: "LayerTools", id: 3, isFold: false, isActive: false, title: "Слои" },
-      { component: "PencilTools", id: 4, isFold: false, isActive: true, title: "Мелок" }
+      { component: "PencilTools", id: 4, isFold: false, isActive: true, title: "Мелок" },
+      { component: "FillTools", id: 5, isFold: false, isActive: true, title: "Заливка" }
     ],
     themes: getLocalStorageField("themes") || config.themes,
     canvases: [],
     canvas: null,
+    global: {
+      fill: "black"
+    },
     move: {},
     pencil: {
       fill: "transparent",
@@ -59,7 +65,6 @@ const store = new Vuex.Store({
       strokeLineJoin: "round"
     },
     text: {
-      fill: "black",
       fontStyle: "normal",
       fontSize: 40,
       lineHeight: 1.16,
@@ -81,13 +86,17 @@ const store = new Vuex.Store({
     closeHeaderDropdownItem: (state, event) =>
       (state.headerDropdownItem.find(item => item.event === event).isActive = false),
 
-    activeLayerUpdate(state, { newValue, setting }) {
-      state.canvas.activeLayer.object.set(setting, newValue);
-      //state.canvas.activeLayer.group.renderGroup();
-      state.canvas.activeLayer.group.addWithUpdate();
-      state.canvas.c.renderAll();
-    },
+    activeLayerUpdate(state, { newValue, setting }) {},
     canvasToolUpdate(state, { newValue, setting, tool }) {
+      state[tool][setting] = newValue;
+    },
+    propUpdate(state, { newValue, setting, tool }) {
+      if (state.canvas && state.canvas.activeLayer && (state.canvas.activeLayer.type === tool || tool === "global")) {
+        state.canvas.activeLayer.object.set(setting, newValue);
+        state.canvas.activeLayer.group.addWithUpdate();
+        state.canvas.c.requestRenderAll();
+        return;
+      }
       state[tool][setting] = newValue;
     },
 
@@ -186,23 +195,17 @@ const store = new Vuex.Store({
       });
       state.canvas = state.canvases.last;
     },
-    setZoom(state, { zoom, unsafe = false }) {
-      let point = new fabric.Point(state.canvas.el.clientWidth / 2, state.canvas.el.clientHeight / 2);
+    setZoom(state, { zoom, unsafe = false, point = false }) {
+      if (!point) point = new fabric.Point(state.canvas.c.getWidth() / 2, state.canvas.c.getHeight() / 2);
+
       state.canvas.c.zoomToPoint(point, zoom);
 
       if (!unsafe) {
-        state.canvas.c.clipTo = ctx =>
-          ctx.rect(
-            state.canvas.wrapperWidth / 2 - (state.canvas.width * zoom) / 2,
-            state.canvas.wrapperHeight / 2 - (state.canvas.height * zoom) / 2,
-            state.canvas.width * zoom,
-            state.canvas.height * zoom
-          );
-
         state.canvas.zoom = zoom;
       }
+      state.canvas.wrapper.scrollTop = Math.abs(state.canvas.c.viewportTransform[5]);
+      state.canvas.wrapper.scrollLeft = Math.abs(state.canvas.c.viewportTransform[4]);
       state.canvas.ps.update();
-      state.canvas.wrapper.scrollTop = -state.canvas.c.viewportTransform[5];
       state.canvas.c.requestRenderAll();
     },
     themeChange(state, theme) {
@@ -275,9 +278,11 @@ const store = new Vuex.Store({
     }
   }
 });
+window.store = store;
 
 Vue.component("v-select", vSelect);
 
+// точка входа в приложение
 let app = new Vue({
   el: "#app",
   store,

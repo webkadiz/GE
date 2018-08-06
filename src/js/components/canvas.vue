@@ -1,8 +1,8 @@
 <template>
   <div class="canvas-wrapper">
 
-    <CanvasCoords  :width="width()" :scrollTop="scrollTop" axis="x"></CanvasCoords>
-    <CanvasCoords  :height="height()" :scrollTop="scrollTop" axis="y"></CanvasCoords>
+    <CanvasCoords :top="scrollTop" axis="x"></CanvasCoords>
+    <CanvasCoords :left="scrollLeft" axis="y"></CanvasCoords>
 
     <canvas class="no-invert canvas" ref="canvas"></canvas>
     
@@ -57,13 +57,7 @@ export default {
       skipTargetFind: true,
       selection: false,
       preserveObjectStacking: true,
-      clipTo: ctx => {ctx.rect(this.canvas.wrapperWidth / 2 - this.canvas.width / 2, 
-        this.canvas.wrapperHeight / 2 - this.canvas.height / 2,
-        this.canvas.width,
-        this.canvas.height)        
-      }
     });
-    this.canvas.el = this.canvas.c.wrapperEl;
     this.canvas.wrapper = this.$el
   
 
@@ -129,7 +123,7 @@ export default {
     this.initCanvasBackground()
 
     //кастомные полосы прокрутки
-    $(this.canvas.el).css({position:'absolute', left: 20, top: 20 });
+    $(this.canvas.c.wrapperEl).css({position:'absolute', left: 20, top: 20 });
     // $(this.$el).niceScroll('.scroll', {
     //   cursorcolor: "#535353",
     //   cursorborder: "1px solid #535353",
@@ -139,27 +133,49 @@ export default {
 
     this.ps = this.canvas.ps = new PerfectScrollbar(this.$el);
 
+    this.$el.addEventListener('ps-scroll-x' , () => {
+      this.canvas.c.wrapperEl.style.left = this.$el.scrollLeft + 20 + 'px'
+      this.scrollLeft = this.$el.scrollLeft   
+    })
     this.$el.addEventListener('ps-scroll-y' , () => {
-      this.canvas.el.style.top = this.$el.scrollTop + 20 + 'px'
+      this.canvas.c.wrapperEl.style.top = this.$el.scrollTop + 20 + 'px'
+      this.scrollTop = this.$el.scrollTop    
     })
     this.$el.addEventListener('ps-scroll-up' ,  () => {
       let vpt = this.c.viewportTransform;
       console.log(vpt);
-      vpt[5] = -this.$el.scrollTop;
-      this.c.setViewportTransform(vpt)
+      console.log(this.canvas.background.top);
+      vpt[5] = -this.$el.scrollTop + -this.canvas.background.top * 2;
+      this.canvas.c.setViewportTransform(vpt)
+      //this.c.setViewportTransform(vpt)
     })
     this.$el.addEventListener('ps-scroll-down' ,  () => {
       let vpt = this.c.viewportTransform;
-      console.log(this.$el.scrollTop);
-      vpt[5] = -this.$el.scrollTop;
-      this.c.setViewportTransform(vpt)
+      console.log(vpt);
+      vpt[5] = -this.$el.scrollTop + -this.canvas.background.top * 2;
+      this.canvas.c.setViewportTransform(vpt)
+      //this.c.setViewportTransform(vpt)
+    })
+     this.$el.addEventListener('ps-scroll-left' ,  () => {
+      let vpt = this.c.viewportTransform;
+      console.log(vpt);
+      vpt[4] = -this.$el.scrollLeft + -this.canvas.background.left * 2;
+      this.canvas.c.setViewportTransform(vpt)
+    })
+    this.$el.addEventListener('ps-scroll-right' ,  () => {
+      let vpt = this.c.viewportTransform;
+      console.log(vpt);
+      vpt[4] = -this.$el.scrollLeft + -this.canvas.background.left * 2;
+      this.canvas.c.setViewportTransform(vpt)
     })
 
     bus.$emit("toolEventActive"); // обработчик в common-tools
+    bus.$emit('createCoords') // обработчик в canvas-coords
   },
   data() {
     return {
-      scrollTop: 0
+      scrollTop: 0,
+      scrollLeft: 0
     };
   }
 };

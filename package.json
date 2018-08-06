@@ -30,6 +30,7 @@
     "perfect-scrollbar": "^1.4.0",
     "sass-loader": "^7.0.1",
     "sortablejs": "^1.7.0",
+    "spectrum-colorpicker": "^1.8.0",
     "style-loader": "^0.21.0",
     "vue": "^2.5.16",
     "vue-loader": "^15.2.4",

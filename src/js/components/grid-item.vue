@@ -51,11 +51,11 @@ export default {
     CommonTools: () => import("./tools/common-tools.vue"),
     TextTools: () => import("./tools/text-tools.vue"),
     LayerTools: () => import("./tools/layer-tools.vue"),
-    PencilTools: () => import("./tools/pencil-tools.vue"),    
+    PencilTools: () => import("./tools/pencil-tools.vue"),
+    FillTools: () => import('./tools/fill-tools.vue')    
   },
   props: ["component", 'rowsAmount', 'isFold', "isActive", 'title'],
   mounted() {
-    console.log('mounted');
     bus.$on('switchArrow', this.switchArrow) // вызывавший здесь же
 
     if (this.component !== "CanvasWrapper") {

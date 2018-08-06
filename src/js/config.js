@@ -1,4 +1,6 @@
-// набор плагинов, библиотек, функций, свойств, методов и объявление глобальных переменных
+/* 
+  набор плагинов, библиотек, функций, свойств, методов и объявление глобальных переменных
+*/
 
 import "vue/dist/vue.runtime.js"; // компилятор Vue js
 import Vue from "vue/dist/vue.js"; // фреймворк Vue js
@@ -9,7 +11,12 @@ import Sortable from "sortablejs"; // библиотека для переупо
 import PerfectScrollbar from "perfect-scrollbar"; // плагин прокрутки
 import "fabric"; // библиотека для работы с HTML5 canvas
 import "jquery-colpick"; // jquery плагин color picker
+import "spectrum-colorpicker"; // jquery плагин color picker
 import "nicescroll"; // jquery плагин прокрутки
+
+/*
+  глобальные переменные
+*/
 
 window.levelNeg = -10;
 window.level0 = 0;
@@ -29,9 +36,23 @@ window.fabric = fabric;
 window.PerfectScrollbar = PerfectScrollbar;
 window.genID = generatorID();
 
+/* 
+  добавление методов в прототипы различных объектов
+*/
+
 Object.defineProperty(fabric.Group.prototype, "object", {
   get() {
     return this.item(0);
+  },
+  enumerable: false
+});
+
+Object.defineProperty(fabric.Canvas.prototype, "v", {
+  get(arr) {
+    return this.viewportTransform;
+  },
+  set(arr) {
+    this.setViewportTransform(arr);
   },
   enumerable: false
 });
@@ -106,6 +127,10 @@ Object.defineProperty(Object.prototype, "genID", {
   enumerable: false
 });
 
+/* 
+  вспомогательные функции
+*/
+
 window.reverse = arr => arr.reduceRight((prev, item) => prev.concat(item), []);
 
 // window.reverse = arr => {
@@ -172,12 +197,9 @@ function* generatorID() {
   for (let i = 1000; i < 10000000; i++) yield i;
 }
 
-window.getLocalStorageField = function(title) {
-  return JSON.parse(localStorage.getItem(title));
-};
-window.setLocalStorageField = function(title, data) {
-  localStorage.setItem(title, JSON.stringify(data));
-};
+window.getLocalStorageField = title => JSON.parse(localStorage.getItem(title));
+
+window.setLocalStorageField = (title, data) => localStorage.setItem(title, JSON.stringify(data));
 
 // window.arr1 = [];
 // window.arr2 = [];
@@ -200,6 +222,10 @@ window.getPropFromInput = function(input_values, ...lists) {
   }
   return obj;
 };
+
+/*
+  дефолтные настройки
+*/
 
 window.config = {
   themes: {

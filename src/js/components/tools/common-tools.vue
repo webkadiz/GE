@@ -97,7 +97,7 @@ export default {
       self.c.on('mouse:down', down = e => {
         let {x, y} = self.c.getPointer(), counter = 0;
 
-        path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.pencil, {
+        path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.global , this.$store.state.pencil, {
           strokeLineCap: 'square',
           strokeLineJoin: 'bevil'
         }));	
@@ -116,7 +116,7 @@ export default {
 
           path.path.push(['L', x , y])
       
-          path = new fabric.Path(path.path, Object.assign({}, this.$store.state.pencil, {
+          path = new fabric.Path(path.path, Object.assign({}, this.$store.state.global, this.$store.state.pencil, {
             strokeLineCap: 'square',
             strokeLineJoin: 'bevil'
           }))
@@ -174,7 +174,7 @@ export default {
       self.c.on('mouse:down', down = e => {
         let {x, y} = self.c.getPointer(), counter = 0;
 
-        path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.pencil, {
+        path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.global, this.$store.state.pencil, {
           strokeLineCap: 'round',
           strokeLineJoin: 'round'
         }));	
@@ -194,7 +194,7 @@ export default {
 
           path.path.push(['L', x , y])
       
-          path = new fabric.Path(path.path, Object.assign({}, this.$store.state.pencil, {
+          path = new fabric.Path(path.path, Object.assign({}, this.$store.state.global, this.$store.state.pencil, {
             strokeLineCap: 'round',
             strokeLineJoin: 'round'
           }))
@@ -331,7 +331,7 @@ export default {
       self.c.on("mouse:down", down = e => {
         let { x: left, y: top } = self.c.getPointer();
 
-        rect = new fabric.Rect(Object.assign({}, this.$store.state.square, {
+        rect = new fabric.Rect(Object.assign({}, this.$store.state.global, this.$store.state.square, {
           left,
           top
         }));
@@ -386,10 +386,10 @@ export default {
       self.c.on("mouse:down", down = e => {
         let { x, y } = self.c.getPointer();
 
-        line = new fabric.Line([x, y, x, y], {
+        line = new fabric.Line([x, y, x, y], Object.assign({}, this.$store.state.global, {
           strokeWidth: 5,
           stroke: 'black'
-        });
+        }));
 
         self.c.on("mouse:move", move = e => {
           ({ x, y } = self.c.getPointer());
@@ -414,7 +414,29 @@ export default {
       yield;
 
       self.c.off("mouse:down", down);
-    }
+    },
+    zoomIn: function*() {
+      let up, self = this.canvas
+
+      self.c.on('mouse:up', up = e => {
+        this.$store.commit({type: 'setZoom', zoom: self.zoom + 0.2, point: self.c.getPointer()})
+      })
+
+      yield;
+
+      self.c.off('mouse:up', up)
+    },
+    zoomOut: function*() {
+      let up, self = this.canvas;
+
+      self.c.on('mouse:up', up = e => {
+        this.$store.commit({type: 'setZoom', zoom: self.zoom - 0.2, point: self.c.getPointer()})
+      })
+
+      yield;
+
+      self.c.off('mouse:up', up)
+    },
   },
   updated() {},
   data() {
@@ -427,7 +449,9 @@ export default {
         { icon: "pouring", connector: "pouring", event: this.rubber, isActive: false },
         { icon: "eraser", connector: "eraser", event: this.eraser, isActive: false },
         { icon: "square", connector: "square", event: this.square, isActive: false },
-        { icon: "line", connector: "line", event: this.line, isActive: false }
+        { icon: "line", connector: "line", event: this.line, isActive: false},
+        { icon: "zoom-in", connector: "zoom", event: this.zoomIn, isActive: false},
+        { icon: "zoom-out", connector: "zoom", event: this.zoomOut, isActive: false }
       ],
       currentTool: null,
       generator: null

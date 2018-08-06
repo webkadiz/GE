@@ -1,25 +1,23 @@
 @import '../sass/_help'
 
-$canvas_color: #282828
-$header_color: #535353
-$vk_color: #e1e5eb	
-$settings_color: #34495E
-$link_color: #285473
-$apply_color: #16A085
-
-$menu_tools_color: #424242
-
 $coords_color: #474747
 $bg_tools: #2F4F4F
 
-$input_color: #454545
-$label_color: #d6d6d6
+// spectrum color-picker
+.sp-container
+	background: var(--main-color)
+	border: none
+	display: block
+	.sp-palette-container
+		border-right: 1px solid var(--border-color)
+	.sp-picker-container
+		border-left: 1px solid var(--border-color)
+	.sp-input
+		@extend %input
 
-$very_very_high: 100000
-$very_high: 10000	
-$high: 1000
-$middle: 100
-$low: 10
+.component-fold .sp-container
+	.sp-palette-container, .sp-picker-container
+		border: none
 
 
 .colpick_full
@@ -73,7 +71,6 @@ $low: 10
 		input
 			width: 68px
 			padding-right: 5px		
-
 			
 
 *
@@ -87,7 +84,6 @@ html
 	color: var(--text-color)
 
 
-
 body
 	background: var(--bg-body)
 	box-sizing: border-box
@@ -97,7 +93,6 @@ body
 	margin: 0
 	position: relative
 	
-
 
 ul
 	margin: 0
@@ -115,8 +110,6 @@ ul
 	filter: invert(100%)
 	.no-invert
 		filter: invert(100%)
-
-
 
 
 .bg-anim-icon
@@ -139,69 +132,8 @@ ul
 	opacity: 1
 	transform: scale(1)
 
-
-
-
 .tools
 	background: var(--main-color)
-
-
-
-// .header
-// 	margin: 0
-// 	background: $main-color
-// 	+index($level0)
-// 	.header-options
-// 		height: 100%
-// 		+bb()
-// 		display: flex	
-// 		&-item
-// 			color: white
-// 			position: relative
-// 			.header-options-badge
-// 				height: 100%
-// 			&:hover
-// 				.header-options-dropdown
-// 					visibility: visible
-// 				.header-options-badge
-// 					color: black
-// 					cursor: pointer
-// 					background: MINTCREAM
-// 					svg
-// 						transform: rotate(180deg)
-
-
-// 		&-dropdown
-// 			border: 1px solid black
-// 			z-index: $very_very_high
-// 			visibility: hidden	
-// 			position: absolute
-// 			left: -1px
-// 			top: 100%
-// 			background: #eee
-// 			& > div
-// 				cursor: pointer
-// 				text-align: center
-// 				font-size: .9rem
-// 				white-space: nowrap
-// 				color: $link_color
-// 				text-decoration: none
-// 				background: #eee
-// 				padding: 8px 8px	
-// 				display: block
-// 				&:hover
-// 					background: $vk_color	
-// 		&-badge
-// 			color: MINTCREAM
-// 			padding: 0px 10px
-// 			transition: .3s
-// 			display: flex
-// 			align-items: center
-// 			svg
-// 				margin-left: 5px
-// 				transition: .2s transform
-						
-
 
 	//верхняя панелька для всех инструментов
 .drag-panel
@@ -209,10 +141,10 @@ ul
 	width: 100%
 	height: 17px
 	line-height: 15px
-	background: $header_color
+	background: $main-color
 	display: flex
 	justify-content: flex-end
-	border-bottom: 1px solid $border_color
+	border-bottom: 1px solid $border-color
 	&-item
 		transition: .4s 
 		width: 18px
@@ -220,8 +152,8 @@ ul
 		padding: 0px 3px
 		cursor: pointer
 		&:hover
-			border-left: 1px solid $border_color
-			border-right: 1px solid $border_color
+			border-left: 1px solid $border-color
+			border-right: 1px solid $border-color
 	&-close	
 		position: relative
 		&::before

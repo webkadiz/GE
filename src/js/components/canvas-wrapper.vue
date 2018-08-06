@@ -14,6 +14,8 @@
 </template>
 
 <script>
+// ширина canvas-title испльзуется в canvas-coords 
+
 export default {
   components: {
     Canvas: () => import("./canvas.vue"),

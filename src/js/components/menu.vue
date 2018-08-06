@@ -108,6 +108,13 @@ export default {
               title: "Карандаш",
               type: "apply",
               value: "PencilTools"
+            },
+            {
+              event: "switchTool",
+              getter: "getGridTool",
+              title: "Заливка",
+              type: "apply",
+              value: "FillTools"
             }
           ]
         },

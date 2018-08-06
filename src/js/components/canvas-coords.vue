@@ -1,36 +1,36 @@
 <template>	
-	<div v-if="axis === 'x'" class="coords-x-wrapper" :style="{top: computeTop, width: computeWidth}">
+	<div v-if="axis === 'x'" class="coords-x-wrapper" :style="{top: top + 'px', width: computeWidth}">
 		<div style="height: 20px ; width: 20px ;flex-shrink: 0"></div>
 	</div>
-	<div v-else-if="axis === 'y'" class="coords-y-wrapper" :style="{height: computeHeight}">
+	<div v-else-if="axis === 'y'" class="coords-y-wrapper" :style="{left: left + 'px',height: computeHeight}">
 		<div style="height: 20px ; width: 20px ; flex-shrink: 0"></div>
 	</div>
 </template>
 
 <script>
+// ширина canvas-title есть в canvas-wrapper 
+
 export default {
-  props: ["axis", "scrollTop", "width", "height"],
+  props: ["top", 'left', "axis"],
   computed: {
     computeTop() {
-      //if (this.$parent.$el) console.log(this.$parent.$el);
-      //return 0 + 'px'
+      if (this.$parent.$el) return this.$parent.$el.scrollTop + 'px';
+      return 0 + 'px';
     },
     computeWidth() {
-      if (this.canvas.wrapperWidth < this.canvas.width * this.canvas.zoom)
-        return this.canvas.width * this.canvas.zoom + 400 + "px";
-      else return this.canvas.wrapperWidth + 20 + "px";
+			let wrapperWidth = $('.canvas-wrapper-outer').width();
+      if (wrapperWidth - 20 < this.canvas.width * this.canvas.zoom)
+        return this.canvas.width * this.canvas.zoom + wrapperWidth + "px";
+      else return wrapperWidth + "px";
     },
     computeHeight() {
-			console.log(this.canvas.wrapperHeight);
-      if (this.canvas.wrapperHeight < this.canvas.height * this.canvas.zoom)
-        return this.canvas.height * this.canvas.zoom + 400 + "px";
-      else return this.canvas.wrapperHeight + 20 + "px";
+			let wrapperHeight = $('.canvas-wrapper-outer').height() - 25;
+      if (wrapperHeight - 20 < this.canvas.height * this.canvas.zoom)
+        return this.canvas.height  * this.canvas.zoom + wrapperHeight + "px";
+      else return wrapperHeight + "px";
     },
     ...Vuex.mapState(["canvas"])
   },
-  update() {
-		console.log('update');
-  }
 };
 </script>
 

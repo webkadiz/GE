@@ -96,17 +96,8 @@ export default {
     enterUpdate(newValue) {
       newValue = this.number ? float(newValue) : newValue;
 
-      if (this.canvas && this.canvas.activeLayer && this.canvas.activeLayer.type === this.tool) {
-        this.$store.commit({
-          type: "activeLayerUpdate",
-          setting: this.setting,
-          newValue
-        });
-        return;
-      }
-
       this.$store.commit({
-        type: "canvasToolUpdate",
+        type: "propUpdate",
         tool: this.tool,
         setting: this.setting,
         newValue

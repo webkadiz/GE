@@ -3,7 +3,7 @@ const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const NODE_ENV = process.env.NODE_ENV || "development";
 
 module.exports = {
-  entry: ["./src/js/paint.js"],
+  entry: ["./src/js/app.js"],
   output: {
     path: __dirname + "/build/js",
     filename: "build.js",
