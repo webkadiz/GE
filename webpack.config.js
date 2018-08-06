@@ -7,7 +7,7 @@ module.exports = {
   output: {
     path: __dirname + "/build/js",
     filename: "build.js",
-    publicPath: "/build/js/"
+    publicPath: __dirname + "/build/js/"
   },
   module: {
     rules: [
