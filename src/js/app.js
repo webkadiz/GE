@@ -3,7 +3,7 @@
 // импорт стилей
 import "../css/apply_button.css";
 import "jquery-colpick/css/colpick.css";
-import "spectrum-colorpicker/spectrum.css";
+import "../css/spectrum.css";
 import "../css/animate.css";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
 import "../sass/main.sass";

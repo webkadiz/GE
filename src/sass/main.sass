@@ -7,17 +7,74 @@ $bg_tools: #2F4F4F
 .sp-container
 	background: var(--main-color)
 	border: none
-	display: block
+	display: flex
+	justify-content: center
+	align-items: flex-start
 	.sp-palette-container
-		border-right: 1px solid var(--border-color)
+		width: 140px
+		border-right: none
+		display: flex
+		flex-direction: column
+		justify-content: center
+		align-items: center
+	.sp-button-container
+		display: flex
+	.sp-palette
+		display: flex
+		flex-wrap: wrap
+		justify-content: center
+		padding-top: 28px
+		position: relative
+	.sp-palette-row-selection
+		position: absolute
+		top: 0
+		&::before
+			content: ''
+			position: absolute
+			bottom: -2px
+			width: 100%
+			height: 1px
+			background: var(--border-color)
+	.sp-palette-toggle, .sp-choose, .sp-cancel
+		width: 140px
+		height: 30px
+		display: block
+		overflow: hidden
+		color: var(--text-color)
+		text-transform: capitalize
+		border-radius: 3px
+		font-size: 0.9em
+		-webkit-transition: 1s ease-out
+		transition: 1s ease-out
+		background: transparent
+		border: none
+		outline: none
+		margin-top: 10px
+		&:hover
+			letter-spacing: 2px
+			box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5)
+			transition-delay: 0.1s
+			background: transparent
+			border: none
+	.sp-choose
+		width: 100px
+		margin-top: 2px
+	.sp-cancel
+		text-shadow: 0 1px 0 #eee
+		display: flex
+		justify-content: center
+		align-items: center
+		padding: 0
+		width: 80px
+		margin-top: 2px
+		margin-right: 0
+		&:hover
+			text-decoration: none
 	.sp-picker-container
 		border-left: 1px solid var(--border-color)
 	.sp-input
 		@extend %input
 
-.component-fold .sp-container
-	.sp-palette-container, .sp-picker-container
-		border: none
 
 
 .colpick_full

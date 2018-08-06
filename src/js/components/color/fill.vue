@@ -10,7 +10,7 @@ export default {
 	computed: Vuex.mapState(['canvas']),
 	mounted(){
 		$(this.$refs.colorpicker).spectrum({
-			preferredFormat : "name",
+			//preferredFormat : "name",
 			flat: true,
 			showInput: true,
 			//allowEmpty: true,
@@ -19,14 +19,26 @@ export default {
 			chooseText : "Применить" , 
 			cancelText: "Отменить",
 			showPalette: true,
-			palette : [['black', 'white', 'blue'], ['red', 'green']],
+			clickoutFiresChange: false,
+			allowEmpty : true,
+			hideAfterPaletteSelect: true,
+			togglePaletteOnly: true,
+			togglePaletteMoreText: "развернуть",
+			togglePaletteLessText: "свернуть",
+			localStorageKey: 'color-fill-stroke',
+			palette : [['black', 'white', 'blue', 'red', 'green', 'yellow', 'transparent', ]],
 			change: color => {
-				this.$store.commit({
+				console.log('change', color);
+				color ?	this.$store.commit({
 					type:'propUpdate', 
 					setting:'fill', 
-					tool:'global', newValue: color.toRgbString()})
+					tool:'global', newValue: color.toRgbString()}) : void 0;
+			$(this.$refs.colorpicker).spectrum('set', color.toRgbString())
+			console.log($(this.$refs.colorpicker).spectrum('get'))
 			}
 		})
+		console.log($('.sp-palette-row-selection'));
+		//$('.sp-palette-row-selection').prependTo($('.sp-palette'))
 	}
 }
 </script>
