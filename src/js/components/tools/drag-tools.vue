@@ -13,6 +13,7 @@ export default {}
 @import '../../../sass/_help'
 
 .drag-wrapper
+	flex-shrink: 0
 	background: var(--bg-color)
 	height: 14px
 	width: 100%

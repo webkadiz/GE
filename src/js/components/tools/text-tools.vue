@@ -5,7 +5,7 @@
       <EnterPropTool :tool="tool" v-bind="props[setting]"></EnterPropTool>
     </div>
 
-    <div class="col-space"  v-for="settings in [['fontSize','fill'],['lineHeight'],['charSpacing'],['text']]" :key="props[settings[0]].id">
+    <div class="col-space"  v-for="settings in [['fontSize'],['lineHeight'],['charSpacing'],['text']]" :key="props[settings[0]].id">
       <EnterPropTool :tool="tool" v-bind="props[setting]" v-for="setting in settings" :key="setting.id"></EnterPropTool>
     </div>
 
@@ -41,12 +41,6 @@ export default {
           alt: "font-size", 
           type: 'input',
           number: true       
-        },
-        fill: {
-          id: 3,
-          label: "fill:",
-          setting: 'fill',          
-          type: 'color',       
         },
         lineHeight: {
           id: 4,

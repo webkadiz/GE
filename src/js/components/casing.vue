@@ -13,7 +13,9 @@ export default {
   mounted() {
     $(".casing", this.$el).unwrap();
 
-    interact(".casing").dropzone({
+    Interact(".casing").dropzone({
+			max: Infinity,
+			maxPerElement: Infinity,
       accept: ".grid-item",
       ondrop: event => {
         //prettier-ignore

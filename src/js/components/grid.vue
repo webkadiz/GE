@@ -7,6 +7,7 @@
               v-bind="gridItem" 
               :key="gridItem.id" v-for="gridItem in grid"
               :style="{'z-index': computeZIndex(gridItem)}"
+              :class="gridItem.class"
               :rowsAmount="computeRows.match(/[0-9]+/)[0]"
               @fold="gridItem.isFold = !gridItem.isFold"
               @closeComponent="gridItem.isActive = false"

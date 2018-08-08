@@ -3,6 +3,13 @@
 $coords_color: #474747
 $bg_tools: #2F4F4F
 
+// nicescroll
+.nicescroll-rails
+	cursor: pointer !important
+	.nicescroll-cursors 
+		background-color: var(--bg-body) !important
+		border: 1px solid transparent !important
+
 // spectrum color-picker
 .sp-container
 	background: var(--main-color)
@@ -10,8 +17,9 @@ $bg_tools: #2F4F4F
 	display: flex
 	justify-content: center
 	align-items: flex-start
+	z-index: 0
 	.sp-palette-container
-		width: 140px
+		//width: 140px
 		border-right: none
 		display: flex
 		flex-direction: column
@@ -21,13 +29,23 @@ $bg_tools: #2F4F4F
 		display: flex
 	.sp-palette
 		display: flex
-		flex-wrap: wrap
+		max-width: none
+		height: 165px
+		//flex-wrap: wrap
 		justify-content: center
 		padding-top: 28px
 		position: relative
+		padding: 28px 8px 0 8px
+		+b()
+		.sp-palette-row:not(.sp-palette-row-selection)
+			display: flex
+			flex-direction: column
+			span 
+				flex-shrink: 0
 	.sp-palette-row-selection
 		position: absolute
-		top: 0
+		top: 2px
+		display: flex
 		&::before
 			content: ''
 			position: absolute

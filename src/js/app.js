@@ -17,23 +17,6 @@ import Grid from "./components/grid.vue";
 import MenuHeaderDropdownItem from "./components/menu-header-dropdown-item.vue";
 import PanelHeaderTools from "./components/panel-header-tools.vue";
 
-//импорт компонентов для отладки
-import "./components/canvas-wrapper.vue";
-import "./components/canvas.vue";
-import "./components/enter-prop-color.vue";
-import "./components/enter-prop-menu.vue";
-import "./components/enter-prop-tool.vue";
-import "./components/casing.vue";
-import "./components/grid-item.vue";
-import "./components/tools/text-tools.vue";
-import "./components/tools/common-tools.vue";
-import "./components/menu-badge.vue";
-
-Vue.config.devtools = true;
-Vue.config.performance = true;
-
-Vue.use(Vuex);
-
 // глобальное хранилище
 const store = new Vuex.Store({
   state: {
@@ -48,7 +31,7 @@ const store = new Vuex.Store({
       { component: "TextTools", id: 2, isFold: false, isActive: false, title: "Текст" },
       { component: "LayerTools", id: 3, isFold: false, isActive: false, title: "Слои" },
       { component: "PencilTools", id: 4, isFold: false, isActive: true, title: "Мелок" },
-      { component: "FillTools", id: 5, isFold: false, isActive: true, title: "Заливка" }
+      { component: "FillTools", id: 5, isFold: false, isActive: true, title: "Заливка", class: "fill-tools" }
     ],
     themes: getLocalStorageField("themes") || config.themes,
     canvases: [],
@@ -86,10 +69,13 @@ const store = new Vuex.Store({
     closeHeaderDropdownItem: (state, event) =>
       (state.headerDropdownItem.find(item => item.event === event).isActive = false),
 
-    activeLayerUpdate(state, { newValue, setting }) {},
-    canvasToolUpdate(state, { newValue, setting, tool }) {
-      state[tool][setting] = newValue;
-    },
+    /**
+     * обновляет свойства в глобальных настройках и в активнов слое, если есть такой
+     * @param {Object} state
+     * @param {String} newValue новое значение свойства
+     * @param {String} setting название свойства
+     * @param {String} tool название иструмента
+     */
     propUpdate(state, { newValue, setting, tool }) {
       if (state.canvas && state.canvas.activeLayer && (state.canvas.activeLayer.type === tool || tool === "global")) {
         state.canvas.activeLayer.object.set(setting, newValue);
@@ -99,7 +85,14 @@ const store = new Vuex.Store({
 
       state[tool][setting] = newValue;
     },
-
+    /**
+     * управляет сеткой
+     * @param {Object} state
+     * @param {String} component добавляемый в сетку компонент
+     * @param {String} dropzoneComponent компонент, на который был сброшен добавляемый компонент
+     * @param {Number} flagPlace 0 или 1, будет вставлен в сетку до dropzoneComponent или после dropzoneComponent
+     * @param {String} flagGrid COL или ROW, будет вставлен в сетку в качетсве столбца или строки
+     */
     gridLoop(state, { component, dropzoneComponent, flagPlace, flagGrid }) {
       for (let gridCol of state.grid) {
         for (let gridRow of gridCol) {
@@ -120,6 +113,10 @@ const store = new Vuex.Store({
         }
       }
     },
+    /**
+     * скачивает canvas
+     * @param {Object} state
+     */
     download(state) {
       store.commit({ type: "setZoom", zoom: 1, unsafe: true });
 
@@ -147,10 +144,20 @@ const store = new Vuex.Store({
       link.click();
       store.commit({ type: "setZoom", zoom: state.canvas.zoom });
     },
+    /**
+     * делает текущий холст активным
+     * @param {Object} state
+     * @param {String} title название холста
+     */
     canvasActive(state, title) {
       state.canvas = state.canvases.find(canvas => canvas.title === title);
       bus.$emit("toolEventActive"); //обработчик в common-tool
     },
+    /**
+     * удаляет canvas
+     * @param {Object} state
+     * @param {String} title название холста
+     */
     canvasClose(state, title) {
       let index = state.canvases.findIndex(canvas => canvas.title === title);
       //удаляем холст
@@ -170,6 +177,11 @@ const store = new Vuex.Store({
       else if (top < 20) canvas.css("top", "200px");
       else if (left < 20) canvas.css("left", "200px");
     },
+    /**
+     * создает новый canvas
+     * @param {Object} state
+     * @param {Object} props свойства холста
+     */
     newFile(state, props) {
       let { width, height, title, background: backgroundColor } = getPropFromInput(
         props,
@@ -195,6 +207,12 @@ const store = new Vuex.Store({
       });
       state.canvas = state.canvases.last;
     },
+    /**
+     * @param {Object} state
+     * @param {Number} zoom
+     * @param {Boolen} unsafe определяет надо ли сохранять zoom переданный в аргументе
+     * @param {fabric.Point} point точка относительно которой происходит zoom
+     */
     setZoom(state, { zoom, unsafe = false, point = false }) {
       if (!point) point = new fabric.Point(state.canvas.c.getWidth() / 2, state.canvas.c.getHeight() / 2);
 
@@ -208,6 +226,11 @@ const store = new Vuex.Store({
       state.canvas.ps.update();
       state.canvas.c.requestRenderAll();
     },
+    /**
+     * изменение темы
+     * @param {Object} state
+     * @param {String} theme название темы, которую надо установить
+     */
     themeChange(state, theme) {
       html.style.setProperty("--text-color", state.themes[theme].textColor);
       html.style.setProperty("--main-color", state.themes[theme].mainColor);
@@ -219,10 +242,19 @@ const store = new Vuex.Store({
       state.themes.currentTheme = state.themes[theme];
       setLocalStorageField("themes", state.themes);
     },
+    /**
+     * инвертирует текущую тему
+     * @param {Object} state
+     */
     themeInvert(state) {
       state.themes.invert = !state.themes.invert;
       setLocalStorageField("themes", state.themes);
     },
+    /**
+     * создает новую тему и запоминает в localStorage
+     * @param {Object} state
+     * @param {Object | Array} colors массив или объект цветов темы
+     */
     themeNew(state, colors) {
       //prettier-ignore
       let { theme, bgColor, bgBody, mainColor, labelColor, textColor, borderColor } = getPropFromInput(
@@ -247,11 +279,20 @@ const store = new Vuex.Store({
       })
       setLocalStorageField("themes", state.themes);
     },
+    /**
+     * Удаляет текущую тему, не может удалить дефолтную тему
+     * @param {Object} state
+     */
     themeDelete(state) {
       let theme = state.themes.currentTheme.theme;
       if (theme !== "Темная" && theme !== "Светлая") Vue.set(state.themes, theme, undefined);
       setLocalStorageField("themes", state.themes);
     },
+    /**
+     * переключение состояние инструмента: show / hide
+     * @param {Object} state
+     * @param {String} tool название инструмента
+     */
     switchTool(state, tool) {
       //prettier-ignore
       state.gridTools.find(gridTool => gridTool.component === tool).isActive = !state.gridTools.find(gridTool => gridTool.component === tool).isActive
@@ -278,7 +319,6 @@ const store = new Vuex.Store({
     }
   }
 });
-window.store = store;
 
 Vue.component("v-select", vSelect);
 

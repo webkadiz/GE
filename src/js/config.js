@@ -6,7 +6,7 @@ import "vue/dist/vue.runtime.js"; // компилятор Vue js
 import Vue from "vue/dist/vue.js"; // фреймворк Vue js
 import Vuex from "vuex"; // паттерн управления состоянием приложения и библиотека Vue.js
 import $ from "jquery"; // многофункциональная библиотека для работы с DOM
-import interact from "interactjs"; // библиотека для работы с drag and drop, resizing and multi-touch gestures
+import Interact from "interactjs"; // библиотека для работы с drag and drop, resizing and multi-touch gestures
 import Sortable from "sortablejs"; // библиотека для переупорядочиваемых списков перетаскивания
 import PerfectScrollbar from "perfect-scrollbar"; // плагин прокрутки
 import "fabric"; // библиотека для работы с HTML5 canvas
@@ -24,17 +24,31 @@ window.level1 = 10;
 window.level2 = 100;
 window.level3 = 1000;
 window.level4 = 10000;
+window.level5 = 100000;
+window.level6 = 1000000;
+window.level7 = 1000000;
 
 window.Vue = Vue;
 window.Vuex = Vuex;
 window.bus = new Vue(); //глобальная шина
 window.html = document.documentElement;
 window.$ = $;
-window.interact = interact;
+window.Interact = Interact;
 window.Sortable = Sortable;
 window.fabric = fabric;
 window.PerfectScrollbar = PerfectScrollbar;
 window.genID = generatorID();
+
+/*
+  общие настройки библиотек
+*/
+
+Vue.config.devtools = true;
+Vue.config.performance = true;
+
+Vue.use(Vuex);
+
+Interact.dynamicDrop(true);
 
 /* 
   добавление методов в прототипы различных объектов
@@ -172,7 +186,7 @@ window.canvasCenter = function(canvas) {
   else if (left < 20) canvas.css("left", "200px");
 };
 
-window.maxId = arr => Math.max(...arr.map(item => item.id));
+//window.maxId = arr => Math.max(...arr.map(item => item.id));
 
 window.float = str => (parseFloat(str) !== Infinity && parseFloat(str) ? parseFloat(str) : 0);
 
@@ -255,6 +269,15 @@ window.config = {
       borderColor: "#301c0c",
       labelColor: "#877a79",
       theme: "Серая"
+    },
+    ["Розовая"]: {
+      textColor: "white",
+      mainColor: "#d69cf4",
+      bgColor: "#e866d3",
+      bgBody: "#80379c",
+      borderColor: "#fabef4",
+      labelColor: "#80379c",
+      theme: "Розовая"
     },
     currentTheme: {
       textColor: "white",

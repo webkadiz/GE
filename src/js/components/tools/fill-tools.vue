@@ -1,5 +1,5 @@
 <template>
-	<div class="tools">
+	<div>
 		<div class="tabs">
 			
 			<div 	@click="currentTab = tab" :class="['tab', {active: currentTab === tab}]" 
@@ -50,4 +50,8 @@ export default {
 		background-size: cover
 	.tab.active
 		box-shadow: 0 0 0 2px var(--main-color), 0 0 0 3px var(--border-color), 0 0 0 7px var(--bg-color)
+
+
 </style>
+
+

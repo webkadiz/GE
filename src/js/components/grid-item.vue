@@ -18,7 +18,8 @@
     </DragTools>
 
 		<keep-alive>
-			<component 
+			<component
+          ref="component"
           :class="[{'component-fold': isFold}, {tools: component !== 'CanvasWrapper'}]" 
           :style="computePosition()"
           :is="component"
@@ -52,55 +53,109 @@ export default {
     TextTools: () => import("./tools/text-tools.vue"),
     LayerTools: () => import("./tools/layer-tools.vue"),
     PencilTools: () => import("./tools/pencil-tools.vue"),
-    FillTools: () => import('./tools/fill-tools.vue')    
+    FillTools: () => import("./tools/fill-tools.vue")
   },
-  props: ["component", 'rowsAmount', 'isFold', "isActive", 'title'],
+  props: ["component", "rowsAmount", "isFold", "isActive", "title"],
   mounted() {
-    bus.$on('switchArrow', this.switchArrow) // вызывавший здесь же
-
+    bus.$on("switchArrow", this.switchArrow); // вызывавший здесь же
     if (this.component !== "CanvasWrapper") {
-      interact(this.$el).draggable({
-        allowFrom: '.drag, .in-grid, .fold-wrapper',
-        onmove(e) {
-          //prettier-ignore
-          let el = e.target,
+      Interact(this.$el).draggable({
+          max: Infinity,
+          maxPerElement: Infinity,
+          allowFrom: ".drag, .in-grid, .fold-wrapper",
+          inertia: {
+            smoothEndDuration: 1000
+          },
+          restrict: {
+            restriction: 'parent',
+          },
+          onmove(e) {
+            //prettier-ignore
+            let el = e.target,
               x  = (parseFloat(el.getAttribute("data-x")) || 0) + e.dx,
               y  = (parseFloat(el.getAttribute("data-y")) || 0) + e.dy;
 
-          el.style.webkitTransform = el.style.transform = `translate(${x}px, ${y}px)`;
+            el.style.webkitTransform = el.style.transform = `translate(${x}px, ${y}px)`;
 
-          el.setAttribute("data-x", x);
-          el.setAttribute("data-y", y);
-        },
-        onstart: event => {
-          let el = event.target;
+            el.setAttribute("data-x", x);
+            el.setAttribute("data-y", y);
 
-          if (el.classList.contains("in-grid")) {
-            let gridRow, component = el.getAttribute("data-component");
-            this.$store.state.grid.forEach( gridCol => {
-              if(gridRow = gridCol.find(row => row.component === component)) {
-                gridCol.length !== 1 ? gridCol.remove(gridRow) : this.$store.state.grid.remove(gridCol)
-              }
-            })
-            
-            el.setAttribute("data-x", el.getBoundingClientRect().left);
-            el.setAttribute("data-y", el.getBoundingClientRect().top);
+          },
+          onstart: event => {
+            let el = event.target;
+
+            if (el.classList.contains("in-grid")) {
+              let gridRow,
+                component = el.getAttribute("data-component");
+              this.$store.state.grid.forEach(gridCol => {
+                if ((gridRow = gridCol.find(row => row.component === component))) {
+                  gridCol.length !== 1 ? gridCol.remove(gridRow) : this.$store.state.grid.remove(gridCol);
+                }
+              });
+
+              el.setAttribute("data-x", el.getBoundingClientRect().left);
+              el.setAttribute("data-y", el.getBoundingClientRect().top);
+            }
+            el.style.pointerEvents = "none";
+            $(".casing").css("z-index", 1000000000);
+          },
+          onend: e => {
+            e.target.style.pointerEvents = "auto";
+            $(".casing").css("z-index", -100);
           }
-          el.style.pointerEvents = "none";
-          $(".casing").css("z-index", 1000000000);        
-        },
-        onend: e => {
-          e.target.style.pointerEvents = "auto";
-          $(".casing").css("z-index", -100);
-        }
-      }).resizable();
+        })
+        .resizable({
+          enabled: false,
+          edges: { bottom: true, top: true },
+
+          // keep the edges inside the parent
+          // restrictEdges: {
+          //   outer: "parent",
+          //   endOnly: true
+          // },
+
+          // minimum size
+          restrictSize: {
+            min: { width: 100, height: 50 }
+          },
+
+          inertia: true,
+          onmove: event => {
+            console.log(event);
+            let target = event.target,
+              y = parseFloat(target.getAttribute("data-y")) || 0;
+
+            target.style.height = event.rect.height + "px";
+            y += event.deltaRect.top;
+
+            target.setAttribute("data-y", y);
+
+            $(this.$refs.component.$el).getNiceScroll().resize();
+          }
+        });
+          
     }
   },
   computed: {
     inGrid() {
       for (let gridCol of this.$store.state.grid) {
-        if (~gridCol.findIndex(gridRow => gridRow.component === this.component)) return true;
+        if (~gridCol.findIndex(gridRow => gridRow.component === this.component)) {
+          if(this.$el) {
+            $(this.$refs.component.$el).niceScroll({
+              autohidemode: "leave"
+            })
+            $(this.$refs.component.$el).getNiceScroll().resize();
+            
+            Interact(this.$el).resizable({enabled: true});
+          }
+          return true;
+        }
       }
+      if(this.$el) {
+        Interact(this.$el).resizable({enabled: false})
+        this.$el.style.height = 'auto';
+        $(this.$refs.component.$el).getNiceScroll().resize();
+      };
       return false;
     },
     computeRow() {
@@ -113,30 +168,31 @@ export default {
       }
     },
     computeDisplayComponent() {
-      if(!this.isFold) return true
+      if (!this.isFold) return true;
       return this.switcher;
     }
   },
   methods: {
     computePosition() {
-      if(this.$el && this.isFold) return {
-        left: this.$el.getBoundingClientRect().left < $('html').width() / 2 ? '103%' : '',
-        right: this.$el.getBoundingClientRect().left > $('html').width() / 2 ? '103%' : ''
-      }
+      if (this.$el && this.isFold)
+        return {
+          left: this.$el.getBoundingClientRect().left < $("html").width() / 2 ? "103%" : "",
+          right: this.$el.getBoundingClientRect().left > $("html").width() / 2 ? "103%" : ""
+        };
     },
     switchArrow(col) {
-      if(col && !col.find(row => row.component === this.component)) return     
+      if (col && !col.find(row => row.component === this.component)) return;
       this.switcher = this.isFold ? true : false;
-      this.$emit('fold');
+      this.$emit("fold");
     },
     switcherArrowInGrid() {
-      bus.$emit('switchArrow', this.$store.state.grid.find(col => col[0].component === this.component)) // обработчик здесь же
-    } 
+      bus.$emit("switchArrow", this.$store.state.grid.find(col => col[0].component === this.component)); // обработчик здесь же
+    }
   },
   data() {
     return {
       switcher: true
-    }
+    };
   }
 };
 </script>
@@ -167,7 +223,7 @@ export default {
   .casing
     display: block
   .tools
-    height: 100%
+    flex: 1
   .tools.component-fold
     height: auto
     top: 0
