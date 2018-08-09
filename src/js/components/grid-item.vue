@@ -142,7 +142,8 @@ export default {
         if (~gridCol.findIndex(gridRow => gridRow.component === this.component)) {
           if(this.$el) {
             $(this.$refs.component.$el).niceScroll({
-              autohidemode: "leave"
+              autohidemode: "leave",
+              zindex: level6
             })
             $(this.$refs.component.$el).getNiceScroll().resize();
             

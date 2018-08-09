@@ -1,21 +1,23 @@
 "use strict";
 
 // импорт стилей
-import "../css/apply_button.css";
-import "jquery-colpick/css/colpick.css";
-import "../css/spectrum.css";
-import "../css/animate.css";
-import "perfect-scrollbar/css/perfect-scrollbar.css";
-import "../sass/main.sass";
+import "../css/apply_button";
+import "jquery-colpick/css/colpick";
+import "../css/spectrum";
+import "../css/animate";
+import "../css/perfect-scrollbar";
+import "simple-scrollbar/simple-scrollbar.css";
+import "../css/switcher";
+import "../sass/main";
 
-import "./config.js"; // файл конфигурации
+import "./config"; // файл конфигурации
 
 // импорт компонентов
 import vSelect from "vue-select";
-import MenuAlias from "./components/menu.vue";
-import Grid from "./components/grid.vue";
-import MenuHeaderDropdownItem from "./components/menu-header-dropdown-item.vue";
-import PanelHeaderTools from "./components/panel-header-tools.vue";
+import Navbar from "./components/navbar";
+import Grid from "./components/grid";
+import MenuHeaderDropdownItem from "./components/menu-header-dropdown-item";
+import Toolbar from "./components/toolbar";
 
 // глобальное хранилище
 const store = new Vuex.Store({
@@ -34,15 +36,16 @@ const store = new Vuex.Store({
       { component: "FillTools", id: 5, isFold: false, isActive: true, title: "Заливка", class: "fill-tools" }
     ],
     themes: getLocalStorageField("themes") || config.themes,
+    palette: getLocalStorageField("palette") || config.palette,
     canvases: [],
     canvas: null,
     global: {
-      fill: "black"
+      fill: "black",
+      stroke: "black"
     },
     move: {},
     pencil: {
       //fill: "transparent",
-      stroke: "black",
       strokeWidth: 5,
       strokeLineCap: "round",
       strokeLineJoin: "round"
@@ -285,7 +288,8 @@ const store = new Vuex.Store({
      */
     themeDelete(state) {
       let theme = state.themes.currentTheme.theme;
-      if (theme !== "Темная" && theme !== "Светлая") Vue.set(state.themes, theme, undefined);
+      if (theme !== "Темная" && theme !== "Светлая" && theme !== "Розовая" && theme !== "Серая")
+        Vue.set(state.themes, theme, undefined);
       setLocalStorageField("themes", state.themes);
     },
     /**
@@ -327,9 +331,9 @@ let app = new Vue({
   el: "#app",
   store,
   components: {
-    MenuAlias,
+    Navbar,
     MenuHeaderDropdownItem,
-    PanelHeaderTools,
+    Toolbar,
     Grid
   },
   computed: Vuex.mapState(["headerDropdownItem"]),

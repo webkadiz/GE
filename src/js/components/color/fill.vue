@@ -6,177 +6,22 @@
 </template>
 
 <script>
+import Icon from '../icon';
+
 export default {
+  props: ['tool'],
   computed: {
 		computeValue() {
-			if (this.canvas && this.canvas.activeLayer) {
-				console.log(this.$refs.colorpicker.value);
-			setTimeout(() =>	
-			$(this.$refs.colorpicker).spectrum('set', this.$refs.colorpicker.value ), 0)
-        return this.canvas.activeLayer.object['fill'];
-      }
-      return this.$store.state.global['fill'];
+      setTimeout(() =>	
+			  $(this.$refs.colorpicker).spectrum('set', this.$refs.colorpicker.value ), 0)
+			if (this.canvas && this.canvas.activeLayer) 
+        return this.canvas.activeLayer.object[this.tool];
+
+      return this.$store.state.global[this.tool];
 		},
 		...Vuex.mapState(["canvas"])
 	},
   mounted() {
-    let colors = [
-      [
-				"Transparent",
-        "Black",
-        "Gray",
-        "white",
-        "Fuchsia",
-        "Purple",
-        "Red",
-        "Maroon",
-        "Yellow",
-        "Olive",
-        "Lime",
-        "Green",
-        "Aqua",
-        "Teal",
-        "Blue",
-        "Navy"
-      ],
-      ["IndianRed", "LightCoral", "Salmon", "DarkSalmon", "LightSalmon", "Crimson", "Red", "FireBrick", "DarkRed"],
-      ["Pink", "LightPink", "HotPink", "DeepPink", "MediumVioletRed", "PaleVioletRed"],
-      ["LightSalmon", "Coral", "Tomato", "OrangeRed", "DarkOrange", "Orange"],
-      [
-        "Gold",
-        "Yellow",
-        "LightYellow",
-        "LemonChiffon",
-        "LightGoldenrodYellow",
-        "PapayaWhip",
-        "Moccasin",
-        "PeachPuff",
-        "PaleGoldenrod",
-        "Khaki",
-        "DarkKhaki"
-      ],
-      [
-        "Cornsilk",
-        "BlanchedAlmond",
-        "Bisque",
-        "NavajoWhite",
-        "Wheat",
-        "BurlyWood",
-        "Tan",
-        "RosyBrown",
-        "SandyBrown",
-        "Goldenrod",
-        "DarkGoldenRod",
-        "Peru",
-        "Chocolate",
-        "SaddleBrown",
-        "Sienna",
-        "Brown",
-        "Maroon"
-      ],
-      [
-        "White",
-        "Snow",
-        "Honeydew",
-        "MintCream",
-        "Azure",
-        "AliceBlue",
-        "GhostWhite",
-        "WhiteSmoke",
-        "Seashell",
-        "Beige",
-        "OldLace",
-        "FloralWhite",
-        "Ivory",
-        "AntiqueWhite",
-        "Linen",
-        "LavenderBlush",
-        "MistyRose"
-      ],
-      [
-        "Gainsboro",
-        "LightGrey",
-        "Silver",
-        "DarkGray",
-        "Grey",
-        "DimGray",
-        "LightSlateGray",
-        "SlateGray",
-        "DarkSlateGray",
-        "Black"
-      ],
-      [
-        "GreenYellow",
-        "Chartreuse",
-        "LawnGreen",
-        "Lime",
-        "LimeGreen",
-        "PaleGreen",
-        "LightGreen",
-        "MediumSpringGreen",
-        "SpringGreen",
-        "MediumSeaGreen",
-        "SeaGreen",
-        "ForestGreen",
-        "Green",
-        "DarkGreen",
-        "YellowGreen",
-        "OliveDrab",
-        "Olive",
-        "DarkOliveGreen",
-        "MediumAquamarine",
-        "DarkSeaGreen",
-        "LightSeaGreen",
-        "DarkCyan",
-        "Teal"
-      ],
-      [
-        "Aqua",
-        "Cyan",
-        "LightCyan",
-        "PaleTurquoise",
-        "Aquamarine",
-        "Turquoise",
-        "MediumTurquoise",
-        "DarkTurquoise",
-        "CadetBlue",
-        "SteelBlue",
-        "LightSteelBlue",
-        "PowderBlue",
-        "LightBlue",
-        "SkyBlue",
-        "LightSkyBlue",
-        "DeepSkyBlue",
-        "DodgerBlue",
-        "CornflowerBlue",
-        "MediumSlateBlue",
-        "RoyalBlue",
-        "Blue",
-        "MediumBlue",
-        "DarkBlue",
-        "Navy",
-        "MidnightBlue"
-      ],
-      [
-        "Lavender",
-        "Thistle",
-        "Plum",
-        "Violet",
-        "Orchid",
-        "Fuchsia",
-        "Magenta",
-        "MediumOrchid",
-        "MediumPurple",
-        "BlueViolet",
-        "DarkViolet",
-        "DarkOrchid",
-        "DarkMagenta",
-        "Purple",
-        "Indigo",
-        "SlateBlue",
-        "DarkSlateBlue"
-      ]
-    ];
     $(this.$refs.colorpicker).spectrum({
       preferredFormat: "name",
       flat: true,
@@ -187,35 +32,77 @@ export default {
       cancelText: "Отменить",
       showPalette: true,
       clickoutFiresChange: false,
-      allowEmpty: true,
       hideAfterPaletteSelect: true,
       togglePaletteOnly: true,
       togglePaletteMoreText: "развернуть",
       togglePaletteLessText: "свернуть",
       localStorageKey: "color-fill-stroke",
       maxSelectionSize: 10,
-      palette: colors,
+      palette: this.$store.state.palette,
       change: color => {
-        console.log("change", color);
         color
           ? this.$store.commit({
               type: "propUpdate",
-              setting: "fill",
+              setting: this.tool,
               tool: "global",
               newValue: color.toRgbString()
             })
           : void 0;
       }
-		});
-
-		$(".sp-palette", this.$el).append('<div class="resize-right"></div>')
-		$(".sp-palette", this.$el).append('<div class="resize-bottom"></div>')
-
-    $(".sp-palette", this.$el).niceScroll({
-			autohidemode: "leave"
     });
 
-    $(".fill-tools .sp-palette-container").prepend("<Icon icon='file'></Icon>");
+    let Palette = Vue.extend({
+      components: {Icon},
+      template: `<div class="color-picker-icon-wrapper">
+                  <div @click="newColor" class="color-picker-icon"><Icon icon="file"></Icon></div>
+                  <div @click="deleteColor" class="color-picker-icon"><Icon icon="delete"></Icon></div>
+                 </div>`,
+      methods: {
+        newColor: () => {
+          let colors = Array.from(this.$el.querySelectorAll('.sp-palette-row-selection > span'), function(el) { 
+            if(el.dataset.color === $(this.$refs.colorpicker).spectrum("get").toRgbString()) return el.dataset.color
+          }, this)
+
+          if(colors.length) {
+            let color = colors.find(color => color !== undefined);
+            color = color || this.$el.querySelector('.sp-palette-row-selection span').dataset.color;
+           
+            this.$store.state.palette.last.length < 10 
+              ? this.$store.state.palette.last.push(color)
+              : this.$store.state.palette.push([color])
+
+            $(this.$refs.colorpicker).spectrum("option", "palette", this.$store.state.palette);
+            setLocalStorageField('palette',  this.$store.state.palette)
+          }
+        },
+        deleteColor: () => {
+          let currentColors = [
+            $(this.$refs.colorpicker).spectrum("get").toName(),
+            $(this.$refs.colorpicker).spectrum("get").toRgbString()
+          ]
+          this.$store.state.palette.forEach(colors => {
+            colors.forEach(color => {
+              currentColors.forEach(currentColor => {
+                if(currentColor === color.toLowerCase()) {
+                  colors.remove(color)
+                  $(this.$refs.colorpicker).spectrum("option", "palette", this.$store.state.palette);
+                  setLocalStorageField('palette',  this.$store.state.palette)
+                }
+              })
+            })
+          });
+        }
+      }
+    })
+    
+    $(".sp-palette-button-container", this.$el).append(new Palette().$mount().$el)
+
+    $(".sp-palette", this.$el).niceScroll({
+      autohidemode: "leave"
+    });
+
+    $('.sp-cancel', this.$el).remove()
+
 
     Interact(".sp-palette", this.$el).resizable({
       edges: { left: true, right: true, bottom: true, top: true },
@@ -254,18 +141,37 @@ export default {
           .resize();
       }
     });
+    
+    console.log(this.$el.querySelector('.sp-palette-row'));
+    new Sortable(this.$el.querySelector('.sp-palette-row'),{
+     // draggable: '.sp-thumb-el',
+     animation: 150
+    })
   }
 };
 </script>
 
 <style lang="sass" scoped>
+@import '../../../sass/_help'
 
 .wrapper
-	border-top: 1px solid var(--border-color)
-	
+  +bt()
+  
 .in-grid .wrapper
-	border-bottom: 1px solid var(--border-color)
-
-
+  +bb()
 
 </style>
+
+<style lang="sass">
+@import '../../../sass/_help'
+
+.color-picker-icon-wrapper
+  display: flex
+  margin-left: 33px
+  .color-picker-icon
+    margin-left: 5px
+    padding: 5px
+    cursor: pointer
+    +btn-char-spacing-effect(16px, 16px)
+</style>
+

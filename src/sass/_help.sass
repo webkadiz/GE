@@ -35,6 +35,31 @@ $label-color: #d6d6d6
 	z-index: $index
 
 
+=btn-char-spacing-effect($width, $height)
+	&
+		width: $width
+		height: $height
+		display: flex
+		justify-content: center
+		align-items: center
+		overflow: hidden
+		color: var(--text-color)
+		text-transform: capitalize
+		border-radius: 3px
+		font-size: 0.9em
+		transition: .35s ease-out
+		background: transparent
+		border: none
+		outline: none
+		&:hover
+			letter-spacing: 2px
+			box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5)
+			transition-delay: 0.1s
+			background: transparent
+			border: none
+
+
+
 %input
 	display: block
 	font-size: 0.9rem
@@ -44,4 +69,3 @@ $label-color: #d6d6d6
 	outline: none
 	border-radius: 0
 	+bb()
-

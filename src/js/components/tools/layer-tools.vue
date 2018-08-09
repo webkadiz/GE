@@ -1,15 +1,18 @@
 <template>
 	<div class="layers-wrapper" >
-		<div ref="layers" class="layers">
-			<div @click="activeLayerAlias($event, layer)" 
-					 :class="['layer', {active: activeLayer === layer}]" 
-					 v-for="layer in layers" :key="layer.id" :data-id="layer.id">
+    <div v-bar :style="{height: '200px'}">
 
-        <Icon class="eye" :icon="layer.visible ? 'eye' : 'eye-cross'"></Icon>
-				{{layer.title}}
-			</div>
-		</div>
-		<div v-if="$store.state.canvas" class="layers-tools">
+      <div ref="layers" class="layers">
+        <div @click="activeLayerAlias($event, layer)" 
+            :class="['layer', {active: activeLayer === layer}]" 
+            v-for="layer in reverse(layers)" :key="layer.id" :data-id="layer.id">
+
+          <Icon class="eye" :icon="layer.visible ? 'eye' : 'eye-cross'"></Icon>
+          {{layer.title}}
+        </div>
+      </div>
+    </div>
+		<div  class="layers-tools">
 			<div @click="layerTool.event" class="layers-tool bg-anim-icon" v-for="(layerTool, index) in layerTools" :key="index">
 				<Icon :icon="layerTool.icon"></Icon>
 			</div>
@@ -23,6 +26,9 @@ export default {
     Icon: () => import('../icon.vue')
   },
   methods: {
+    hello(){
+      console.log('gello');
+    },
     layerUp() {
       let index;
       this.c.bringForward(this.activeLayer.group);
@@ -51,14 +57,21 @@ export default {
   },
   mounted() {
     new Sortable(this.$refs.layers, {
-      onUpdate: e => {
-				
+      animation: 150,
+      onUpdate: e => {				
 				this.layers.splice(e.newIndex, 0, this.layers.removeIndex(e.oldIndex))
 				this.layers[e.newIndex].group.moveTo(e.newIndex)
-				
-				console.log(this.c.getObjects())
       }
     });
+    console.log(this.$refs.layers);
+    //this.ps = new PerfectScrollbar(this.$refs.layers)
+    //SimpleScrollbar.initEl(".layers")
+    // $(this.$refs.layers).niceScroll({
+    //   autohidemode: 'leave'
+    // });
+  },
+  updated(){
+    //this.ps.update()
   },
   computed: {
     activeLayer() {
@@ -92,26 +105,28 @@ export default {
 @import '../../../sass/_help'
 
 .layers-wrapper
-	.layers
-		display: flex
-		flex-direction: column-reverse
-		.layer
-			position: relative
-			padding: 10px 6px
-			display: flex
-			align-items: center
-			color: var(--text-color)
-			background: var(--main-color)
-			+bb()
-		.layer::after
-			content: ''
-			position: absolute
-			height: 100%
-			top: 0
-			left: 28px
-			+br()
-		.layer.active
-			background: var(--bg-color)
+  .layers
+    position: relative
+    display: flex
+    flex-direction: column
+    .layer
+      position: relative
+      padding: 10px 6px
+      display: flex
+      flex-shrink: 0
+      align-items: center
+      color: var(--text-color)
+      background: var(--main-color)
+      +bb()
+    .layer::after
+      content: ''
+      position: absolute
+      height: 100%
+      top: 0
+      left: 28px
+      +br()
+    .layer.active
+      background: var(--bg-color)
 
 
 .layers-tools

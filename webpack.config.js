@@ -42,7 +42,9 @@ module.exports = {
       }
     ]
   },
-
+  resolve: {
+    extensions: [".css", ".sass", ".js", ".vue"]
+  },
   devServer: {
     overlay: true
   },

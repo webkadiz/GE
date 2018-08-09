@@ -2,17 +2,20 @@
   набор плагинов, библиотек, функций, свойств, методов и объявление глобальных переменных
 */
 
-import "vue/dist/vue.runtime.js"; // компилятор Vue js
-import Vue from "vue/dist/vue.js"; // фреймворк Vue js
+import "vue/dist/vue.runtime"; // компилятор Vue js
+import Vue from "vue/dist/vue"; // фреймворк Vue js
 import Vuex from "vuex"; // паттерн управления состоянием приложения и библиотека Vue.js
+import Vuebar from "vuebar"; // vue-плагин прокрутки
 import $ from "jquery"; // многофункциональная библиотека для работы с DOM
 import Interact from "interactjs"; // библиотека для работы с drag and drop, resizing and multi-touch gestures
 import Sortable from "sortablejs"; // библиотека для переупорядочиваемых списков перетаскивания
 import PerfectScrollbar from "perfect-scrollbar"; // плагин прокрутки
+import SimpleScrollbar from "simple-scrollbar";
+import animationText from "./lib/menu-animation-text/menu-animation-text"; // плагин анимации текста
 import "fabric"; // библиотека для работы с HTML5 canvas
-import "jquery-colpick"; // jquery плагин color picker
-import "spectrum-colorpicker"; // jquery плагин color picker
-import "nicescroll"; // jquery плагин прокрутки
+import "jquery-colpick"; // jquery-плагин color picker
+import "./lib/spectrum/spectrum"; // jquery-плагин color picker
+import "nicescroll"; // jquery-плагин прокрутки
 
 /*
   глобальные переменные
@@ -35,8 +38,10 @@ window.html = document.documentElement;
 window.$ = $;
 window.Interact = Interact;
 window.Sortable = Sortable;
-window.fabric = fabric;
 window.PerfectScrollbar = PerfectScrollbar;
+window.SimpleScrollbar = SimpleScrollbar;
+window.animationText = animationText;
+window.fabric = fabric;
 window.genID = generatorID();
 
 /*
@@ -47,8 +52,11 @@ Vue.config.devtools = true;
 Vue.config.performance = true;
 
 Vue.use(Vuex);
+Vue.use(Vuebar);
 
 Interact.dynamicDrop(true);
+
+SimpleScrollbar.initAll();
 
 /* 
   добавление методов в прототипы различных объектов
@@ -289,5 +297,162 @@ window.config = {
       theme: "Темная"
     },
     invert: false
-  }
+  },
+  palette: [
+    [
+      "Transparent",
+      "Black",
+      "Gray",
+      "white",
+      "Fuchsia",
+      "Purple",
+      "Red",
+      "Maroon",
+      "Yellow",
+      "Olive",
+      "Lime",
+      "Green",
+      "Aqua",
+      "Teal",
+      "Blue",
+      "Navy"
+    ],
+    ["IndianRed", "LightCoral", "Salmon", "DarkSalmon", "LightSalmon", "Crimson", "Red", "FireBrick", "DarkRed"],
+    ["Pink", "LightPink", "HotPink", "DeepPink", "MediumVioletRed", "PaleVioletRed"],
+    ["LightSalmon", "Coral", "Tomato", "OrangeRed", "DarkOrange", "Orange"],
+    [
+      "Gold",
+      "Yellow",
+      "LightYellow",
+      "LemonChiffon",
+      "LightGoldenrodYellow",
+      "PapayaWhip",
+      "Moccasin",
+      "PeachPuff",
+      "PaleGoldenrod",
+      "Khaki",
+      "DarkKhaki"
+    ],
+    [
+      "Cornsilk",
+      "BlanchedAlmond",
+      "Bisque",
+      "NavajoWhite",
+      "Wheat",
+      "BurlyWood",
+      "Tan",
+      "RosyBrown",
+      "SandyBrown",
+      "Goldenrod",
+      "DarkGoldenRod",
+      "Peru",
+      "Chocolate",
+      "SaddleBrown",
+      "Sienna",
+      "Brown",
+      "Maroon"
+    ],
+    [
+      "White",
+      "Snow",
+      "Honeydew",
+      "MintCream",
+      "Azure",
+      "AliceBlue",
+      "GhostWhite",
+      "WhiteSmoke",
+      "Seashell",
+      "Beige",
+      "OldLace",
+      "FloralWhite",
+      "Ivory",
+      "AntiqueWhite",
+      "Linen",
+      "LavenderBlush",
+      "MistyRose"
+    ],
+    [
+      "Gainsboro",
+      "LightGrey",
+      "Silver",
+      "DarkGray",
+      "Grey",
+      "DimGray",
+      "LightSlateGray",
+      "SlateGray",
+      "DarkSlateGray",
+      "Black"
+    ],
+    [
+      "GreenYellow",
+      "Chartreuse",
+      "LawnGreen",
+      "Lime",
+      "LimeGreen",
+      "PaleGreen",
+      "LightGreen",
+      "MediumSpringGreen",
+      "SpringGreen",
+      "MediumSeaGreen",
+      "SeaGreen",
+      "ForestGreen",
+      "Green",
+      "DarkGreen",
+      "YellowGreen",
+      "OliveDrab",
+      "Olive",
+      "DarkOliveGreen",
+      "MediumAquamarine",
+      "DarkSeaGreen",
+      "LightSeaGreen",
+      "DarkCyan",
+      "Teal"
+    ],
+    [
+      "Aqua",
+      "Cyan",
+      "LightCyan",
+      "PaleTurquoise",
+      "Aquamarine",
+      "Turquoise",
+      "MediumTurquoise",
+      "DarkTurquoise",
+      "CadetBlue",
+      "SteelBlue",
+      "LightSteelBlue",
+      "PowderBlue",
+      "LightBlue",
+      "SkyBlue",
+      "LightSkyBlue",
+      "DeepSkyBlue",
+      "DodgerBlue",
+      "CornflowerBlue",
+      "MediumSlateBlue",
+      "RoyalBlue",
+      "Blue",
+      "MediumBlue",
+      "DarkBlue",
+      "Navy",
+      "MidnightBlue"
+    ],
+    [
+      "Lavender",
+      "Thistle",
+      "Plum",
+      "Violet",
+      "Orchid",
+      "Fuchsia",
+      "Magenta",
+      "MediumOrchid",
+      "MediumPurple",
+      "BlueViolet",
+      "DarkViolet",
+      "DarkOrchid",
+      "DarkMagenta",
+      "Purple",
+      "Indigo",
+      "SlateBlue",
+      "DarkSlateBlue"
+    ]
+  ]
 };

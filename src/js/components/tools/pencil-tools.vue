@@ -3,7 +3,7 @@
 		<div class="col-center" v-for="setting in ['strokeLineCap', 'strokeLineJoin']" :key="props[setting].id">
 			<EnterPropTool v-bind="props[setting]" :tool="tool"></EnterPropTool>
 		</div>
-		<div class="col-space" v-for="settings in [['stroke', 'fill'], ['strokeWidth']]" :key="props[settings[0]].id">
+		<div class="col-space" v-for="settings in [ ['strokeWidth']]" :key="props[settings[0]].id">
 			<EnterPropTool v-bind="props[setting]" :tool="tool" v-for="setting in settings" :key="setting.id"></EnterPropTool>
 		</div>
 	</div>	
@@ -39,18 +39,18 @@ export default {
             { label: "острое", value: "miter" }
           ]
         },
-        fill: {
-          id: 3,
-          label: "fill:",
-          setting: "fill",
-          type: "color"
-        },
-        stroke: {
-          id: 4,
-          label: "граница:",
-          setting: "stroke",
-          type: "input"
-        },
+        // fill: {
+        //   id: 3,
+        //   label: "fill:",
+        //   setting: "fill",
+        //   type: "color"
+        // },
+        // stroke: {
+        //   id: 4,
+        //   label: "граница:",
+        //   setting: "stroke",
+        //   type: "input"
+        // },
         strokeWidth: {
           id: 5,
           label: "ширина границуы",
