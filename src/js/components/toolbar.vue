@@ -42,7 +42,7 @@ export default {
 </script>
 
 <style lang="sass">
-@import '../../sass/_help'
+@import 'config-style'
 
 .panel-header-tools-wrapper
 	background: var(--main-color)

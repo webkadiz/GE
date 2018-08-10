@@ -136,7 +136,7 @@ export default {
 </script>
 
 <style lang="sass">
-@import '../../sass/_help'
+@import 'config-style'
 
 .menu
   display: flex

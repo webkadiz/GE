@@ -1,13 +1,13 @@
 "use strict";
 
 // импорт стилей
-import "../css/apply_button";
+import "../css/apply-btn";
 import "jquery-colpick/css/colpick";
-import "../css/spectrum";
+import "spectrum-colorpicker/spectrum";
 import "../css/animate";
 import "../css/perfect-scrollbar";
-import "simple-scrollbar/simple-scrollbar.css";
 import "../css/switcher";
+import "../sass/config";
 import "../sass/main";
 
 import "./config"; // файл конфигурации
@@ -359,6 +359,56 @@ let app = new Vue({
           this.$store.commit({type: "setZoom", zoom: this.$store.state.canvas.zoom - 0.1});
          //this.$store.commit('canvasCenter');
         }
+      }
+    });
+  }
+});
+
+Vue.directive("scroll", {
+  inserted(el) {
+    let ps = new PerfectScrollbar(el);
+
+    // let observer = new MutationObserver(mutations => {
+    //   console.log(mutations);
+    //   mutations.forEach(mutation => {
+    //     if (mutation.attributeName !== "class") {
+    //       console.log("ps");
+    //       ps.update();
+    //     }
+    //   });
+    // });
+
+    // observer.observe(el, {
+    //   childList: true,
+    //   characterData: true,
+    //   subtree: true,
+    //   attributes: true
+    // });
+  },
+  componentUpdated() {
+    console.log("update");
+  }
+});
+
+Vue.directive("resize", {
+  inserted(el) {
+    Interact(el).resizable({
+      edges: { bottom: true, top: true },
+
+      // minimum size
+      restrictSize: {
+        min: { width: 100, height: 50 }
+      },
+
+      inertia: true,
+      onmove: event => {
+        let target = event.target,
+          y = parseFloat(target.getAttribute("data-y")) || 0;
+
+        target.style.height = event.rect.height + "px";
+        y += event.deltaRect.top;
+
+        target.setAttribute("data-y", y);
       }
     });
   }

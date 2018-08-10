@@ -1,4 +1,4 @@
-@import '../sass/_help'
+@import '../sass/config'
 
 $coords_color: #474747
 $bg_tools: #2F4F4F
@@ -11,6 +11,9 @@ $bg_tools: #2F4F4F
 // 	width: 3px
 // 	&:hover
 // 		width: 6px
+
+.ps__rail-x, .ps__rail-y
+		+index($level5)
 
 .vb > .vb-dragger 
 	width: 8px
@@ -28,6 +31,7 @@ $bg_tools: #2F4F4F
 	display: block
 
 
+
 .vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler 
 	background-color: var(--bg-body)
 	opacity: .4
@@ -37,7 +41,6 @@ $bg_tools: #2F4F4F
 	opacity: .6
 	margin: 0px
 	height: 100%
-
 
 .vb.vb-dragging > .vb-dragger > .vb-dragger-styler 
 		background-color: var(--bg-body)
@@ -49,6 +52,25 @@ $bg_tools: #2F4F4F
 .vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler 
 		opacity: .5
 		background-color: var(--bg-body)
+
+.sb
+	position: relative
+	overflow: hidden
+	.sb-y
+		+index(1000000000)
+		background: var(--bg-body)
+		width: 10px
+		position: absolute
+		right: 0
+		top: 0
+	.sb-x
+		+index(1000000000)
+		background: var(--bg-body)
+		height: 10px
+		position: absolute
+		left: 0
+		bottom: 0
+
 
 // nicescroll
 .nicescroll-rails
@@ -109,7 +131,16 @@ $bg_tools: #2F4F4F
 	.sp-choose
 		+btn-char-spacing-effect(100px, 30px)
 		margin-top: 5px
+	.sp-cancel
+		+btn-char-spacing-effect(81px, 30px)
+		margin-right: 0
+		margin-top: 5px
+		padding: 0
+		color: var(--text-color) !important
+		&:hover
+			text-decoration: none
 	.sp-picker-container
+		padding: 10px 15px
 		border-left: 1px solid var(--border-color)
 	.sp-input
 		@extend %input
@@ -190,6 +221,9 @@ body
 	position: relative
 	
 
+
+
+
 ul
 	margin: 0
 	padding: 0
@@ -220,12 +254,11 @@ ul
 	height: 100%
 	top: 0
 	left: 0
-	transition: transform .2s, opacity .3s
-	transform: scale(1.3)
-	opacity: 0
+	transition: transform .2s
+	transform: scale(0)
+	opacity: 1
 	background: var(--bg-color)
 .bg-anim-icon:hover::before
-	opacity: 1
 	transform: scale(1)
 
 .tools

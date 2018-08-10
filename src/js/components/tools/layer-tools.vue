@@ -1,17 +1,16 @@
 <template>
 	<div class="layers-wrapper" >
-    <div v-bar :style="{height: '200px'}">
 
-      <div ref="layers" class="layers">
-        <div @click="activeLayerAlias($event, layer)" 
-            :class="['layer', {active: activeLayer === layer}]" 
-            v-for="layer in reverse(layers)" :key="layer.id" :data-id="layer.id">
+    <div ref="layers" class="layers" v-resize v-scroll :style="{height: '300px'}">
+      <div @click="activeLayerAlias($event, layer)" 
+          :class="['layer', {active: activeLayer === layer}]" 
+          v-for="layer in reverse(layers)" :key="layer.id" :data-id="layer.id">
 
-          <Icon class="eye" :icon="layer.visible ? 'eye' : 'eye-cross'"></Icon>
-          {{layer.title}}
-        </div>
+        <Icon class="eye" :icon="layer.visible ? 'eye' : 'eye-cross'"></Icon>
+        {{layer.title}}
       </div>
     </div>
+
 		<div  class="layers-tools">
 			<div @click="layerTool.event" class="layers-tool bg-anim-icon" v-for="(layerTool, index) in layerTools" :key="index">
 				<Icon :icon="layerTool.icon"></Icon>
@@ -57,21 +56,19 @@ export default {
   },
   mounted() {
     new Sortable(this.$refs.layers, {
+      draggable: '.layer',
       animation: 150,
-      onUpdate: e => {				
-				this.layers.splice(e.newIndex, 0, this.layers.removeIndex(e.oldIndex))
-				this.layers[e.newIndex].group.moveTo(e.newIndex)
+      onUpdate: e => {
+        let newIndexRevert = this.layers.length - 1 - e.newIndex, oldIndexRevert = this.layers.length - 1 - e.oldIndex
+				this.layers.splice(newIndexRevert, 0, this.layers.removeIndex(oldIndexRevert))
+        this.layers[newIndexRevert].group.moveTo(newIndexRevert)
       }
     });
     console.log(this.$refs.layers);
-    //this.ps = new PerfectScrollbar(this.$refs.layers)
     //SimpleScrollbar.initEl(".layers")
     // $(this.$refs.layers).niceScroll({
     //   autohidemode: 'leave'
     // });
-  },
-  updated(){
-    //this.ps.update()
   },
   computed: {
     activeLayer() {
@@ -101,8 +98,8 @@ export default {
 };
 </script>
 
-<style lang="sass">
-@import '../../../sass/_help'
+<style lang="sass" scoped>
+@import 'config-style'
 
 .layers-wrapper
   .layers

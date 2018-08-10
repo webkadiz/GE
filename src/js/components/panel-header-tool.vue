@@ -13,7 +13,7 @@ export default {
 </script>
 
 <style lang="sass">
-@import '../../sass/_help'
+@import 'config-style'
 
 .panel-header-tool-wrapper
 	display: flex

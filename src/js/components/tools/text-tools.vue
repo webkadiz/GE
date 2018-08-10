@@ -85,7 +85,7 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-@import '../../../sass/_help'
+@import 'config-style'
 
 .col-center
   display: flex

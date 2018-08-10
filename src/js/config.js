@@ -52,11 +52,8 @@ Vue.config.devtools = true;
 Vue.config.performance = true;
 
 Vue.use(Vuex);
-Vue.use(Vuebar);
 
 Interact.dynamicDrop(true);
-
-SimpleScrollbar.initAll();
 
 /* 
   добавление методов в прототипы различных объектов
@@ -65,47 +62,41 @@ SimpleScrollbar.initAll();
 Object.defineProperty(fabric.Group.prototype, "object", {
   get() {
     return this.item(0);
-  },
-  enumerable: false
+  }
 });
 
 Object.defineProperty(fabric.Canvas.prototype, "v", {
-  get(arr) {
+  get() {
     return this.viewportTransform;
   },
   set(arr) {
     this.setViewportTransform(arr);
-  },
-  enumerable: false
+  }
 });
 
 Object.defineProperty(fabric.Canvas.prototype, "getPixel", {
   value(left, top, width, height) {
     return this.getContext().getImageData(left, top, width, height).data;
-  },
-  enumerable: false
+  }
 });
 
 Object.defineProperty(fabric.Group.prototype, "renderGroup", {
   value() {
     this.set({ width: this.object.width, height: this.object.height });
-  },
-  enumerable: false
+  }
 });
 
 Object.defineProperty(Array.prototype, "last", {
   get() {
     return this[this.length - 1];
-  },
-  enumerable: false
+  }
 });
 
 Object.defineProperty(Array.prototype, "remove", {
   value(value) {
     this.splice(this.indexOf(value), 1);
     return value;
-  },
-  enumerable: false
+  }
 });
 
 Object.defineProperty(Array.prototype, "removeIndex", {
@@ -113,8 +104,7 @@ Object.defineProperty(Array.prototype, "removeIndex", {
     let returnable = this[value];
     this.splice(value, 1);
     return returnable;
-  },
-  enumerable: false
+  }
 });
 
 Object.defineProperty(Array.prototype, "flat", {
@@ -124,8 +114,7 @@ Object.defineProperty(Array.prototype, "flat", {
       newArr = newArr.concat(this[i]);
     }
     return newArr;
-  },
-  enumerable: false
+  }
 });
 
 Object.defineProperty(Array.prototype, "unique", {
@@ -140,13 +129,11 @@ Object.defineProperty(Array.prototype, "unique", {
       result.push(obj);
     }
     return result;
-  },
-  enumerable: false
+  }
 });
 
 Object.defineProperty(Object.prototype, "genID", {
-  get: () => genID.next().value,
-  enumerable: false
+  get: () => genID.next().value
 });
 
 /* 

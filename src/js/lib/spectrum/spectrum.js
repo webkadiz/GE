@@ -685,7 +685,6 @@
       if (clickoutFiresChange) {
         updateOriginalInput(true);
       } else {
-        revert();
       }
       hide();
     }
@@ -709,7 +708,7 @@
     }
 
     function revert() {
-      //set(colorOnShow, true);
+      set(colorOnShow, true);
     }
 
     function set(color, ignoreFormatChange) {
@@ -894,6 +893,7 @@
       }
 
       if (fireCallback && hasChanged) {
+        colorOnShow = get();
         callbacks.change(color);
         boundElement.trigger("change", [color]);
       }

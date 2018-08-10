@@ -26,7 +26,7 @@ export default {
 </script>
 
 <style lang="sass">
-@import '../../sass/_help'
+@import 'config-style'
 
 .canvas-wrapper-outer
 	width: 100%

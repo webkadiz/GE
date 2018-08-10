@@ -463,7 +463,7 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-@import '../../../sass/_help'
+@import 'config-style'
 
 .tools-wrapper
   flex-shrink: 0
@@ -482,9 +482,7 @@ export default {
   display: flex
   align-items: center
   justify-content: center
-  cursor: pointer
-  &:hover
-    background: var(--bg-color)    
+  cursor: pointer   
 .tool.active 
   background: var(--bg-color)
 

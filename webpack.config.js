@@ -43,7 +43,10 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: [".css", ".sass", ".js", ".vue"]
+    extensions: [".css", ".sass", ".js", ".vue"],
+    alias: {
+      "config-style": __dirname + "/src/sass/config.sass"
+    }
   },
   devServer: {
     overlay: true

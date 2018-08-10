@@ -18,13 +18,13 @@
     </DragTools>
 
 		<keep-alive>
-			<component
-          ref="component"
-          :class="[{'component-fold': isFold}, {tools: component !== 'CanvasWrapper'}]" 
-          :style="computePosition()"
-          :is="component"
-          v-show="computeDisplayComponent">
-      </component>
+        <component v-scroll
+            ref="component"
+            :class="[{'component-fold': isFold}, {tools: component !== 'CanvasWrapper'}]" 
+            :style="computePosition()"
+            :is="component"
+            v-show="computeDisplayComponent">
+        </component>
 		</keep-alive>
 
     <FoldTools @switcher="switcher = !switcher" 
@@ -104,36 +104,30 @@ export default {
             $(".casing").css("z-index", -100);
           }
         })
-        .resizable({
-          enabled: false,
-          edges: { bottom: true, top: true },
 
-          // keep the edges inside the parent
-          // restrictEdges: {
-          //   outer: "parent",
-          //   endOnly: true
-          // },
+        // .resizable({
+        //   enabled: false,
+        //   edges: { bottom: true, top: true },
 
-          // minimum size
-          restrictSize: {
-            min: { width: 100, height: 50 }
-          },
+        //   // minimum size
+        //   restrictSize: {
+        //     min: { width: 100, height: 50 }
+        //   },
 
-          inertia: true,
-          onmove: event => {
-            console.log(event);
-            let target = event.target,
-              y = parseFloat(target.getAttribute("data-y")) || 0;
+        //   inertia: true,
+        //   onmove: event => {
+        //     let target = event.target,
+        //       y = parseFloat(target.getAttribute("data-y")) || 0;
 
-            target.style.height = event.rect.height + "px";
-            y += event.deltaRect.top;
+        //     target.style.height = event.rect.height + "px";
+        //     y += event.deltaRect.top;
 
-            target.setAttribute("data-y", y);
+        //     target.setAttribute("data-y", y);
 
-            $(this.$refs.component.$el).getNiceScroll().resize();
-          }
-        });
-          
+        //     $(this.$refs.component.$el).getNiceScroll().resize();
+        //   }
+        // });
+       
     }
   },
   computed: {
@@ -141,21 +135,18 @@ export default {
       for (let gridCol of this.$store.state.grid) {
         if (~gridCol.findIndex(gridRow => gridRow.component === this.component)) {
           if(this.$el) {
-            $(this.$refs.component.$el).niceScroll({
-              autohidemode: "leave",
-              zindex: level6
-            })
-            $(this.$refs.component.$el).getNiceScroll().resize();
+            // this.ps = new PerfectScrollbar(this.$el); 
+            // this.ps.update()
             
-            Interact(this.$el).resizable({enabled: true});
+            //Interact(this.$el).resizable({enabled: true});
           }
           return true;
         }
       }
       if(this.$el) {
-        Interact(this.$el).resizable({enabled: false})
-        this.$el.style.height = 'auto';
-        $(this.$refs.component.$el).getNiceScroll().resize();
+        // Interact(this.$el).resizable({enabled: false})
+        // this.$el.style.height = 'auto';
+        // this.ps.update()
       };
       return false;
     },
@@ -199,7 +190,7 @@ export default {
 </script>
 
 <style lang="sass">
-@import '../../sass/_help'
+@import 'config-style'
 
 .grid-item
   transition: opacity .8s

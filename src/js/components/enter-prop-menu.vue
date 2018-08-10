@@ -69,7 +69,7 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-@import '../../sass/help'
+@import 'config-style'
 
 .input-wrapper
 	position: relative
@@ -121,7 +121,7 @@ export default {
 
 
 <style lang="sass">
-@import '../../sass/help'
+@import 'config-style'
 
 .v-select 
 	.dropdown-toggle

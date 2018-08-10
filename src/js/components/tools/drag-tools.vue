@@ -10,7 +10,7 @@ export default {}
 </script>
 
 <style lang="sass" scoped>
-@import '../../../sass/_help'
+@import 'config-style'
 
 .drag-wrapper
 	flex-shrink: 0

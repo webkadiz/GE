@@ -101,7 +101,7 @@ export default {
       autohidemode: "leave"
     });
 
-    $('.sp-cancel', this.$el).remove()
+    //$('.sp-cancel', this.$el).remove()
 
 
     Interact(".sp-palette", this.$el).resizable({
@@ -152,7 +152,7 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-@import '../../../sass/_help'
+@import 'config-style'
 
 .wrapper
   +bt()
@@ -163,7 +163,8 @@ export default {
 </style>
 
 <style lang="sass">
-@import '../../../sass/_help'
+
+@import '../../../sass/config'
 
 .color-picker-icon-wrapper
   display: flex

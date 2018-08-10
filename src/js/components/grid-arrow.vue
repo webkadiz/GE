@@ -25,7 +25,7 @@ export default {
 </script>
 
 <style lang="sass" >
-@import '../../sass/_help'
+@import 'config-style'
 
 .grid-arrow-wrapper
 	flex-shrink: 0
