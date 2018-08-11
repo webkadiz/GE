@@ -46,7 +46,9 @@ export default {
       self.c.selection = true;
       self.c.skipTargetFind = false;
 
-      self.c.renderAll();
+      self.c.setActiveObject(self.activeLayer.group)
+
+      self.c.requestRenderAll();
 
       yield;
       self.c.discardActiveObject()
@@ -62,10 +64,12 @@ export default {
 
       moveCursor = e => {
         let { x: left, y: top } = self.c.getPointer();
+        let {x, y} = self.c.getPointer(null, true);
         let width, height, color, imageData;
         width = height = this.$store.state.pencil.strokeWidth;
 
-        imageData = self.c.getContext().getImageData(self.zoom * left + width/2,self.zoom * top + height / 2, 1,1)
+        imageData = self.c.getContext().getImageData(x + width/2, y + height/2 , 1,1)
+        console.log(imageData.data);
 
         if(imageData.data[0] < 50 && imageData.data[1] < 50 && imageData.data[2] < 50) {
           color = 'white'
@@ -80,7 +84,7 @@ export default {
           height: height + 0.1,
           fill: "transparent",
           stroke: color,
-          shadow: 'rgba(0,0,0,.3) 0 0 3px'
+          //shadow: 'rgba(0,0,0,.3) 0 0 3px'
         });
 
         self.c.add(cursor);
@@ -251,7 +255,26 @@ export default {
       if (text) text.exitEditing();
       self.c.off("mouse:up", up);
     },
-    pouring: function*() {},
+    pouring: function*() {
+      let up, self = this.canvas;
+
+      self.c.on('mouse:up', up = e => {
+        let {x, y} = self.c.getPointer()
+
+        for(let object of reverse(self.c.getObjects())) {
+          if(object.containsPoint({x, y}) && !self.c.isTargetTransparent(object, x, y)) {
+            let color = self.c.getPixel()
+            console.log(color);
+            break;
+          }
+        }
+        console.log('up');
+      })
+
+      yield;
+
+      self.c.off('mouse:up', up)
+    },
     eraser: function*() {
       //prettier-ignore
       let down, move, moveCursor, up, path, group, cursor, self = this.canvas;
@@ -448,7 +471,7 @@ export default {
         { icon: "pencil1", connector: "pencil", event: this.pencil, isActive: false },
         { icon: "brush", connector: "brush", event: this.brush, isActive: false },
         { icon: "text", connector: "text", event: this.text, isActive: false },
-        { icon: "pouring", connector: "pouring", event: this.rubber, isActive: false },
+        { icon: "pouring", connector: "pouring", event: this.pouring, isActive: false },
         { icon: "eraser", connector: "eraser", event: this.eraser, isActive: false },
         { icon: "square", connector: "square", event: this.square, isActive: false },
         { icon: "line", connector: "line", event: this.line, isActive: false},

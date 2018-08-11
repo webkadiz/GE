@@ -1,7 +1,7 @@
 <template>
 	<div class="layers-wrapper" >
 
-    <div ref="layers" class="layers" v-resize v-scroll :style="{height: '300px'}">
+    <div ref="layers" class="layers" v-resize :style="{height: '300px'}">
       <div @click="activeLayerAlias($event, layer)" 
           :class="['layer', {active: activeLayer === layer}]" 
           v-for="layer in reverse(layers)" :key="layer.id" :data-id="layer.id">
@@ -64,11 +64,8 @@ export default {
         this.layers[newIndexRevert].group.moveTo(newIndexRevert)
       }
     });
-    console.log(this.$refs.layers);
-    //SimpleScrollbar.initEl(".layers")
-    // $(this.$refs.layers).niceScroll({
-    //   autohidemode: 'leave'
-    // });
+
+    this.ps = new PerfectScrollbar(this.$refs.layers)
   },
   computed: {
     activeLayer() {

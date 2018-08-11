@@ -19,9 +19,15 @@ export default {
   },
   methods: {
     menuItemDropdown(index) {
-      let theme = this.menuItems[index].dropdown.find(item => item.event === "theme");
-      if (this.menuItems[index].dropdown.find(item => item.event === "theme")) {
-        this.$set(theme, "subdropdown", [...this.$store.getters.genThemes, ...theme.staticdropdown]);
+      let themes = this.menuItems[index].dropdown.find(item => item.alias === "themes");
+      let workspace = this.menuItems[index].dropdown.find(item => item.alias === "workspace");
+
+      if (themes) {
+        this.$set(themes, "subdropdown", [...this.$store.getters.genThemes, ...themes.staticdropdown]);
+      }
+
+      if(workspace) {
+        this.$set(workspace, "subdropdown", [...this.$store.getters.genGrids, ...workspace.staticdropdown]);
       }
 
       return this.menuItems[index].dropdown;
@@ -54,13 +60,13 @@ export default {
               type: "open"
             },
             {
-              event: "theme",
-              title: "Тема",
+              alias: 'themes',
+              title: "Темы",
               type: "dropdown",
               staticdropdown: [
                 {
                   event: "themeInvert",
-                  getter: "getInvertTheme",
+                  getter: "isThemeInvert",
                   title: "Инвертировать тему",
                   type: "apply"
                 },
@@ -84,38 +90,56 @@ export default {
           dropdown: [
             {
               event: "switchTool",
-              getter: "getGridTool",
+              getter: "isGridTools",
               title: "Инструменты",
               type: "apply",
               value: "CommonTools"
             },
             {
               event: "switchTool",
-              getter: "getGridTool",
+              getter: "isGridTools",
               title: "Текст",
               type: "apply",
               value: "TextTools"
             },
             {
               event: "switchTool",
-              getter: "getGridTool",
+              getter: "isGridTools",
               title: "Слои",
               type: "apply",
               value: "LayerTools"
             },
             {
               event: "switchTool",
-              getter: "getGridTool",
+              getter: "isGridTools",
               title: "Карандаш",
               type: "apply",
               value: "PencilTools"
             },
             {
               event: "switchTool",
-              getter: "getGridTool",
+              getter: "isGridTools",
               title: "Заливка",
               type: "apply",
               value: "FillTools"
+            },
+             {
+              alias: 'workspace',
+              title: "Рабочее место",
+              type: "dropdown",
+              staticdropdown: [
+                {
+                  event: 'gridNew',
+                  title: 'Новое рабочее место',
+                  type: 'open',
+                },
+                {
+                  event: 'gridDelete',
+                  title: 'Удалить рабочее место',
+                  type: 'apply',
+                }
+              ],
+              subdropdown: []
             }
           ]
         },

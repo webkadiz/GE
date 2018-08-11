@@ -2,7 +2,6 @@
 	<div class="wrapper">
 		<input :value="computeValue" ref="colorpicker" type="text">
 	</div>
-	
 </template>
 
 <script>
@@ -97,53 +96,30 @@ export default {
     
     $(".sp-palette-button-container", this.$el).append(new Palette().$mount().$el)
 
-    $(".sp-palette", this.$el).niceScroll({
-      autohidemode: "leave"
-    });
-
-    //$('.sp-cancel', this.$el).remove()
-
+    this.psPalette = new PerfectScrollbar(this.$el.querySelector(".sp-palette"))
+    
+    this.psContainer = new PerfectScrollbar(this.$el.querySelector(".sp-container"))
 
     Interact(".sp-palette", this.$el).resizable({
-      edges: { left: true, right: true, bottom: true, top: true },
+      edges: { right: true, bottom: true, },
 
-      // keep the edges inside the parent
-      restrictEdges: {
-        restriction: {top: 40, left: 40, right: 100, bottom: 100}
-			},
-
-      // minimum size
       restrictSize: {
-        //min: { width: 100, height: 50 }
+        min: { width: 160, height: 160 }
       },
 
       inertia: true,
       onmove: event => {
-        let target = event.target,
-          x = parseFloat(target.getAttribute("data-x")) || 0,
-          y = parseFloat(target.getAttribute("data-y")) || 0;
+        let target = event.target;
 
-        // update the element's style
         target.style.width = event.rect.width + "px";
         target.style.height = event.rect.height + "px";
 
-        // translate when resizing from top or left edges
-        x += event.deltaRect.left;
-        y += event.deltaRect.top;
-
-        //target.style.webkitTransform = target.style.transform = "translate(" + x + "px," + y + "px)";
-
-        target.setAttribute("data-x", x);
-        target.setAttribute("data-y", y);
-
-        $(".sp-palette", this.$el)
-          .getNiceScroll()
-          .resize();
+        this.psPalette.update();
+        this.psContainer.update();
       }
     });
     
-    console.log(this.$el.querySelector('.sp-palette-row'));
-    new Sortable(this.$el.querySelector('.sp-palette-row'),{
+    new Sortable(this.$el.querySelector('.sp-palette'),{
      // draggable: '.sp-thumb-el',
      animation: 150
     })
@@ -164,11 +140,10 @@ export default {
 
 <style lang="sass">
 
-@import '../../../sass/config'
+@import 'config-style'
 
 .color-picker-icon-wrapper
   display: flex
-  margin-left: 33px
   .color-picker-icon
     margin-left: 5px
     padding: 5px

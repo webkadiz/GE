@@ -6,12 +6,13 @@ import "vue/dist/vue.runtime"; // компилятор Vue js
 import Vue from "vue/dist/vue"; // фреймворк Vue js
 import Vuex from "vuex"; // паттерн управления состоянием приложения и библиотека Vue.js
 import Vuebar from "vuebar"; // vue-плагин прокрутки
+import vSelect from "vue-select"; // vue-плагин для стилизации тега select
 import $ from "jquery"; // многофункциональная библиотека для работы с DOM
 import Interact from "interactjs"; // библиотека для работы с drag and drop, resizing and multi-touch gestures
 import Sortable from "sortablejs"; // библиотека для переупорядочиваемых списков перетаскивания
 import PerfectScrollbar from "perfect-scrollbar"; // плагин прокрутки
 import SimpleScrollbar from "simple-scrollbar";
-import animationText from "./lib/menu-animation-text/menu-animation-text"; // плагин анимации текста
+import AnimationText from "./lib/menu-animation-text/menu-animation-text"; // плагин анимации текста
 import "fabric"; // библиотека для работы с HTML5 canvas
 import "jquery-colpick"; // jquery-плагин color picker
 import "./lib/spectrum/spectrum"; // jquery-плагин color picker
@@ -40,7 +41,7 @@ window.Interact = Interact;
 window.Sortable = Sortable;
 window.PerfectScrollbar = PerfectScrollbar;
 window.SimpleScrollbar = SimpleScrollbar;
-window.animationText = animationText;
+window.AnimationText = AnimationText;
 window.fabric = fabric;
 window.genID = generatorID();
 
@@ -53,18 +54,25 @@ Vue.config.performance = true;
 
 Vue.use(Vuex);
 
+Vue.component("v-select", vSelect);
+
 Interact.dynamicDrop(true);
 
 /* 
   добавление методов в прототипы различных объектов
 */
 
+/**
+ * свойство объекта fabric.Group
+ * @return {Object} возвращает первый элемент группы
+ */
 Object.defineProperty(fabric.Group.prototype, "object", {
   get() {
     return this.item(0);
   }
 });
 
+// для отладка
 Object.defineProperty(fabric.Canvas.prototype, "v", {
   get() {
     return this.viewportTransform;
@@ -74,24 +82,38 @@ Object.defineProperty(fabric.Canvas.prototype, "v", {
   }
 });
 
+/**
+ * метод объекта fabric.Canvas
+ * координаты x, y должны быть относительно canvas а не относительно viewportTransform
+ * @param {Number} [x]
+ * @param {Number} [y]
+ * @param {Number} [width]
+ * @param {Number} [height]
+ * @return {Array[r, g, b, a]} возвращает цвет пикселя в координат x, y с размерами width, height
+ */
 Object.defineProperty(fabric.Canvas.prototype, "getPixel", {
-  value(left, top, width, height) {
-    return this.getContext().getImageData(left, top, width, height).data;
+  value(x, y, width = 1, height = 1) {
+    (x && y) || ({ x, y } = this.getPointer(null, true));
+    return this.getContext().getImageData(x, y, width, height).data;
   }
 });
 
-Object.defineProperty(fabric.Group.prototype, "renderGroup", {
-  value() {
-    this.set({ width: this.object.width, height: this.object.height });
-  }
-});
 
+/**
+ * свойство массивов last
+ * @return {Any} возвращает последний элемент массива
+ */
 Object.defineProperty(Array.prototype, "last", {
   get() {
     return this[this.length - 1];
   }
 });
 
+/**
+ * метод массивов remove, удаляет элемент из массива по  значению
+ * @param {Any} значение элемента, который нужно удалить
+ * @return {Any} возвращает удаленный элемент 
+ */
 Object.defineProperty(Array.prototype, "remove", {
   value(value) {
     this.splice(this.indexOf(value), 1);
@@ -99,6 +121,11 @@ Object.defineProperty(Array.prototype, "remove", {
   }
 });
 
+/**
+ * метод массивов removeIndex, удаляет элемент из массива по индексу
+ * @param {Number} индекс элемента, который нужно удалить
+ * @return {Any} возвращает удаленный элемент 
+ */
 Object.defineProperty(Array.prototype, "removeIndex", {
   value(value) {
     let returnable = this[value];
@@ -107,6 +134,10 @@ Object.defineProperty(Array.prototype, "removeIndex", {
   }
 });
 
+/**
+ * метод массивов flat, делает из двухмерного массива одномерный
+ * @return {Array} возвращает одномерный массив 
+ */
 Object.defineProperty(Array.prototype, "flat", {
   value() {
     let newArr = [];
@@ -117,6 +148,12 @@ Object.defineProperty(Array.prototype, "flat", {
   }
 });
 
+/**
+ * метод массивов unique, оставляет в массиве уникальные объекты
+ * не работает с числами строки, а также с вложенными массивами
+ * @param {String} принимает ключ, по которому будут сравниваться объекты
+ * @return {Array}
+ */
 Object.defineProperty(Array.prototype, "unique", {
   value(key) {
     let result = [];
@@ -237,6 +274,48 @@ window.getPropFromInput = function(input_values, ...lists) {
 */
 
 window.config = {
+  grids: {
+    ["Основная"]: {
+      grid: [
+        [{ component: "CommonTools", id: 1, isFold: false, isActive: true, title: "инструменты" }],
+        [{ component: "CanvasWrapper", id: 0, isFold: false, isActive: true, title: "canvas" }],
+        [
+          { component: "FillTools", id: 5, isFold: true, isActive: true, title: "Заливка", class: "fill-tools" },
+          { component: "LayerTools", id: 3, isFold: true, isActive: true, title: "Слои" }
+        ]
+      ],
+      gridTools: [
+        { component: "CommonTools", id: 1, isFold: true, isActive: true, title: "инструменты" },
+        { component: "TextTools", id: 2, isFold: false, isActive: false, title: "Текст" },
+        { component: "LayerTools", id: 3, isFold: true, isActive: true, title: "Слои" },
+        { component: "PencilTools", id: 4, isFold: false, isActive: false, title: "Мелок" },
+        { component: "FillTools", id: 5, isFold: true, isActive: true, title: "Заливка", class: "fill-tools" }
+      ],
+      name: "Основная"
+    },
+    ["Начальная"]: {
+      grid: [[{ component: "CanvasWrapper", id: 0, isFold: false, isActive: true, title: "canvas" }]],
+      gridTools: [
+        { component: "CommonTools", id: 1, isFold: false, isActive: false, title: "инструменты" },
+        { component: "TextTools", id: 2, isFold: false, isActive: false, title: "Текст" },
+        { component: "LayerTools", id: 3, isFold: false, isActive: false, title: "Слои" },
+        { component: "PencilTools", id: 4, isFold: false, isActive: false, title: "Мелок" },
+        { component: "FillTools", id: 5, isFold: false, isActive: false, title: "Заливка", class: "fill-tools" }
+      ],
+      name: "Начальная"
+    },
+    currentGrid: {
+      grid: [[{ component: "CanvasWrapper", id: 0, isFold: false, isActive: true, title: "canvas" }]],
+      gridTools: [
+        { component: "CommonTools", id: 1, isFold: false, isActive: false, title: "инструменты" },
+        { component: "TextTools", id: 2, isFold: false, isActive: false, title: "Текст" },
+        { component: "LayerTools", id: 3, isFold: false, isActive: false, title: "Слои" },
+        { component: "PencilTools", id: 4, isFold: false, isActive: false, title: "Мелок" },
+        { component: "FillTools", id: 5, isFold: false, isActive: false, title: "Заливка", class: "fill-tools" }
+      ],
+      name: "Начальная"
+    }
+  },
   themes: {
     ["Светлая"]: {
       textColor: "black",

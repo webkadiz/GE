@@ -1,85 +1,50 @@
-@import '../sass/config'
+@import 'config-style'
 
 $coords_color: #474747
 $bg_tools: #2F4F4F
 
-// .vb-dragger
-// 	transition: width .2s
-// 	border-radius: 4px
-// 	right: 0
-// 	background: var(--bg-body)
-// 	width: 3px
-// 	&:hover
-// 		width: 6px
+
+// perfect-scrollbar
 
 .ps__rail-x, .ps__rail-y
-		+index($level5)
-
-.vb > .vb-dragger 
-	width: 8px
-	right: 0
 	+index($level5)
 
-
-.vb > .vb-dragger > .vb-dragger-styler 
-	transition: opacity .3s ease-out, margin 100ms ease-out, height 100ms ease-out
-	background-color: var(--bg-body)
-	opacity: .2
-	margin: 5px 4px 5px 0
-	border-radius: 20px
-	height: calc(100% - 10px)
-	display: block
-
-
-
-.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler 
-	background-color: var(--bg-body)
-	opacity: .4
-
-.vb > .vb-dragger:hover > .vb-dragger-styler 
-	background-color: var(--bg-body)
-	opacity: .6
-	margin: 0px
-	height: 100%
-
-.vb.vb-dragging > .vb-dragger > .vb-dragger-styler 
-		background-color: var(--bg-body)
-		opacity: .6
-		margin: 0px
-		height: 100%
-
-
-.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler 
-		opacity: .5
-		background-color: var(--bg-body)
-
-.sb
-	position: relative
-	overflow: hidden
-	.sb-y
-		+index(1000000000)
-		background: var(--bg-body)
+.ps
+	.ps__rail-y, .ps__rail-x
+		&:hover, &.ps--clicking, &:focus
+			background: transparent
+		.ps__thumb-y, .ps__thumb-x
+			transition: .2s		
+			background: var(--bg-body)
+	.ps__rail-y
 		width: 10px
-		position: absolute
-		right: 0
-		top: 0
-	.sb-x
-		+index(1000000000)
-		background: var(--bg-body)
+		.ps__thumb-y
+			width: 5px
+			right: 0
+			margin-right: 3px
+		&:hover, &.ps--clicking, &:focus
+			.ps__thumb-y
+				width: 100%
+				margin: 0
+	.ps__rail-x
 		height: 10px
-		position: absolute
-		left: 0
-		bottom: 0
+		.ps__thumb-x
+			height: 5px
+			bottom: 0
+			margin-bottom: 3px
+		&:hover, &.ps--clicking, &:focus
+			.ps__thumb-x
+				height: 100%
+				margin: 0
+
+.canvas-wrapper.ps
+	.ps__thumb-y, .ps__thumb-x		
+		background: var(--bg-color)
 
 
-// nicescroll
-.nicescroll-rails
-	cursor: pointer !important
-	.nicescroll-cursors 
-		background-color: var(--bg-body) !important
-		border: 1px solid transparent !important
 
-// spectrum color-picker
+
+// spectrum-colorpicker
 .sp-container
 	background: var(--main-color)
 	border: none
@@ -90,24 +55,31 @@ $bg_tools: #2F4F4F
 	.sp-button-container
 		display: flex
 	.sp-palette-container
-		//width: 140px
 		border-right: none
 		display: flex
 		flex-direction: column
 		justify-content: center
 		align-items: center
+		padding-bottom: 0
+		margin-bottom: 0
+		padding: 10px
 		.sp-palette-button-container
 			display: flex
 			align-items: center
-			margin-top: 10px		
+			justify-content: space-between
+			margin-top: 10px
+			width: 100%
+			&::before, &::after
+				content: none
 		.sp-palette
 			display: flex
 			max-width: none
-			height: 165px
+			height: 195px
 			justify-content: center
 			padding-top: 28px
 			position: relative
 			padding: 28px 8px 0 8px
+			box-sizing: border-box
 			+b()
 			.sp-palette-row:not(.sp-palette-row-selection)
 				display: flex
@@ -126,7 +98,7 @@ $bg_tools: #2F4F4F
 					height: 1px
 					background: var(--border-color)
 	.sp-palette-toggle
-		margin-left: 99px
+
 		+btn-char-spacing-effect(120px, 30px)
 	.sp-choose
 		+btn-char-spacing-effect(100px, 30px)
@@ -141,12 +113,13 @@ $bg_tools: #2F4F4F
 			text-decoration: none
 	.sp-picker-container
 		padding: 10px 15px
-		border-left: 1px solid var(--border-color)
+		+bl()
+		+bb()
 	.sp-input
 		@extend %input
 
 
-
+// jquery-colpick
 .colpick_full
 	+b()
 	+index($level5)
@@ -199,6 +172,7 @@ $bg_tools: #2F4F4F
 			width: 68px
 			padding-right: 5px		
 			
+// main style
 
 *
 	box-sizing: border-box
@@ -264,53 +238,6 @@ ul
 .tools
 	background: var(--main-color)
 
-	//верхняя панелька для всех инструментов
-.drag-panel
-	border-radius: 5px 5px 0 0
-	width: 100%
-	height: 17px
-	line-height: 15px
-	background: $main-color
-	display: flex
-	justify-content: flex-end
-	border-bottom: 1px solid $border-color
-	&-item
-		transition: .4s 
-		width: 18px
-		height: 100%
-		padding: 0px 3px
-		cursor: pointer
-		&:hover
-			border-left: 1px solid $border-color
-			border-right: 1px solid $border-color
-	&-close	
-		position: relative
-		&::before
-			position: absolute
-			top: 50%
-			left: 50%
-			content: ''
-			width: 11px
-			height: 2px
-			background: MINTCREAM
-			transform: translate(-50% , -50%) rotate(45deg)
-		&::after
-			@extend .drag-panel-close::before
-			transform: translate(-50% , -50%) rotate(-45deg)
-	&-arrow
-		display: flex
-		justify-content: center	
-		align-items: center		
-		transform: rotate(180deg)
-	&-arrow-active
-		transform: rotate(0deg)	
-
-.drag-place
-	width: 100%
-	height: 20px
-	display: flex
-	justify-content: center
-	align-items: center
 
 
 

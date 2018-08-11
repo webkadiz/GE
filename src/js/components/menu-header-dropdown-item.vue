@@ -78,6 +78,12 @@ export default {
             { title: "Цвет при наведении", id: 6, subtitle: "bgColor", enter: null, color: true },
           ],
           event: 'themeNew'
+        },
+        {
+          props: [
+            { title: "Название рабочего места", id: 0, subtitle: "workspace", enter: null, input: true },
+          ],
+          event: 'gridNew'
         }
       ]
     };

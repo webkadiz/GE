@@ -9,8 +9,8 @@
               :style="{'z-index': computeZIndex(gridItem)}"
               :class="gridItem.class"
               :rowsAmount="computeRows.match(/[0-9]+/)[0]"
-              @fold="gridItem.isFold = !gridItem.isFold"
-              @closeComponent="gridItem.isActive = false"
+              @fold="fold(gridItem)"
+              @closeComponent="close(gridItem)"
               v-if="gridItem.isActive">
     </GridItem>
 	</main>
@@ -23,25 +23,34 @@ export default {
   },
   computed: {
     grid() {
-      return this.$store.state.grid.flat().concat(this.$store.state.gridTools).unique('component');
+      return this.getGrid.flat().concat(this.getGridTools).unique('component');
     },
     computeCols() {
       let cols = "";
-      for (let gridCol of this.$store.state.grid) 
+      for (let gridCol of this.getGrid) 
         ~gridCol.findIndex(gridRow => gridRow.component === "CanvasWrapper")
           ? (cols += "1fr ")
           : (cols += "auto ");
       return cols;
     },
     computeRows(){
-      return `repeat(${this.$store.state.grid.reduce((prev, gridCol) => 
+      return `repeat(${this.getGrid.reduce((prev, gridCol) => 
         prev > gridCol.length ? prev : gridCol.length, 0)}, auto)`
-    }
+    },
+    ...Vuex.mapGetters(['getGrid', 'getGridTools'])
   },
   methods: {
     computeZIndex(gridItem) {
       if(gridItem.component === 'CanvasWrapper') return level0
       return this.activeGridItem === gridItem ? level3 : level2
+    },
+    fold(gridItem) {
+      gridItem.isFold = !gridItem.isFold
+      setLocalStorageField("grids", this.$store.state.grids);
+    },
+    close(gridItem) {
+      gridItem.isActive = false
+      setLocalStorageField("grids", this.$store.state.grids);
     }
   },
   data() {

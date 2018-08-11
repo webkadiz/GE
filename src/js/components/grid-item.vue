@@ -7,7 +7,7 @@
 
     <GridArrow v-if=" component !== 'CanvasWrapper' 
                       && inGrid 
-                      && $store.state.grid.find(col => col[0].component === component)"
+                      && getGrid.find(col => col[0].component === component)"
                @switcherArrowInGrid="switcherArrowInGrid"
                :class="{fold: isFold }" :component="component">
     </GridArrow>
@@ -87,9 +87,10 @@ export default {
             if (el.classList.contains("in-grid")) {
               let gridRow,
                 component = el.getAttribute("data-component");
-              this.$store.state.grid.forEach(gridCol => {
+              this.getGrid.forEach(gridCol => {
                 if ((gridRow = gridCol.find(row => row.component === component))) {
-                  gridCol.length !== 1 ? gridCol.remove(gridRow) : this.$store.state.grid.remove(gridCol);
+                  gridCol.length !== 1 ? gridCol.remove(gridRow) : this.getGrid.remove(gridCol);
+                  setLocalStorageField("grids", this.$store.state.grids);
                 }
               });
 
@@ -127,12 +128,13 @@ export default {
         //     $(this.$refs.component.$el).getNiceScroll().resize();
         //   }
         // });
-       
+
+             
     }
   },
   computed: {
     inGrid() {
-      for (let gridCol of this.$store.state.grid) {
+      for (let gridCol of this.getGrid) {
         if (~gridCol.findIndex(gridRow => gridRow.component === this.component)) {
           if(this.$el) {
             // this.ps = new PerfectScrollbar(this.$el); 
@@ -151,7 +153,7 @@ export default {
       return false;
     },
     computeRow() {
-      for (let gridCol of this.$store.state.grid) {
+      for (let gridCol of this.getGrid) {
         let k = this.rowsAmount / gridCol.length;
         let index;
         if (~(index = gridCol.findIndex(gridRow => gridRow.component === this.component))) {
@@ -162,7 +164,8 @@ export default {
     computeDisplayComponent() {
       if (!this.isFold) return true;
       return this.switcher;
-    }
+    },
+    ...Vuex.mapGetters(['getGrid'])
   },
   methods: {
     computePosition() {
@@ -178,12 +181,12 @@ export default {
       this.$emit("fold");
     },
     switcherArrowInGrid() {
-      bus.$emit("switchArrow", this.$store.state.grid.find(col => col[0].component === this.component)); // обработчик здесь же
+      bus.$emit("switchArrow", this.getGrid.find(col => col[0].component === this.component)); // обработчик здесь же
     }
   },
   data() {
     return {
-      switcher: true
+      switcher: false
     };
   }
 };

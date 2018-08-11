@@ -34,7 +34,12 @@ export default {
         fill: this.canvas.backgroundColor  
       });
       let group = this.canvas.background = new fabric.Group([rect], {
-        selectable: false
+        selectable: false,
+        hasControls: false,
+        hasBorders: false,
+        lockMovementX: true,
+        lockMovementY: true,
+        hoverCursor: 'default'
       });
       group.type = 'background'
 

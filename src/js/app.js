@@ -1,23 +1,21 @@
 "use strict";
 
 // импорт стилей
-import "../css/apply-btn";
 import "jquery-colpick/css/colpick";
 import "spectrum-colorpicker/spectrum";
+import "perfect-scrollbar/css/perfect-scrollbar";
+import "../css/apply-btn";
 import "../css/animate";
-import "../css/perfect-scrollbar";
 import "../css/switcher";
-import "../sass/config";
 import "../sass/main";
 
 import "./config"; // файл конфигурации
 
 // импорт компонентов
-import vSelect from "vue-select";
 import Navbar from "./components/navbar";
+import Toolbar from "./components/toolbar";
 import Grid from "./components/grid";
 import MenuHeaderDropdownItem from "./components/menu-header-dropdown-item";
-import Toolbar from "./components/toolbar";
 
 // глобальное хранилище
 const store = new Vuex.Store({
@@ -25,16 +23,10 @@ const store = new Vuex.Store({
     headerDropdownItem: [
       { event: "newFile", isActive: false },
       { event: "windowSize", isActive: false },
-      { event: "themeNew", isActive: false }
+      { event: "themeNew", isActive: false },
+      { event: "gridNew", isActive: false }
     ],
-    grid: [[{ component: "CanvasWrapper", id: 0, isFold: false, isActive: true, title: "canvas" }]],
-    gridTools: [
-      { component: "CommonTools", id: 1, isFold: false, isActive: true, title: "инструменты" },
-      { component: "TextTools", id: 2, isFold: false, isActive: false, title: "Текст" },
-      { component: "LayerTools", id: 3, isFold: false, isActive: false, title: "Слои" },
-      { component: "PencilTools", id: 4, isFold: false, isActive: true, title: "Мелок" },
-      { component: "FillTools", id: 5, isFold: false, isActive: true, title: "Заливка", class: "fill-tools" }
-    ],
+    grids: getLocalStorageField("grids") || config.grids,
     themes: getLocalStorageField("themes") || config.themes,
     palette: getLocalStorageField("palette") || config.palette,
     canvases: [],
@@ -97,24 +89,104 @@ const store = new Vuex.Store({
      * @param {String} flagGrid COL или ROW, будет вставлен в сетку в качетсве столбца или строки
      */
     gridLoop(state, { component, dropzoneComponent, flagPlace, flagGrid }) {
-      for (let gridCol of state.grid) {
+      for (let gridCol of store.getters.getGrid) {
         for (let gridRow of gridCol) {
           if (gridRow.component === dropzoneComponent) {
             if (flagGrid === "COL") {
-              let index = state.grid.indexOf(gridCol);
-              let tool = state.gridTools.find(tool => tool.component === component);
-              state.grid.splice(index + flagPlace, 0, [tool]);
-              return;
+              let index = store.getters.getGrid.indexOf(gridCol);
+              let tool = store.getters.getGridTools.find(tool => tool.component === component);
+              store.getters.getGrid.splice(index + flagPlace, 0, [tool]);
             } else if (flagGrid === "ROW") {
               let index = gridCol.indexOf(gridRow);
-              let tool = state.gridTools.find(tool => tool.component === component);
+              let tool = store.getters.getGridTools.find(tool => tool.component === component);
               gridCol.splice(index + flagPlace, 0, tool);
               tool.isFold = gridCol[0].isFold;
-              return;
             }
+            setLocalStorageField("grids", state.grids);
+            return;
           }
         }
       }
+    },
+    gridChange(state, gridName) {
+      state.grids.currentGrid = state.grids[gridName];
+      setLocalStorageField("grids", state.grids);
+    },
+    gridNew(state, props) {
+      let { workspace } = getPropFromInput(props, "workspace");
+
+      Vue.set(state.grids, workspace, {
+        grid: state.grids.currentGrid.grid.slice(),
+        gridTools: state.grids.currentGrid.gridTools.slice(),
+        name: workspace
+      });
+
+      state.grids.currentGrid = state.grids[workspace];
+      setLocalStorageField("grids", state.grids);
+    },
+    gridDelete(state) {},
+    /**
+     * изменение темы
+     * @param {Object} state
+     * @param {String} theme название темы, которую надо установить
+     */
+    themeChange(state, theme) {
+      html.style.setProperty("--text-color", state.themes[theme].textColor);
+      html.style.setProperty("--main-color", state.themes[theme].mainColor);
+      html.style.setProperty("--bg-color", state.themes[theme].bgColor);
+      html.style.setProperty("--bg-body", state.themes[theme].bgBody);
+      html.style.setProperty("--label-color", state.themes[theme].labelColor);
+      html.style.setProperty("--border-color", state.themes[theme].borderColor);
+      bus.$emit("updateAnimationText"); //обработчик в menu-badge.vue
+      state.themes.currentTheme = state.themes[theme];
+      setLocalStorageField("themes", state.themes);
+    },
+    /**
+     * инвертирует текущую тему
+     * @param {Object} state
+     */
+    themeInvert(state) {
+      state.themes.invert = !state.themes.invert;
+      setLocalStorageField("themes", state.themes);
+    },
+    /**
+     * создает новую тему и запоминает в localStorage
+     * @param {Object} state
+     * @param {Object | Array} colors массив или объект цветов темы
+     */
+    themeNew(state, colors) {
+      //prettier-ignore
+      let { theme, bgColor, bgBody, mainColor, labelColor, textColor, borderColor } = getPropFromInput(
+        colors,
+        "theme",
+        "bgColor",
+        "bgBody",
+        "mainColor",
+        "labelColor",
+        "textColor",
+        "borderColor"
+      );
+      //prettier-ignore
+      Vue.set(state.themes, theme , {
+        textColor,
+        mainColor,
+        bgColor,
+        bgBody,
+        borderColor,
+        labelColor,
+        theme
+      })
+      setLocalStorageField("themes", state.themes);
+    },
+    /**
+     * Удаляет текущую тему, не может удалить дефолтную тему
+     * @param {Object} state
+     */
+    themeDelete(state) {
+      let theme = state.themes.currentTheme.theme;
+      if (theme !== "Темная" && theme !== "Светлая" && theme !== "Розовая" && theme !== "Серая")
+        Vue.set(state.themes, theme, undefined);
+      setLocalStorageField("themes", state.themes);
     },
     /**
      * скачивает canvas
@@ -230,89 +302,85 @@ const store = new Vuex.Store({
       state.canvas.c.requestRenderAll();
     },
     /**
-     * изменение темы
-     * @param {Object} state
-     * @param {String} theme название темы, которую надо установить
-     */
-    themeChange(state, theme) {
-      html.style.setProperty("--text-color", state.themes[theme].textColor);
-      html.style.setProperty("--main-color", state.themes[theme].mainColor);
-      html.style.setProperty("--bg-color", state.themes[theme].bgColor);
-      html.style.setProperty("--bg-body", state.themes[theme].bgBody);
-      html.style.setProperty("--label-color", state.themes[theme].labelColor);
-      html.style.setProperty("--border-color", state.themes[theme].borderColor);
-      bus.$emit("updateAnimationText"); //обработчик в menu-badge.vue
-      state.themes.currentTheme = state.themes[theme];
-      setLocalStorageField("themes", state.themes);
-    },
-    /**
-     * инвертирует текущую тему
-     * @param {Object} state
-     */
-    themeInvert(state) {
-      state.themes.invert = !state.themes.invert;
-      setLocalStorageField("themes", state.themes);
-    },
-    /**
-     * создает новую тему и запоминает в localStorage
-     * @param {Object} state
-     * @param {Object | Array} colors массив или объект цветов темы
-     */
-    themeNew(state, colors) {
-      //prettier-ignore
-      let { theme, bgColor, bgBody, mainColor, labelColor, textColor, borderColor } = getPropFromInput(
-        colors,
-        "theme",
-        "bgColor",
-        "bgBody",
-        "mainColor",
-        "labelColor",
-        "textColor",
-        "borderColor"
-      );
-      //prettier-ignore
-      Vue.set(state.themes, theme , {
-        textColor,
-        mainColor,
-        bgColor,
-        bgBody,
-        borderColor,
-        labelColor,
-        theme
-      })
-      setLocalStorageField("themes", state.themes);
-    },
-    /**
-     * Удаляет текущую тему, не может удалить дефолтную тему
-     * @param {Object} state
-     */
-    themeDelete(state) {
-      let theme = state.themes.currentTheme.theme;
-      if (theme !== "Темная" && theme !== "Светлая" && theme !== "Розовая" && theme !== "Серая")
-        Vue.set(state.themes, theme, undefined);
-      setLocalStorageField("themes", state.themes);
-    },
-    /**
      * переключение состояние инструмента: show / hide
      * @param {Object} state
      * @param {String} tool название инструмента
      */
     switchTool(state, tool) {
       //prettier-ignore
-      state.gridTools.find(gridTool => gridTool.component === tool).isActive = !state.gridTools.find(gridTool => gridTool.component === tool).isActive
+      store.getters.getGridTools.find(gridTool => gridTool.component === tool).isActive = 
+      !store.getters.getGridTools.find(gridTool => gridTool.component === tool).isActive
+      setLocalStorageField("grids", state.grids);
     }
   },
   getters: {
-    getCurrentTheme: state => theme => state.themes.currentTheme.theme === theme,
-    getGridTool: state => tool => state.gridTools.find(gridTool => gridTool.component === tool).isActive,
-    getInvertTheme: state => () => state.themes.invert,
+    /**
+     * возвращает список инструментов в сетке в текущем активном рабочем месте
+     * @return {Array}
+     */
+    getGrid: state => state.grids.currentGrid.grid,
+    /**
+     * возвращает весь список инструментов в текущем активном рабочем месте
+     * @return {Array}
+     */
+    getGridTools: state => state.grids.currentGrid.gridTools,
+
+    /**
+     * геттеры с приставкой is используется в navbar для определения активен ли элемент или нет
+     */
+
+    /**
+     * проверяет соответсвует переданное имя текущему активному рабочему месту
+     * @return {Boolean}
+     */
+    isGrid: state => gridName => state.grids.currentGrid.name === gridName,
+    /**
+     * проверяет активен ли сейчас инструмент {display: block}
+     * в текущем активном рабочем местt
+     * @return {Boolean}
+     */
+    isGridTools: state => tool =>
+      state.grids.currentGrid.gridTools.find(gridTool => gridTool.component === tool).isActive,
+    /**
+     * проверяет соответсвует переданное имя текущей активной тему
+     * @return {Boolean}
+     */
+    isTheme: state => theme => state.themes.currentTheme.theme === theme,
+    /**
+     * проверяет является ли тема активной
+     */
+    isThemeInvert: state => () => state.themes.invert,
+
+    /* 
+    * генераторы
+    * геттеры, которые генерируют динамические списки в меню - navbar
+    */
+
+    // генерирует список рабочих мест
+    genGrids: state => {
+      let grids = [];
+      for (let grid in state.grids) {
+        if (typeof state.grids[grid] === "object" && grid !== "currentGrid") {
+          grids.push({
+            event: "gridChange",
+            getter: "isGrid",
+            title: grid,
+            value: grid,
+            type: "apply"
+          });
+        }
+      }
+      return grids;
+    },
+
+    // генерирует список тем
     genThemes: state => {
       let themes = [];
       for (let theme in state.themes) {
         if (typeof state.themes[theme] === "object" && theme !== "currentTheme") {
           themes.push({
             event: "themeChange",
-            getter: "getCurrentTheme",
+            getter: "isTheme",
             title: theme,
             type: "apply",
             value: theme
@@ -324,10 +392,8 @@ const store = new Vuex.Store({
   }
 });
 
-Vue.component("v-select", vSelect);
-
 // точка входа в приложение
-let app = new Vue({
+new Vue({
   el: "#app",
   store,
   components: {

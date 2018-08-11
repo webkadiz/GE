@@ -11,7 +11,7 @@
 export default {
 	props: ['title', 'color'],
 	mounted() {
-		this.amin = new animationText(this.$el, this.color)
+		this.amin = new AnimationText(this.$el, this.color)
 
 		bus.$on('updateAnimationText', () => {
 			$('span', this.$el).css('color', getComputedStyle(this.$el).color)
@@ -30,8 +30,9 @@ export default {
 	justify-content: center
 	font-family: 'Exo 2', sans-serif
 	cursor: pointer
-	padding: 6px 4px
+	padding: 10px 4px
 	background: var(--main-color)
 	color: var(--text-color)
+	font-weight: bold
 	+index($level4)
 </style>

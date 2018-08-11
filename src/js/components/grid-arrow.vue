@@ -9,8 +9,8 @@ export default {
 	props: ['component'],
 	computed: {
 		computeClass() {
-			let index = this.$store.state.grid.findIndex(col => col.find(row => row.component === this.component));
-			let canvasIndex = this.$store.state.grid.findIndex(col => col.find(row => row.component === "CanvasWrapper"));
+			let index = this.getGrid.findIndex(col => col.find(row => row.component === this.component));
+			let canvasIndex = this.getGrid.findIndex(col => col.find(row => row.component === "CanvasWrapper"));
 			if(index > canvasIndex) 
 			return {
 				left: false,
@@ -19,7 +19,8 @@ export default {
 				left: true,
 				right: false
 			}
-		}
+		},
+		...Vuex.mapGetters(['getGrid'])
 	}
 }
 </script>
