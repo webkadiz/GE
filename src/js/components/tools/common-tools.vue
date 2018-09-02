@@ -1,8 +1,13 @@
 <template>
 	<div class="tools-wrapper tools">    
-    <div  :class="[{active: currentTool === tool} , 'tool','bg-anim-icon' ]"  
+    <div  :class="[{active: activeTool === tool} , 'tool','bg-anim-icon' ]"  
           @click="active(tool)" :key="index" v-for="(tool, index) in tools">
-      <Icon :icon="tool.icon"></Icon>
+      <Icon :icon="tool"></Icon>
+    </div>
+    <div class="tool swap-color">
+      <input type="text" ref="foreground">
+      <input type="text" ref="background">
+      <div @click="swapColor" class="swap-color__icon"><Icon icon="swap-color"></Icon></div>
     </div>
 	</div>	
 </template>
@@ -19,10 +24,32 @@ export default {
     },
     c() {
       return this.$store.state.canvas.c;
-    }
+    },
+    ...Vuex.mapState(['activeTool'])
   },
   mounted() {
-    bus.$on("toolEventActive", this.active);
+    bus.$on("toolEventActive", this.active); // из app.js canvasActive
+
+    let spectrum = {
+      preferredFormat: "name",
+      showInput: true,
+      showButtons: false,
+      showAlpha: true
+    };
+    $(this.$refs.foreground).spectrum({
+      color: "black",
+      replacerClassName: "common-tools__foreground-replacer common-tools__colorpicker-replacer",
+      ...spectrum
+    });
+    $(this.$refs.foreground).on('dragstop.spectrum', color => {
+      this.updateColor($(this.$refs.foreground).spectrum('get'));
+    })
+
+    $(this.$refs.background).spectrum({
+      color: "white",
+      replacerClassName: "common-tools__background-replacer common-tools__colorpicker-replacer",
+      ...spectrum
+    });
   },
   methods: {
     active(tool) {
@@ -31,14 +58,54 @@ export default {
       }
 
       if (tool) {
-        this.currentTool = tool;
-        bus.$emit("toolActive", this.currentTool.connector); //обработчик в panel-header-tools
+        this.$store.state.activeTool = tool;
+        this.updateColor($(this.$refs.foreground).spectrum("get"));
       }
 
-      if (this.canvas && this.currentTool) {
-        this.generator = this.currentTool.event();
+      if (this.canvas && this.activeTool) {
+        this.generator = this[this.activeTool]();
         this.generator.next();
       }
+    },
+    updateColor(color) {
+      let tool =  this.activeTool, mode;
+
+      if (tool === "pencil" || tool === "brush" || tool === "line") {
+        mode = "stroke";
+      } else mode = "fill";
+      this.$store.commit({
+        type: "propUpdate",
+        tool: "global",
+        setting: mode,
+        newValue: tinycolor(color).toRgbString(),
+        onlyGlobal: true
+      });
+    },
+    swapColor() {
+      let tempColor = $(this.$refs.foreground).spectrum("get");
+      $(this.$refs.foreground).spectrum("set", $(this.$refs.background).spectrum("get"));
+      $(this.$refs.background).spectrum("set", tempColor);
+      this.updateColor($(this.$refs.foreground).spectrum("get"));
+    },
+    add(object, type) {
+      let group;
+
+      if(this.canvas.activeLayer && this.canvas.activeLayer.type === 'empty') {
+        this.canvas.activeLayer.group.addWithUpdate(object)
+        this.canvas.activeLayer.object = object
+        this.canvas.activeLayer.type = type
+        this.c.remove(object)
+        return;
+      }
+
+      group = new fabric.Group([object], {
+        hasControls: false,
+
+      })
+      group.layer = true;
+      group.type = type
+      this.c.add(group)
+      this.c.remove(object)
     },
     move: function*() {
       let self = this.canvas;
@@ -46,14 +113,30 @@ export default {
       self.c.selection = true;
       self.c.skipTargetFind = false;
 
-      self.c.setActiveObject(self.activeLayer.group)
+      self.c.setActiveObject(self.activeLayer.group);
+
+      self.c.forEachObject(object => {
+        object.hasControls = true
+        object.set({
+          cornerStrokeColor: 'white',
+          cornerStyle: 'circle',
+          cornerSize: 5,
+          transparentCorners: false
+        })
+      })
 
       self.c.requestRenderAll();
 
       yield;
-      self.c.discardActiveObject()
       self.c.skipTargetFind = true;
       self.c.selection = false;
+
+      self.c.forEachObject(object => {
+        object.hasControls = false
+      })
+
+      self.c.setActiveObject(self.activeLayer.group)
+
       self.c.requestRenderAll();
     },
     pencil: function*() {
@@ -64,31 +147,29 @@ export default {
 
       moveCursor = e => {
         let { x: left, y: top } = self.c.getPointer();
-        let {x, y} = self.c.getPointer(null, true);
+        let { x, y } = self.c.getPointer(null, true);
         let width, height, color, imageData;
         width = height = this.$store.state.pencil.strokeWidth;
 
-        imageData = self.c.getContext().getImageData(x + width/2, y + height/2 , 1,1)
-        console.log(imageData.data);
+        imageData = self.c.getContext().getImageData(x + width / 2, y + height / 2, 1, 1);
 
-        if(imageData.data[0] < 50 && imageData.data[1] < 50 && imageData.data[2] < 50) {
-          color = 'white'
-        }
-        else color = 'black';
+        if (imageData.data[0] < 50 && imageData.data[1] < 50 && imageData.data[2] < 50) {
+          color = "white";
+        } else color = "black";
 
         self.c.remove(cursor);
         cursor = new fabric.Rect({
-          left,
-          top,
-          width: width + 0.1,
-          height: height + 0.1,
+          left: left - 1,
+          top: top - 1,
+          width: width + 1,
+          height: height + 1,
           fill: "transparent",
           stroke: color,
+          strokeWidth: 1
           //shadow: 'rgba(0,0,0,.3) 0 0 3px'
         });
 
         self.c.add(cursor);
-
       };
 
       self.c.on("mouse:move", moveCursor);
@@ -122,16 +203,14 @@ export default {
       
           path = new fabric.Path(path.path, Object.assign({}, this.$store.state.global, this.$store.state.pencil, {
             strokeLineCap: 'square',
-            strokeLineJoin: 'bevil'
+            strokeLineJoin: 'bevil',
           }))
 
           self.c.add(path);         
           moveCursor();
         })	
         self.c.on('mouse:up', up = e => {
-          group = new fabric.Group([path])
-          self.c.add(group)
-          self.c.remove(path)
+          this.add(path, 'pencil')
 
           self.c.off('mouse:move', move)
           self.c.off('mouse:up', up);
@@ -152,17 +231,20 @@ export default {
       let down, move, moveCursor, up, path, group, cursor, self = this.canvas;
 
       self.c.defaultCursor = "none";
+      //#567cc9
 
       moveCursor = e => {
         let { x: left, y: top } = self.c.getPointer();
 
         self.c.remove(cursor);
         cursor = new fabric.Circle({
-          left,
-          top,
-          radius: this.$store.state.pencil.strokeWidth / 2,
+          left: left - 1,
+          top: top - 1,
+          radius: this.$store.state.pencil.strokeWidth / 2 + 0.5,
           fill: "transparent",
-          stroke: "grey"
+          stroke: "black",
+          strokeWidth: 1,
+          shadow: 'rgba(255,255,255,1) 0 0 1px'
         });
 
         self.c.add(cursor);
@@ -207,9 +289,7 @@ export default {
           moveCursor();
         })	
         self.c.on('mouse:up', up = e => {
-          group = new fabric.Group([path])
-          self.c.add(group)
-          self.c.remove(path)
+          this.add(path, 'brush')
 
           self.c.off('mouse:move', move)
           self.c.off('mouse:up', up);
@@ -244,36 +324,48 @@ export default {
 
         text.on('changed', () => group.addWithUpdate());
 
+        group.type = 'text'
         self.c.add(group);
         text.enterEditing();
       })
 
-      //console.log("before yield");
       yield;
-      //console.log("after yield");
 
       if (text) text.exitEditing();
       self.c.off("mouse:up", up);
     },
     pouring: function*() {
-      let up, self = this.canvas;
-
+      let up,
+        self = this.canvas;
+      //prettier-ignore
       self.c.on('mouse:up', up = e => {
-        let {x, y} = self.c.getPointer()
-
-        for(let object of reverse(self.c.getObjects())) {
-          if(object.containsPoint({x, y}) && !self.c.isTargetTransparent(object, x, y)) {
-            let color = self.c.getPixel()
-            console.log(color);
-            break;
+        if(e.button === 1 || e.button === 3) {
+          let {x, y} = self.c.getPointer(), colorClick,  colorFill, whereClick, fill, stroke;
+          colorFill = e.button === 1 
+            ? $(this.$refs.foreground).spectrum('get').toRgbString()
+            : $(this.$refs.background).spectrum('get').toRgbString()
+  
+          for(let object of self.c.getObjects().slice().reverse()) {
+            if(object.containsPoint({x, y}) && !self.c.isTargetTransparent(object, x, y)) {
+              colorClick = self.c.getPixel();
+              fill       = tinycolor(object.object.fill).toRgb();
+              stroke     = tinycolor(object.object.stroke).toRgb();
+              whereClick = _.isEqual(colorClick, fill) 
+                ? 'fill' 
+                : _.isEqual(colorClick,stroke) ? 'stroke' : fill.a === 0 ? 'stroke' : 'fill'
+  
+              
+              object.object.set(whereClick, colorFill)
+              self.c.requestRenderAll()
+              break;
+            }
           }
         }
-        console.log('up');
       })
 
       yield;
 
-      self.c.off('mouse:up', up)
+      self.c.off("mouse:up", up);
     },
     eraser: function*() {
       //prettier-ignore
@@ -308,8 +400,11 @@ export default {
 
         path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.pencil, {
           fill: 'transparent',
+          stroke: 'black',
           globalCompositeOperation: 'destination-out'
         }));	
+
+        console.log(path);
 
         self.activeLayer.group.addWithUpdate(path);
         moveCursor()      
@@ -327,6 +422,7 @@ export default {
       
           path = new fabric.Path(path.path, Object.assign({}, this.$store.state.pencil, {
             fill: 'transparent',
+            stroke: 'black',
             globalCompositeOperation: 'destination-out'
           }))
 
@@ -361,6 +457,8 @@ export default {
           top
         }));
 
+        self.c.add(rect)
+
         self.c.on("mouse:move", move = e => {
           let { x, y } = self.c.getPointer(),
               width    = Math.abs(x - left),
@@ -382,25 +480,22 @@ export default {
 
           rect.set({ width, height });
 
-          self.c.renderAll();
+          console.log(rect.left, rect.top, rect.width, rect.height);
 
-          rect.render(self.c.getContext());
+          self.c.requestRenderAll();
         })
           
 
         self.c.on("mouse:up", up = e => {
-            group = new fabric.Group([rect]);
-            self.c.add(group);
+          this.add(rect, 'square')
 
-            self.c.off("mouse:move", move);
-            self.c.off("mouse:up", up);
+          self.c.off("mouse:move", move);
+          self.c.off("mouse:up", up);
         })
         
       })
 
-      //console.log("before yield");
       yield;
-      //console.log("after yield");
 
       self.c.off("mouse:down", down);
     },
@@ -412,24 +507,22 @@ export default {
         let { x, y } = self.c.getPointer();
 
         line = new fabric.Line([x, y, x, y], Object.assign({}, this.$store.state.global, {
-          strokeWidth: 5,
+          strokeWidth: 1,
           stroke: 'black'
         }));
+
+        self.c.add(line)
 
         self.c.on("mouse:move", move = e => {
           ({ x, y } = self.c.getPointer());
 
           line.set({ x2: x, y2: y });
 
-          self.c.renderAll();
-
-          line.render(self.c.getContext());
-        })
-        
+          self.c.requestRenderAll();
+        })   
 
         self.c.on("mouse:up", up = e => {
-          group = new fabric.Group([line])
-          self.c.add(group);
+          this.add(line, 'lines')
 
           self.c.off("mouse:move", move);
           self.c.off("mouse:up", up);
@@ -441,44 +534,51 @@ export default {
       self.c.off("mouse:down", down);
     },
     zoomIn: function*() {
-      let up, self = this.canvas
+      let up,
+        self = this.canvas;
 
-      self.c.on('mouse:up', up = e => {
-        this.$store.commit({type: 'setZoom', zoom: self.zoom + 0.2, point: self.c.getPointer()})
-      })
+      self.c.on(
+        "mouse:up",
+        (up = e => {
+          this.$store.commit({ type: "setZoom", zoom: self.zoom + 0.2, point: self.c.getPointer() });
+        })
+      );
 
       yield;
 
-      self.c.off('mouse:up', up)
+      self.c.off("mouse:up", up);
     },
     zoomOut: function*() {
-      let up, self = this.canvas;
+      let up,
+        self = this.canvas;
 
-      self.c.on('mouse:up', up = e => {
-        this.$store.commit({type: 'setZoom', zoom: self.zoom - 0.2, point: self.c.getPointer()})
-      })
+      self.c.on(
+        "mouse:up",
+        (up = e => {
+          this.$store.commit({ type: "setZoom", zoom: self.zoom - 0.2, point: self.c.getPointer() });
+        })
+      );
 
       yield;
 
-      self.c.off('mouse:up', up)
-    },
+      self.c.off("mouse:up", up);
+    }
   },
   updated() {},
   data() {
     return {
       tools: [
-        { icon: "move", connector: "move", event: this.move, isActive: false },
-        { icon: "pencil1", connector: "pencil", event: this.pencil, isActive: false },
-        { icon: "brush", connector: "brush", event: this.brush, isActive: false },
-        { icon: "text", connector: "text", event: this.text, isActive: false },
-        { icon: "pouring", connector: "pouring", event: this.pouring, isActive: false },
-        { icon: "eraser", connector: "eraser", event: this.eraser, isActive: false },
-        { icon: "square", connector: "square", event: this.square, isActive: false },
-        { icon: "line", connector: "line", event: this.line, isActive: false},
-        { icon: "zoom-in", connector: "zoom", event: this.zoomIn, isActive: false},
-        { icon: "zoom-out", connector: "zoom", event: this.zoomOut, isActive: false }
+        'move',
+        'pencil',
+        'brush',
+        'text',
+        'pouring',
+        'eraser',
+        'square',
+        'line',
+        'zoomIn',
+        'zoomOut'
       ],
-      currentTool: null,
       generator: null
     };
   }
@@ -496,18 +596,34 @@ export default {
   flex-wrap: wrap
   justify-content: center
   align-content: flex-start
-  width: 32px
+  width: 40px
   transition: opacity .8s
 
 .tool
   width: 100%
-  height: 32px
+  height: 40px
   display: flex
   align-items: center
   justify-content: center
-  cursor: pointer   
+  cursor: pointer
+  svg
+    width: 19px
+    height: 19px
 .tool.active 
   background: var(--bg-color)
 
+.swap-color
+  position: relative
+  &__icon  
+    width: 10px
+    height: 10px
+    position: absolute
+    right: 10%
+    top: 10%
+    display: flex
+    transform: rotate(90deg)
+    svg
+      width: 100%
+      height: 100%
 
 </style>

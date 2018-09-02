@@ -1,5 +1,5 @@
 <template>
-	<div class="menu-badge">
+	<div class="navbar-badge">
 		<span v-for="char in title.length" :key="char">
 			{{ title[char - 1].toUpperCase()}}
 		</span>
@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import AnimationText from '../lib/menu-animation-text/menu-animation-text';
 
 export default {
 	props: ['title', 'color'],
@@ -16,7 +17,7 @@ export default {
 		bus.$on('updateAnimationText', () => {
 			$('span', this.$el).css('color', getComputedStyle(this.$el).color)
 			this.amin.colors.initial = getComputedStyle(this.$el).color
-		})//вызывавший в paint.js
+		}) // из app.js
 	}
 }
 </script>
@@ -24,7 +25,7 @@ export default {
 <style lang="sass">
 @import 'config-style'
 
-.menu-badge
+.navbar-badge
 	position: relative
 	display: flex
 	justify-content: center
@@ -33,6 +34,5 @@ export default {
 	padding: 10px 4px
 	background: var(--main-color)
 	color: var(--text-color)
-	font-weight: bold
 	+index($level4)
 </style>

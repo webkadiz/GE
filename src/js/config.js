@@ -8,11 +8,11 @@ import Vuex from "vuex"; // паттерн управления состояни
 import Vuebar from "vuebar"; // vue-плагин прокрутки
 import vSelect from "vue-select"; // vue-плагин для стилизации тега select
 import $ from "jquery"; // многофункциональная библиотека для работы с DOM
+import _ from "lodash"; // библиотека функциональный утилит
 import Interact from "interactjs"; // библиотека для работы с drag and drop, resizing and multi-touch gestures
 import Sortable from "sortablejs"; // библиотека для переупорядочиваемых списков перетаскивания
 import PerfectScrollbar from "perfect-scrollbar"; // плагин прокрутки
 import SimpleScrollbar from "simple-scrollbar";
-import AnimationText from "./lib/menu-animation-text/menu-animation-text"; // плагин анимации текста
 import "fabric"; // библиотека для работы с HTML5 canvas
 import "jquery-colpick"; // jquery-плагин color picker
 import "./lib/spectrum/spectrum"; // jquery-плагин color picker
@@ -32,18 +32,24 @@ window.level5 = 100000;
 window.level6 = 1000000;
 window.level7 = 1000000;
 
+window.html = document.documentElement;
 window.Vue = Vue;
 window.Vuex = Vuex;
 window.bus = new Vue(); //глобальная шина
-window.html = document.documentElement;
 window.$ = $;
+window._ = _;
 window.Interact = Interact;
 window.Sortable = Sortable;
 window.PerfectScrollbar = PerfectScrollbar;
 window.SimpleScrollbar = SimpleScrollbar;
-window.AnimationText = AnimationText;
 window.fabric = fabric;
 window.genID = generatorID();
+
+// две константы для функции getPixel объекта fabric.Canvas
+window.RGB_OBJECT = 1;
+window.RGB_STRING = 0;
+
+window.COORDS_SIZE = 20;
 
 /*
   общие настройки библиотек
@@ -72,7 +78,7 @@ Object.defineProperty(fabric.Group.prototype, "object", {
   }
 });
 
-// для отладка
+// для отладки
 Object.defineProperty(fabric.Canvas.prototype, "v", {
   get() {
     return this.viewportTransform;
@@ -85,19 +91,23 @@ Object.defineProperty(fabric.Canvas.prototype, "v", {
 /**
  * метод объекта fabric.Canvas
  * координаты x, y должны быть относительно canvas а не относительно viewportTransform
+ * @param {Const} [format] принимает константу RGB_OBJECT или RGB_STRING
  * @param {Number} [x]
  * @param {Number} [y]
  * @param {Number} [width]
  * @param {Number} [height]
- * @return {Array[r, g, b, a]} возвращает цвет пикселя в координат x, y с размерами width, height
+ * @return {Object | String} возвращает цвет пикселя в координат x, y с размерами width, height
+ * в формате rgb в виде строки или в виде объекта
  */
 Object.defineProperty(fabric.Canvas.prototype, "getPixel", {
-  value(x, y, width = 1, height = 1) {
+  value(format = RGB_OBJECT, x, y, width = 1, height = 1) {
     (x && y) || ({ x, y } = this.getPointer(null, true));
-    return this.getContext().getImageData(x, y, width, height).data;
+    let data = this.getContext().getImageData(x, y, width, height).data;
+    let color = tinycolor({ r: data[0], g: data[1], b: data[2], a: _.round(data[3] / 255, 2) });
+    if (format) return color.toRgb();
+    else return color.toRgbString();
   }
 });
-
 
 /**
  * свойство массивов last
@@ -112,7 +122,7 @@ Object.defineProperty(Array.prototype, "last", {
 /**
  * метод массивов remove, удаляет элемент из массива по  значению
  * @param {Any} значение элемента, который нужно удалить
- * @return {Any} возвращает удаленный элемент 
+ * @return {Any} возвращает удаленный элемент
  */
 Object.defineProperty(Array.prototype, "remove", {
   value(value) {
@@ -124,19 +134,19 @@ Object.defineProperty(Array.prototype, "remove", {
 /**
  * метод массивов removeIndex, удаляет элемент из массива по индексу
  * @param {Number} индекс элемента, который нужно удалить
- * @return {Any} возвращает удаленный элемент 
+ * @return {Any} возвращает удаленный элемент
  */
 Object.defineProperty(Array.prototype, "removeIndex", {
-  value(value) {
-    let returnable = this[value];
-    this.splice(value, 1);
-    return returnable;
+  value(index) {
+    let remember = this[index];
+    this.splice(index, 1);
+    return remember;
   }
 });
 
 /**
  * метод массивов flat, делает из двухмерного массива одномерный
- * @return {Array} возвращает одномерный массив 
+ * @return {Array} возвращает одномерный массив
  */
 Object.defineProperty(Array.prototype, "flat", {
   value() {
@@ -145,6 +155,19 @@ Object.defineProperty(Array.prototype, "flat", {
       newArr = newArr.concat(this[i]);
     }
     return newArr;
+  }
+});
+
+/**
+ * метод массивов insert, вставляет элемент по указанному индексу
+ * @param {Number} index
+ * @param {Any} value
+ * @returns {Any} возвращает вставленный элемент
+ */
+Object.defineProperty(Array.prototype, "insert", {
+  value(index, value) {
+    this.splice(index, 0, value);
+    return value;
   }
 });
 
@@ -257,61 +280,63 @@ window.setLocalStorageField = (title, data) => localStorage.setItem(title, JSON.
 //   else if (i > 60000) arr3.push(i);
 // }
 
-window.getPropFromInput = function(input_values, ...lists) {
-  let obj = {};
-  for (let input_value of input_values) {
-    for (let list of lists) {
-      if (list === input_value.subtitle) {
-        Object.assign(obj, { [list]: input_value.enter });
-      }
-    }
-  }
-  return obj;
-};
-
 /*
   дефолтные настройки
+*/
+
+/* 
+  Canvas - 0
+  Transfrom - 1
+  Common - 2
+  Text - 3
+  Layer - 4
+  Pencil - 5
+  Fill - 6
 */
 
 window.config = {
   grids: {
     ["Основная"]: {
       grid: [
-        [{ component: "CommonTools", id: 1, isFold: false, isActive: true, title: "инструменты" }],
+        [{ component: "CommonTools", id: 2, isFold: false, isActive: true, title: "инструменты" }],
         [{ component: "CanvasWrapper", id: 0, isFold: false, isActive: true, title: "canvas" }],
         [
-          { component: "FillTools", id: 5, isFold: true, isActive: true, title: "Заливка", class: "fill-tools" },
-          { component: "LayerTools", id: 3, isFold: true, isActive: true, title: "Слои" }
+          { component: "TransformTools", id: 1, isFold: true, isActive: true, title: "трансформация" },
+          { component: "FillTools", id: 6, isFold: true, isActive: true, title: "Заливка", class: "fill-tools" },
+          { component: "LayerTools", id: 4, isFold: true, isActive: true, title: "Слои" }
         ]
       ],
       gridTools: [
-        { component: "CommonTools", id: 1, isFold: true, isActive: true, title: "инструменты" },
-        { component: "TextTools", id: 2, isFold: false, isActive: false, title: "Текст" },
-        { component: "LayerTools", id: 3, isFold: true, isActive: true, title: "Слои" },
-        { component: "PencilTools", id: 4, isFold: false, isActive: false, title: "Мелок" },
-        { component: "FillTools", id: 5, isFold: true, isActive: true, title: "Заливка", class: "fill-tools" }
+        { component: "TransformTools", id: 1, isFold: true, isActive: true, title: "трансформация" },
+        { component: "CommonTools", id: 2, isFold: true, isActive: true, title: "инструменты" },
+        { component: "TextTools", id: 3, isFold: false, isActive: false, title: "Текст" },
+        { component: "LayerTools", id: 4, isFold: true, isActive: true, title: "Слои" },
+        { component: "PencilTools", id: 5, isFold: false, isActive: false, title: "Мелок" },
+        { component: "FillTools", id: 6, isFold: true, isActive: true, title: "Заливка", class: "fill-tools" }
       ],
       name: "Основная"
     },
     ["Начальная"]: {
       grid: [[{ component: "CanvasWrapper", id: 0, isFold: false, isActive: true, title: "canvas" }]],
       gridTools: [
-        { component: "CommonTools", id: 1, isFold: false, isActive: false, title: "инструменты" },
-        { component: "TextTools", id: 2, isFold: false, isActive: false, title: "Текст" },
-        { component: "LayerTools", id: 3, isFold: false, isActive: false, title: "Слои" },
-        { component: "PencilTools", id: 4, isFold: false, isActive: false, title: "Мелок" },
-        { component: "FillTools", id: 5, isFold: false, isActive: false, title: "Заливка", class: "fill-tools" }
+        { component: "TransformTools", id: 1, isFold: false, isActive: false, title: "трансформация" },
+        { component: "CommonTools", id: 2, isFold: false, isActive: false, title: "инструменты" },
+        { component: "TextTools", id: 3, isFold: false, isActive: false, title: "Текст" },
+        { component: "LayerTools", id: 4, isFold: false, isActive: false, title: "Слои" },
+        { component: "PencilTools", id: 5, isFold: false, isActive: false, title: "Мелок" },
+        { component: "FillTools", id: 6, isFold: false, isActive: false, title: "Заливка", class: "fill-tools" }
       ],
       name: "Начальная"
     },
     currentGrid: {
       grid: [[{ component: "CanvasWrapper", id: 0, isFold: false, isActive: true, title: "canvas" }]],
       gridTools: [
-        { component: "CommonTools", id: 1, isFold: false, isActive: false, title: "инструменты" },
-        { component: "TextTools", id: 2, isFold: false, isActive: false, title: "Текст" },
-        { component: "LayerTools", id: 3, isFold: false, isActive: false, title: "Слои" },
-        { component: "PencilTools", id: 4, isFold: false, isActive: false, title: "Мелок" },
-        { component: "FillTools", id: 5, isFold: false, isActive: false, title: "Заливка", class: "fill-tools" }
+        { component: "TransformTools", id: 1, isFold: false, isActive: false, title: "трансформация" },
+        { component: "CommonTools", id: 2, isFold: false, isActive: false, title: "инструменты" },
+        { component: "TextTools", id: 3, isFold: false, isActive: false, title: "Текст" },
+        { component: "LayerTools", id: 4, isFold: false, isActive: false, title: "Слои" },
+        { component: "PencilTools", id: 5, isFold: false, isActive: false, title: "Мелок" },
+        { component: "FillTools", id: 6, isFold: false, isActive: false, title: "Заливка", class: "fill-tools" }
       ],
       name: "Начальная"
     }

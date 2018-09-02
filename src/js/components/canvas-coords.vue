@@ -13,23 +13,19 @@
 export default {
   props: ["top", 'left', "axis"],
   computed: {
-    computeTop() {
-      if (this.$parent.$el) return this.$parent.$el.scrollTop + 'px';
-      return 0 + 'px';
-    },
     computeWidth() {
-			let wrapperWidth = $('.canvas-wrapper-outer').width();
-      if (wrapperWidth - 20 < this.canvas.width * this.canvas.zoom)
-        return this.canvas.width * this.canvas.zoom + wrapperWidth + "px";
-      else return wrapperWidth + "px";
+
+      if (this.getCanvasWidth < this.canvas.width * this.canvas.zoom)
+        return this.canvas.width * this.canvas.zoom + 400 + COORDS_SIZE + "px";
+      else return this.getCanvasWidth + COORDS_SIZE + "px";
     },
     computeHeight() {
-			let wrapperHeight = $('.canvas-wrapper-outer').height() - 25;
-      if (wrapperHeight - 20 < this.canvas.height * this.canvas.zoom)
-        return this.canvas.height  * this.canvas.zoom + wrapperHeight + "px";
-      else return wrapperHeight + "px";
+      if (this.getCanvasHeight  < this.canvas.height * this.canvas.zoom)
+        return this.canvas.height  * this.canvas.zoom + 400 + COORDS_SIZE + "px";
+      else return this.getCanvasHeight + COORDS_SIZE + "px";
     },
-    ...Vuex.mapState(["canvas"])
+    ...Vuex.mapState(["canvas"]),
+    ...Vuex.mapGetters(["getCanvasWidth", "getCanvasHeight"])
   },
 };
 </script>

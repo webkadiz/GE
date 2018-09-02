@@ -7,6 +7,7 @@ import "perfect-scrollbar/css/perfect-scrollbar";
 import "../css/apply-btn";
 import "../css/animate";
 import "../css/switcher";
+import "../sass/spectrum";
 import "../sass/main";
 
 import "./config"; // файл конфигурации
@@ -15,29 +16,32 @@ import "./config"; // файл конфигурации
 import Navbar from "./components/navbar";
 import Toolbar from "./components/toolbar";
 import Grid from "./components/grid";
-import MenuHeaderDropdownItem from "./components/menu-header-dropdown-item";
 
 // глобальное хранилище
-const store = new Vuex.Store({
+let store;
+window.store = store = new Vuex.Store({
   state: {
-    headerDropdownItem: [
-      { event: "newFile", isActive: false },
-      { event: "windowSize", isActive: false },
-      { event: "themeNew", isActive: false },
-      { event: "gridNew", isActive: false }
-    ],
     grids: getLocalStorageField("grids") || config.grids,
     themes: getLocalStorageField("themes") || config.themes,
     palette: getLocalStorageField("palette") || config.palette,
+    modal: null,
     canvases: [],
     canvas: null,
+    activeTool: null,
     global: {
       fill: "black",
-      stroke: "black"
+      stroke: "black",
+      hasControls: false
+    },
+    transform: {
+      left: 0,
+      top: 0,
+      height: 0,
+      width: 0
     },
     move: {},
     pencil: {
-      //fill: "transparent",
+      fill: "transparent",
       strokeWidth: 5,
       strokeLineCap: "round",
       strokeLineJoin: "round"
@@ -59,10 +63,10 @@ const store = new Vuex.Store({
     line: {}
   },
   mutations: {
-    openHeaderDropdownItem: (state, event) =>
-      (state.headerDropdownItem.find(item => item.event === event).isActive = true),
-    closeHeaderDropdownItem: (state, event) =>
-      (state.headerDropdownItem.find(item => item.event === event).isActive = false),
+    openModal: (state, event) => {
+      state.modal = state.modal ? state.modal : event;
+    },
+    closeModal: state => (state.modal = null),
 
     /**
      * обновляет свойства в глобальных настройках и в активнов слое, если есть такой
@@ -70,12 +74,18 @@ const store = new Vuex.Store({
      * @param {String} newValue новое значение свойства
      * @param {String} setting название свойства
      * @param {String} tool название иструмента
+     * @param {Boolean} onlyGlobal если true, тогда функция изменяет только глобальные настройки
      */
-    propUpdate(state, { newValue, setting, tool }) {
-      if (state.canvas && state.canvas.activeLayer && (state.canvas.activeLayer.type === tool || tool === "global")) {
-        state.canvas.activeLayer.object.set(setting, newValue);
-        state.canvas.activeLayer.group.addWithUpdate();
+    propUpdate(state, { newValue, setting, tool, onlyGlobal, onlyGroup }) {
+      let c = state.canvas;
+      //prettier-ignore
+      if (c && c.activeLayer && c.activeLayer.object && (c.activeLayer.type === tool || "global" === tool || "transform" === tool) && !onlyGlobal) 
+      {
+        let object = onlyGroup ? state.canvas.activeLayer.group : state.canvas.activeLayer.object;
+        object.set(setting, newValue);
+        //state.canvas.activeLayer.group.addWithUpdate();
         state.canvas.c.requestRenderAll();
+        return;
       }
 
       state[tool][setting] = newValue;
@@ -88,18 +98,18 @@ const store = new Vuex.Store({
      * @param {Number} flagPlace 0 или 1, будет вставлен в сетку до dropzoneComponent или после dropzoneComponent
      * @param {String} flagGrid COL или ROW, будет вставлен в сетку в качетсве столбца или строки
      */
-    gridLoop(state, { component, dropzoneComponent, flagPlace, flagGrid }) {
+    loopGrid(state, { component, dropzoneComponent, flagPlace, flagGrid }) {
       for (let gridCol of store.getters.getGrid) {
         for (let gridRow of gridCol) {
           if (gridRow.component === dropzoneComponent) {
             if (flagGrid === "COL") {
-              let index = store.getters.getGrid.indexOf(gridCol);
-              let tool = store.getters.getGridTools.find(tool => tool.component === component);
-              store.getters.getGrid.splice(index + flagPlace, 0, [tool]);
+              let index = _.indexOf(store.getters.getGrid, gridCol);
+              let tool = _.find(store.getters.getGridTools, { component });
+              store.getters.getGrid.insert(index + flagPlace, [tool]);
             } else if (flagGrid === "ROW") {
-              let index = gridCol.indexOf(gridRow);
-              let tool = store.getters.getGridTools.find(tool => tool.component === component);
-              gridCol.splice(index + flagPlace, 0, tool);
+              let index = _.indexOf(gridCol, gridRow);
+              let tool = _.find(store.getters.getGridTools, { component });
+              gridCol.insert(index + flagPlace, tool);
               tool.isFold = gridCol[0].isFold;
             }
             setLocalStorageField("grids", state.grids);
@@ -108,13 +118,11 @@ const store = new Vuex.Store({
         }
       }
     },
-    gridChange(state, gridName) {
+    changeGrid(state, gridName) {
       state.grids.currentGrid = state.grids[gridName];
       setLocalStorageField("grids", state.grids);
     },
-    gridNew(state, props) {
-      let { workspace } = getPropFromInput(props, "workspace");
-
+    newGrid(state, { workspace }) {
       Vue.set(state.grids, workspace, {
         grid: state.grids.currentGrid.grid.slice(),
         gridTools: state.grids.currentGrid.gridTools.slice(),
@@ -124,13 +132,13 @@ const store = new Vuex.Store({
       state.grids.currentGrid = state.grids[workspace];
       setLocalStorageField("grids", state.grids);
     },
-    gridDelete(state) {},
+    deleteGrid(state) {},
     /**
      * изменение темы
      * @param {Object} state
      * @param {String} theme название темы, которую надо установить
      */
-    themeChange(state, theme) {
+    changeTheme(state, theme) {
       html.style.setProperty("--text-color", state.themes[theme].textColor);
       html.style.setProperty("--main-color", state.themes[theme].mainColor);
       html.style.setProperty("--bg-color", state.themes[theme].bgColor);
@@ -145,7 +153,7 @@ const store = new Vuex.Store({
      * инвертирует текущую тему
      * @param {Object} state
      */
-    themeInvert(state) {
+    invertTheme(state) {
       state.themes.invert = !state.themes.invert;
       setLocalStorageField("themes", state.themes);
     },
@@ -154,18 +162,7 @@ const store = new Vuex.Store({
      * @param {Object} state
      * @param {Object | Array} colors массив или объект цветов темы
      */
-    themeNew(state, colors) {
-      //prettier-ignore
-      let { theme, bgColor, bgBody, mainColor, labelColor, textColor, borderColor } = getPropFromInput(
-        colors,
-        "theme",
-        "bgColor",
-        "bgBody",
-        "mainColor",
-        "labelColor",
-        "textColor",
-        "borderColor"
-      );
+    newTheme(state, { theme, bgColor, bgBody, mainColor, labelColor, textColor, borderColor }) {
       //prettier-ignore
       Vue.set(state.themes, theme , {
         textColor,
@@ -182,42 +179,11 @@ const store = new Vuex.Store({
      * Удаляет текущую тему, не может удалить дефолтную тему
      * @param {Object} state
      */
-    themeDelete(state) {
+    deleteTheme(state) {
       let theme = state.themes.currentTheme.theme;
       if (theme !== "Темная" && theme !== "Светлая" && theme !== "Розовая" && theme !== "Серая")
         Vue.set(state.themes, theme, undefined);
       setLocalStorageField("themes", state.themes);
-    },
-    /**
-     * скачивает canvas
-     * @param {Object} state
-     */
-    download(state) {
-      store.commit({ type: "setZoom", zoom: 1, unsafe: true });
-
-      state.canvas.c.clipTo = ctx => {
-        ctx.rect(0, 0, state.canvas.wrapperWidth, state.canvas.wrapperHeight);
-      };
-      state.canvas.c.requestRenderAll();
-
-      state.canvas.c.setViewportTransform([
-        1,
-        0,
-        0,
-        1,
-        -(state.canvas.wrapperWidth / 2 - state.canvas.width / 2),
-        -(state.canvas.wrapperHeight / 2 - state.canvas.height / 2)
-      ]);
-      state.canvas.c.setWidth(state.canvas.width);
-      state.canvas.c.setHeight(state.canvas.height);
-
-      let base = state.canvas.c.toDataURL("png");
-
-      let link = document.createElement("a");
-      link.href = base;
-      link.download = true;
-      link.click();
-      store.commit({ type: "setZoom", zoom: state.canvas.zoom });
     },
     /**
      * делает текущий холст активным
@@ -245,7 +211,7 @@ const store = new Vuex.Store({
       let canvas = $(state.canvas.el);
       //prettier-ignore
       let left = (canvas.offsetParent().width() + 20) / 2 - canvas.width() / 2,
-          top  = (canvas.offsetParent().height() + 20) / 2 - canvas.height() / 2;
+      top  = (canvas.offsetParent().height() + 20) / 2 - canvas.height() / 2;
       canvas.css({ left, top });
 
       if (top < 20 && left < 20) canvas.css({ left: "200px", top: "200px" });
@@ -257,24 +223,17 @@ const store = new Vuex.Store({
      * @param {Object} state
      * @param {Object} props свойства холста
      */
-    newFile(state, props) {
-      let { width, height, title, background: backgroundColor } = getPropFromInput(
-        props,
-        "width",
-        "height",
-        "title",
-        "background"
-      );
-
+    newFile(state, { file, title, width, height, background }) {
       let id = state.canvases.last ? state.canvases.last.id + 1 : 1;
       title = title ? title : `Untitled-${id}`;
 
       state.canvases.push({
         id,
+        file,
         width: float(width),
         height: float(height),
         title,
-        backgroundColor,
+        background,
         zoom: 1,
         c: null,
         layers: [],
@@ -283,21 +242,124 @@ const store = new Vuex.Store({
       state.canvas = state.canvases.last;
     },
     /**
+     * открывает изображение или svg
+     * @param {Object} state
+     */
+    openFile(state) {
+      //prettier-ignore
+      $('<input type="file" accept="image/*">').trigger("click").change(function() {
+        let file = $(this).get(0).files[0], type = file.type;
+
+        if (!type.startsWith("image/")) return;
+        let src = window.URL.createObjectURL(file);
+           
+        if (type === "image/svg+xml") {
+          // загружает формат image/svg+xml
+          fabric.loadSVGFromURL(src, (svg, options) => {
+            svg = fabric.util.groupSVGElements(svg, options);
+
+            store.commit({
+              type: "newFile",
+              title: file.name,
+              background: "transparent",
+              width: options.width,
+              height: options.height,
+              file: svg
+            });
+        
+          });
+        } else {
+          //загружает все изображения кроме формата image/svg+xml
+          //prettier-ignore
+          new fabric.Image.fromURL(src, img =>
+          store.commit({
+            type: 'newFile',
+            title: file.name,
+            background: "transparent",
+            width: img.width,
+            height: img.height,
+            file: img,
+          }));
+
+        }
+      
+      });
+    },
+    /**
+     * скачивает canvas
+     * @param {Object} state
+     */
+    download(state) {
+      //store.commit({ type: "setZoom", zoom: 1, unsafe: true });
+
+      state.canvas.c.clipTo = ctx => {
+        ctx.rect(0, 0, state.canvas.width, state.canvas.height);
+      };
+      state.canvas.c.requestRenderAll();
+
+      state.canvas.c.setViewportTransform([
+        1,
+        0,
+        0,
+        1,
+        -(store.getters.getCanvasWidth / 2 - state.canvas.width / 2),
+        -(store.getters.getCanvasHeight / 2 - state.canvas.height / 2)
+      ]);
+      state.canvas.c.setWidth(state.canvas.width);
+      state.canvas.c.setHeight(state.canvas.height);
+
+      let base = state.canvas.c.toDataURL("png");
+      console.log(base);
+
+      let link = document.createElement("a");
+      link.href = base;
+      link.download = true;
+      link.click();
+      store.commit({ type: "setZoom", zoom: state.canvas.zoom });
+    },
+    /**
      * @param {Object} state
      * @param {Number} zoom
      * @param {Boolen} unsafe определяет надо ли сохранять zoom переданный в аргументе
      * @param {fabric.Point} point точка относительно которой происходит zoom
      */
     setZoom(state, { zoom, unsafe = false, point = false }) {
+      let vpt = state.canvas.c.viewportTransform;
+
       if (!point) point = new fabric.Point(state.canvas.c.getWidth() / 2, state.canvas.c.getHeight() / 2);
 
       state.canvas.c.zoomToPoint(point, zoom);
 
+      console.log(state.canvas.c.viewportTransform);
+
       if (!unsafe) {
         state.canvas.zoom = zoom;
       }
-      state.canvas.wrapper.scrollTop = Math.abs(state.canvas.c.viewportTransform[5]);
-      state.canvas.wrapper.scrollLeft = Math.abs(state.canvas.c.viewportTransform[4]);
+
+      // state.canvas.transparent.forEachObject((object, index) => {
+      //   console.log(object, index);
+      //   object.set({
+      //     width: 10 / state.canvas.c.getZoom(),
+      //     height: 10 / state.canvas.c.getZoom()
+      //   });
+      //   if (index === 1) {
+      //     object.set({ left: 10 / state.canvas.c.getZoom() });
+      //   } else if (index === 2) {
+      //     object.set({ top: 10 / state.canvas.c.getZoom() });
+      //   } else if (index === 3) {
+      //     object.set({ top: 10 / state.canvas.c.getZoom(), left: 10 / state.canvas.c.getZoom() });
+      //   }
+      //   state.canvas.transparent.requestRenderAll();
+      // });
+
+      // state.canvas.c.item(0).setPatternFill({
+      //   source: state.canvas.transparent.getElement(),
+      //   repeat: "repeat"
+      // });
+
+      //state.canvas.wrapper.scrollTop = Math.abs(state.canvas.c.viewportTransform[5]);
+      //state.canvas.wrapper.scrollLeft = Math.abs(state.canvas.c.viewportTransform[4]);
+      bus.$emit("updateSize"); // canvas.vue
       state.canvas.ps.update();
       state.canvas.c.requestRenderAll();
     },
@@ -307,13 +369,38 @@ const store = new Vuex.Store({
      * @param {String} tool название инструмента
      */
     switchTool(state, tool) {
+      console.log(_.find(store.getters.getGridTools, { component: tool }));
       //prettier-ignore
-      store.getters.getGridTools.find(gridTool => gridTool.component === tool).isActive = 
-      !store.getters.getGridTools.find(gridTool => gridTool.component === tool).isActive
+      let flag = false;
+      _(store.getters.getGrid).forEach(item => {
+        let temp;
+        if ((temp = _.find(item, { component: tool }))) {
+          temp.isActive = !temp.isActive;
+          item.length !== 1 ? item.remove(temp) : store.getters.getGrid.remove(item);
+          flag = true;
+          return;
+        }
+      });
+
+      if (flag) return;
+
+      _.find(store.getters.getGridTools, { component: tool }).isActive = !_.find(store.getters.getGridTools, {
+        component: tool
+      }).isActive;
       setLocalStorageField("grids", state.grids);
     }
   },
   getters: {
+    getCanvasProp: state => (setting, tool, onlyGlobal, onlyGroup) => {
+      let c = state.canvas;
+      //prettier-ignore
+      if (c && c.activeLayer && c.activeLayer.object && (c.activeLayer.type === tool || "global" === tool || "transform" === tool) && !onlyGlobal)
+        return onlyGroup ? c.activeLayer.group[setting] : c.activeLayer.object[setting];
+
+      return state[tool][setting];
+    },
+    getCanvasWidth: () => $(".canvas-wrapper-outer").width() - COORDS_SIZE,
+    getCanvasHeight: () => $(".canvas-wrapper-outer").height() - COORDS_SIZE - 25,
     /**
      * возвращает список инструментов в сетке в текущем активном рабочем месте
      * @return {Array}
@@ -339,8 +426,7 @@ const store = new Vuex.Store({
      * в текущем активном рабочем местt
      * @return {Boolean}
      */
-    isGridTools: state => tool =>
-      state.grids.currentGrid.gridTools.find(gridTool => gridTool.component === tool).isActive,
+    isGridTools: state => tool => _.find(state.grids.currentGrid.gridTools, { component: tool }).isActive,
     /**
      * проверяет соответсвует переданное имя текущей активной тему
      * @return {Boolean}
@@ -362,7 +448,7 @@ const store = new Vuex.Store({
       for (let grid in state.grids) {
         if (typeof state.grids[grid] === "object" && grid !== "currentGrid") {
           grids.push({
-            event: "gridChange",
+            event: "changeGrid",
             getter: "isGrid",
             title: grid,
             value: grid,
@@ -379,7 +465,7 @@ const store = new Vuex.Store({
       for (let theme in state.themes) {
         if (typeof state.themes[theme] === "object" && theme !== "currentTheme") {
           themes.push({
-            event: "themeChange",
+            event: "changeTheme",
             getter: "isTheme",
             title: theme,
             type: "apply",
@@ -398,32 +484,44 @@ new Vue({
   store,
   components: {
     Navbar,
-    MenuHeaderDropdownItem,
     Toolbar,
-    Grid
+    Grid,
+    Modal: () => import("./components/modal")
   },
-  computed: Vuex.mapState(["headerDropdownItem"]),
+  computed: Vuex.mapState(["headerDropdownItem", "themes", "modal"]),
   methods: {},
   mounted() {
-    this.$store.commit("themeChange", "currentTheme");
+    this.$store.commit("changeTheme", "currentTheme");
+
+    window.oncontextmenu = () => false;
 
     window.addEventListener("keydown", e => {
       //prettier-ignore
       if (e.ctrlKey && e.keyCode === 187) { // increase   
-        e.returnValue = false;
+        e.preventDefault();
         
         if (this.$store.state.canvas) {
           this.$store.commit({type: "setZoom", zoom: this.$store.state.canvas.zoom + 0.1});
-          //this.$store.commit('canvasCenter');
         }
       }
       //prettier-ignore
       if (e.ctrlKey && e.keyCode === 189) { // decrease       
-        e.returnValue = false;
+        e.preventDefault();
 
         if (this.$store.state.canvas) {
           this.$store.commit({type: "setZoom", zoom: this.$store.state.canvas.zoom - 0.1});
-         //this.$store.commit('canvasCenter');
+        }
+      }
+    });
+
+    window.addEventListener("wheel", e => {
+      console.log(e);
+      e.preventDefault();
+      if (e.ctrlKey && this.$store.state.canvas) {
+        if (e.deltaY < 0) {
+          this.$store.commit({ type: "setZoom", zoom: this.$store.state.canvas.zoom + 0.1 });
+        } else {
+          this.$store.commit({ type: "setZoom", zoom: this.$store.state.canvas.zoom - 0.1 });
         }
       }
     });
@@ -450,9 +548,6 @@ Vue.directive("scroll", {
     //   subtree: true,
     //   attributes: true
     // });
-  },
-  componentUpdated() {
-    console.log("update");
   }
 });
 

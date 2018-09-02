@@ -43,82 +43,6 @@ $bg_tools: #2F4F4F
 
 
 
-
-// spectrum-colorpicker
-.sp-container
-	background: var(--main-color)
-	border: none
-	display: flex
-	justify-content: center
-	align-items: flex-start
-	+index($level5)
-	.sp-button-container
-		display: flex
-	.sp-palette-container
-		border-right: none
-		display: flex
-		flex-direction: column
-		justify-content: center
-		align-items: center
-		padding-bottom: 0
-		margin-bottom: 0
-		padding: 10px
-		.sp-palette-button-container
-			display: flex
-			align-items: center
-			justify-content: space-between
-			margin-top: 10px
-			width: 100%
-			&::before, &::after
-				content: none
-		.sp-palette
-			display: flex
-			max-width: none
-			height: 195px
-			justify-content: center
-			padding-top: 28px
-			position: relative
-			padding: 28px 8px 0 8px
-			box-sizing: border-box
-			+b()
-			.sp-palette-row:not(.sp-palette-row-selection)
-				display: flex
-				flex-direction: column
-				span 
-					flex-shrink: 0		
-			.sp-palette-row-selection
-				position: absolute
-				top: 2px
-				display: flex
-				&::before
-					content: ''
-					position: absolute
-					bottom: -2px
-					width: 100%
-					height: 1px
-					background: var(--border-color)
-	.sp-palette-toggle
-
-		+btn-char-spacing-effect(120px, 30px)
-	.sp-choose
-		+btn-char-spacing-effect(100px, 30px)
-		margin-top: 5px
-	.sp-cancel
-		+btn-char-spacing-effect(81px, 30px)
-		margin-right: 0
-		margin-top: 5px
-		padding: 0
-		color: var(--text-color) !important
-		&:hover
-			text-decoration: none
-	.sp-picker-container
-		padding: 10px 15px
-		+bl()
-		+bb()
-	.sp-input
-		@extend %input
-
-
 // jquery-colpick
 .colpick_full
 	+b()
@@ -214,6 +138,10 @@ ul
 	filter: invert(100%)
 	.no-invert
 		filter: invert(100%)
+
+#app.modal
+	main, header
+		filter: blur(3px)
 
 
 .bg-anim-icon

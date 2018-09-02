@@ -16,7 +16,7 @@
 			
 		</div>
 		<keep-alive>
-			<component :tool="switcher ? 'stroke' : 'fill'" :is="currentTab"></component>
+			<component :setting="switcher ? 'stroke' : 'fill'" :is="currentTab"></component>
 		</keep-alive>		
 	</div>
 	

@@ -1,17 +1,8 @@
 <template>
 	<div class="text-tools">
-
-    <div class="col-center"  v-for="setting in ['fontStyle']" :key="props[setting].id">
-      <EnterPropTool :tool="tool" v-bind="props[setting]"></EnterPropTool>
-    </div>
-
-    <div class="col-space"  v-for="settings in [['fontSize'],['lineHeight'],['charSpacing'],['text']]" :key="props[settings[0]].id">
-      <EnterPropTool :tool="tool" v-bind="props[setting]" v-for="setting in settings" :key="setting.id"></EnterPropTool>
-    </div>
-
-    <div class="col-space">
-      <EnterPropTool :tool="tool" v-bind="props[setting]" v-for="setting in ['underline','overline']" :key="props[setting].id"></EnterPropTool>
-    </div>
+    
+    <EnterPropTool :setting="key" :icon="key" :tool="tool" v-bind="setting" v-for="(setting, key) in props" :key="key"></EnterPropTool>
+    
 	</div>
 </template>
 
@@ -24,9 +15,8 @@ export default {
     return {
       props: {
         fontStyle: {
-          id: 1,
+          width: 100,
           label: "стиль шрифта:",
-          setting: 'fontStyle',
           type: 'select',
           options: [
             { label: "обычный", value: "normal" },
@@ -35,48 +25,35 @@ export default {
           ]
         },
         fontSize: {
-          id: 2,
-          icon: "font-size",
-          setting: 'fontSize',
-          alt: "font-size", 
+          width: 50,
           type: 'input',
           number: true       
         },
-        lineHeight: {
-          id: 4,
-          icon: "line-height",
-          setting:'lineHeight',
-          alt: "font-line-height",      
+        lineHeight: { 
+          width: 50,   
           type: 'input',
           number: true         
         },
         charSpacing: {
-          id: 5,
-          icon: "char-spacing",
-          setting: 'charSpacing',
-          alt: "font-word-space",
+          width: 50,
           type: 'input',
           number: true         
-        },        
-        underline: {
-          id: 6,
-          icon: "underline",
-          alt: 'underline',
-          setting: 'underline',        
+        }, 
+        text: {
+          width: 50,
+          label: "Текст:",      
+          type: 'textarea',
+        },    
+        underline: {   
+          width: 50,    
           type: 'checkbox',
         },
         overline: {
-          id: 7,
-          label: "overline",
-          setting: 'overline',        
+          width: 50,
+          label: "overline",     
           type: 'checkbox',
         },
-        text: {
-          id: 8,
-          label: "Текст:",
-          setting: 'text',        
-          type: 'textarea',
-        }
+       
       },
       tool: 'text'
     };
@@ -86,6 +63,12 @@ export default {
 
 <style lang="sass" scoped>
 @import 'config-style'
+
+.text-tools
+  padding: 10px
+  display: flex
+  flex-wrap: wrap
+  width: 225px
 
 .col-center
   display: flex

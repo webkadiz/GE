@@ -25,6 +25,7 @@
     "jquery-ui-css": "^1.11.5",
     "jquery-ui-dist": "^1.12.1",
     "loader": "^2.1.1",
+    "lodash": "^4.17.10",
     "nicescroll": "^3.7.4",
     "node-sass": "^4.8.3",
     "perfect-scrollbar": "^1.4.0",

@@ -1,77 +1,67 @@
 <template>
-	<div v-if="input" class="input-wrapper"> 	
+	<div v-if="type === 'input'" class="modal-input"> 	
 		<input 
-			autocomplete="off"
-			type="text" 
+			autocomplete="off" type="text" 
 			@focus="focus" @blur="blur" 			
-			:name="title"
-			@input="$emit('input', $event.target.value)">
+			@change="$emit('change', $event.target.value)">
   	
-		<label ref="label">{{title}}</label> 
+		<label >{{title}}</label> 
 	</div>
 
-	<div v-else-if="select" class="input-wrapper">	
-		<v-select  @input="renewal" :options="options"></v-select>	
-		<label ref="label" for="">{{title}}</label>
-	</div>
 
-	<div v-else-if="color" class="input-wrapper">	
+	<Select v-else-if="type === 'select'" class="modal-input"
+					@input="$emit('change', $event)" :label="title"  
+					:list="list" @focus="focus" @blur="blur">
+	</Select>	
+
+
+	<div v-else-if="type === 'color'" class="modal-input">	
 		<input 
-			autocomplete="off"
-			type="text" 
+			autocomplete="off" type="text" 
 			@focus="focus" @blur="blur" 
-			:name="title"
-			@input="$emit('input', $event.target.value)"
-			ref="colorAccept">	
-		<label ref="label" for="">{{title}}</label>
-		<div ref="colorpicker" class="colorpicker"></div>
+			@change="$emit('change', $event.target.value)"
+			ref="colorPreview">	
+		<label  for="">{{title}}</label>
+		<input ref="colorPicker">
 	</div>
 </template>
 
 <script>
 export default {
-  props: ["title", "input", "select", "color",  "id", "options", "enter"],
+	components: {Select: () => import('./select')},
+  props: ["title", 'type', "list"],
   methods: {
-		// применяется на обычном input при фокусе
-		focus: event => $(event.target).addClass("active"),
-		// применяется на обычном input при блюре
-		blur: event => ($(event.target).val() === "" ? $(event.target).removeClass("active") : void 0),
-		// применяется на select при обновлении данных
-    renewal(event) {
-			console.log('renewal in enter menu');
-      if (event) this.$emit("input", event.value);
-      else this.$emit("input", event);
-      $('input[type="search"]', this.$el).blur();
+		focus: e => {
+			e.target.classList.add("active")
 		},
+		blur: e => {
+			e.target.value === "" && e.target.classList.remove("active")
+		}
 	},
   mounted() {
-    if (this.select) {
-			// фокус на select
-      $('input[type="search"]', this.$el).focus(e => $(e.target.closest(".v-select")).attr("data-active", true));
-			// блюр на select
-      $('input[type="search"]', this.$el).blur(e =>
-        this.$nextTick(() => (!this.enter ? $(e.target.closest(".v-select")).removeAttr("data-active") : void 0))
-      );
-		}
-		if(this.color) {
-			$(this.$refs.colorpicker).colpick({
-				onShow: () => this.$refs.colorAccept.focus(),
-				onChange: (rgb, hex, hsl, el) => {
-					$(el).css('background', `#${hex}`)
-					$(this.$refs.colorAccept).val(`#${hex}`);
-					this.$emit('input', `#${hex}`)
-				},
-				onSubmit: (rgb, hex) => $(this.$refs.colorpicker).colpickHide()
-			})
+		if(this.type === 'color') {
+			$(this.$refs.colorPicker).spectrum({
+				showInput: true,
+				showButtons: false,
+				addInput: this.$refs.colorPreview,
+				allowEmpty: true,
+				showAlpha: true,
+				preferredFormat: 'name',
+				replacerClassName: "navbar-dropdown__colorpicker-replacer",
+				show: () => this.$refs.colorPreview.focus(),
+				hide: () => $(this.$refs.colorPreview).val() === "" && $(this.$refs.colorPreview).removeClass("active"),
+				move: color => this.$emit('change', color && color.toRgbString()),
+				change: color => this.$emit('change', color && color.toRgbString()),				
+			})	
 		}
   }
 };
 </script>
 
-<style lang="sass" scoped>
+<style lang="sass">
 @import 'config-style'
 
-.input-wrapper
+.modal-input
 	position: relative
 	margin-bottom: 15px
 	input
@@ -80,20 +70,9 @@ export default {
 		display: block
 		padding: 15px
 		padding-bottom: 6px
-	input.active + label, .v-select[data-active] + label
+	input.active + label
 		transform: translateY(-25px)
 		font-size: 0.9rem				
-	// input + label, .v-select + label
-	// 	padding-bottom: 4px
-	// 	padding-left: 15px
-	// 	transition: .3s
-	// 	font-size: 1.2rem 
-	// 	color: var(--label-color)			
-	// 	display: block
-	// 	position: absolute
-	// 	left: 0
-	// 	bottom: 0
-	// 	pointer-events: none
 	label
 		padding-bottom: 4px
 		padding-left: 15px
@@ -116,92 +95,5 @@ export default {
 		box-shadow: 0 0 0 2px var(--bg-body), 0 0 0 3px var(--border-color)
 		cursor: pointer
 
-
 </style>
 
-
-<style lang="sass">
-@import 'config-style'
-
-.v-select 
-	.dropdown-toggle
-		border: none
-		.clear
-			height: 20px
-			width: 20px
-			bottom: 3px
-			color: var(--label-color)
-	input[type=search],  input[type=search]:focus	
-		padding: 15px
-		padding-bottom: 6px	
-		height: 100%
-		line-height: 1
-		font-size: 0.9rem
-		color: var(--text-color)
-		+bb()
-	.open-indicator
-		width: 20px
-		bottom: 3px
-		&::before
-			border: none
-			content: ''
-			position: absolute
-			width: 2px
-			height: 10px
-			background: var(--label-color)
-			left: 50%
-			top: 50%
-			margin: -5px -1.5px
-			transform: rotate(45deg)
-			transform-origin: bottom 
-			transition: .3s
-		&::after
-			@extend .open-indicator::before 
-			transform: rotate(-45deg) 
-
-.v-select.open
-	.open-indicator	
-		bottom: 3px
-		&::before			
-			transform: rotate(45deg)
-			transform-origin: top
-			margin: -3px -1.5px
-		&::after
-			@extend .open-indicator::before
-			transform: rotate(-45deg)
-
-.v-select.single .selected-tag
-	position: absolute
-	left: 0
-	bottom: 0
-	padding-left: 15px
-	padding-bottom: 8px
-	border: none
-	color: var(--text-color)
-	font-size: 0.9rem
-	margin: 0
-	height: auto
-	line-height: 1
-.v-select.single.open .selected-tag
-	opacity: 1
-
-.v-select 
-	.dropdown-menu
-		padding: 0
-		border-radius: 0
-		overflow-y: auto
-		background: rgba(0,0,0,.8)
-		border: none
-		li
-			line-height: 1
-		li.highlight > a
-			background: transparent
-		li > a
-			font-size: 0.9rem
-			color: white
-			padding: 10px
-			text-align: center
-			+bb()	
-
-
-</style>

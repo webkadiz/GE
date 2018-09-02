@@ -31,6 +31,7 @@
       color: false,
       flat: false,
       showInput: false,
+      addInput: false,
       allowEmpty: false,
       showButtons: true,
       clickoutFiresChange: true,
@@ -830,6 +831,10 @@
       // Update the text entry input as it changes happen
       if (opts.showInput) {
         textInput.val(displayColor);
+      }
+
+      if (opts.addInput) {
+        $(opts.addInput).val(displayColor);
       }
 
       if (opts.showPalette) {

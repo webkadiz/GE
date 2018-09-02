@@ -7,13 +7,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>Paint Online</title>
-  <link href="https://fonts.googleapis.com/css?family=Exo+2" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Exo+2:400,900" rel="stylesheet">
 
 </head>
 
 <body>
 
-<div id="app" :class="{invert: $store.state.themes.invert}">	
+<div id="app" :class="{invert: themes.invert, modal}">	
 	<header>
 		<navbar></navbar>
 		<toolbar></toolbar>			
@@ -21,13 +21,7 @@
 	
 	<grid></grid>
 	
-	<menu-header-dropdown-item 
-		ref="dropdown_item" 
-		v-for="(item, index) in headerDropdownItem" 
-		v-bind='item' 
-		:index="index"
-		:key="index">		
-	</menu-header-dropdown-item>
+	<modal v-if="modal"></modal>
 
 </div>
 

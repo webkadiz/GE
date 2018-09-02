@@ -31,7 +31,7 @@ export default {
 				else if (dropzone.classList.contains("casing-top")) [flagPlace, flagGrid] = [0, "ROW"];
         
         this.$store.commit({
-          type: "gridLoop",
+          type: "loopGrid",
           component, dropzoneComponent, flagPlace, flagGrid
         });
 

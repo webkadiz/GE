@@ -49,6 +49,7 @@ export default {
     GridArrow: () => import("./grid-arrow.vue"),
     DragTools: () => import("./tools/drag-tools.vue"),
     FoldTools: () => import("./tools/fold-tools.vue"),
+    TransformTools: () => import('./tools/transfrom-tools'),
     CommonTools: () => import("./tools/common-tools.vue"),
     TextTools: () => import("./tools/text-tools.vue"),
     LayerTools: () => import("./tools/layer-tools.vue"),
@@ -85,8 +86,7 @@ export default {
             let el = event.target;
 
             if (el.classList.contains("in-grid")) {
-              let gridRow,
-                component = el.getAttribute("data-component");
+              let gridRow, component = el.getAttribute("data-component");
               this.getGrid.forEach(gridCol => {
                 if ((gridRow = gridCol.find(row => row.component === component))) {
                   gridCol.length !== 1 ? gridCol.remove(gridRow) : this.getGrid.remove(gridCol);
@@ -134,29 +134,16 @@ export default {
   },
   computed: {
     inGrid() {
-      for (let gridCol of this.getGrid) {
-        if (~gridCol.findIndex(gridRow => gridRow.component === this.component)) {
-          if(this.$el) {
-            // this.ps = new PerfectScrollbar(this.$el); 
-            // this.ps.update()
-            
-            //Interact(this.$el).resizable({enabled: true});
-          }
-          return true;
-        }
-      }
-      if(this.$el) {
-        // Interact(this.$el).resizable({enabled: false})
-        // this.$el.style.height = 'auto';
-        // this.ps.update()
-      };
+      for (let gridCol of this.getGrid)
+        if (~_.findIndex(gridCol, {component: this.component})) return true;
+        
       return false;
     },
     computeRow() {
       for (let gridCol of this.getGrid) {
         let k = this.rowsAmount / gridCol.length;
         let index;
-        if (~(index = gridCol.findIndex(gridRow => gridRow.component === this.component))) {
+        if (~(index = _.findIndex(gridCol, {component: this.component}))) {
           return `${index * k + 1} / ${index * k + k + 1}`;
         }
       }
@@ -215,11 +202,13 @@ export default {
   position: relative
   border-radius: 0
   box-shadow: none
+  background: var(--main-color)
+  border-top: none
   .casing
     display: block
   .tools
-    flex: 1
-  .tools.component-fold
+    +bb()
+  .component-fold
     height: auto
     top: 0
   .fold-wrapper
@@ -227,6 +216,11 @@ export default {
 
 .grid-item.in-grid.in-fold
   overflow: visible
+
+.grid-item.in-grid[data-component="CanvasWrapper"]
+  background: transparent
+  border: none
+
 </style>
 
 

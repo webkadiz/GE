@@ -8,17 +8,16 @@
 import Icon from '../icon';
 
 export default {
-  props: ['tool'],
+  props: ['setting'],
   computed: {
 		computeValue() {
-      setTimeout(() =>	
-			  $(this.$refs.colorpicker).spectrum('set', this.$refs.colorpicker.value ), 0)
-			if (this.canvas && this.canvas.activeLayer) 
-        return this.canvas.activeLayer.object[this.tool];
-
-      return this.$store.state.global[this.tool];
+      setTimeout(() =>	{
+			  $(this.$refs.colorpicker).spectrum('set', this.$refs.colorpicker.value )
+      }, 0)
+			return this.getCanvasProp(this.setting, 'global')
 		},
-		...Vuex.mapState(["canvas"])
+    ...Vuex.mapState(["canvas"]),
+    ...Vuex.mapGetters(["getCanvasProp"])
 	},
   mounted() {
     $(this.$refs.colorpicker).spectrum({
@@ -38,15 +37,14 @@ export default {
       localStorageKey: "color-fill-stroke",
       maxSelectionSize: 10,
       palette: this.$store.state.palette,
+      containerClassName: 'fill-tools__colorpicker',
       change: color => {
-        color
-          ? this.$store.commit({
-              type: "propUpdate",
-              setting: this.tool,
-              tool: "global",
-              newValue: color.toRgbString()
-            })
-          : void 0;
+        this.$store.commit({
+          type: "propUpdate",
+          setting: this.setting,
+          tool: "global",
+          newValue: color.toRgbString()
+        })      
       }
     });
 
@@ -133,8 +131,6 @@ export default {
 .wrapper
   +bt()
   
-.in-grid .wrapper
-  +bb()
 
 </style>
 
@@ -149,5 +145,6 @@ export default {
     padding: 5px
     cursor: pointer
     +btn-char-spacing-effect(16px, 16px)
+
 </style>
 

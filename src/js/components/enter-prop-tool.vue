@@ -1,27 +1,26 @@
 <template>
-	<div class="input-wrapper">
+	<div class="input-wrapper" :style="{'flex-basis': width + '%'}">
 		<label v-if="type === 'input'" :style="{cursor: computeCursor}" @mousedown="slider">
-			<Icon v-if="icon" :icon="icon"></Icon>
+			<Icon v-if="!label" :icon="icon"></Icon>
 			{{ label }}
 			<input :style="{width : computeWidthInput}" 
              :value="computeEnter" @input="enterUpdate($event.target.value)">
 		</label>
 
     <label @click="focusTextarea" v-if="type === 'textarea'" for="">
-			<Icon v-if="icon" :icon="icon"></Icon>
+			<Icon v-if="!label" :icon="icon"></Icon>
 			{{ label }}
       <span :style="{width : computeWidthSpan}" class="span-textarea">{{computeSpan}}</span>  
-			<textarea :style="{width : computeWidthTextarea, 
-                height: computeHeightTextarea}" @blur="blurTextarea" 
+			<textarea :style="{width : computeWidthTextarea, height: computeHeightTextarea}" @blur="blurTextarea" 
                 :value="computeEnter" @input="enterUpdate($event.target.value)">
       </textarea>
 		</label>
 
     <label v-else-if="type === 'select'" for="">
-			<Icon v-if="icon" :icon="icon"></Icon>
+			<Icon v-if="!label" :icon="icon"></Icon>
 			{{ label }}
-			<v-select :value="computeEnter" @input="enterSelectUpdate($event)" :options="options">
-      </v-select>
+			<Select class="tool-input" :value="computeEnter" @input="enterUpdate($event)" :list="options">
+      </Select>
 		</label>
 
     <EnterPropColor v-else-if="type === 'color'" 
@@ -30,7 +29,7 @@
 
 
     <label v-else-if="type === 'checkbox'" @click="enterUpdate(!$refs.checkbox.checked)" for="">
-      <Icon v-if="icon" :icon="icon"></Icon>
+      <Icon v-if="!label" :icon="icon"></Icon>
 			{{ label }}
       <input ref="checkbox" :checked="computeEnter" type="checkbox" class="check-input" >
 
@@ -48,10 +47,11 @@
 <script>
 export default {
   components: {
-    EnterPropColor: () => import("./enter-prop-color.vue"),
-    Icon: () => import('./icon.vue')
+    EnterPropColor: () => import("./enter-prop-color"),
+    Icon: () => import('./icon'),
+    Select: () => import('./select')
   },
-  props: ["number", "type", "tool", "label", "icon", "setting", "options"],
+  props: ["number", "type", "tool", "label", "icon", "setting", "options", 'onlyGlobal', "onlyGroup",'width'],
   computed: {
     computeCursor() {
       return this.number ? "ew-resize" : "pointer";
@@ -59,28 +59,20 @@ export default {
     computeHeightTextarea() {
       // while (~(pos = this.computeEnter.indexOf('\n', pos + 1))) 
       //   amount++;
-      return this.computeEnter.split('\n').length * this.height + 'px';
+      return this.computeEnter.split('\n').length * this.localHeight + 'px';
     },
     computeWidthTextarea () {
       return this.computeEnter.split('\n').reduce((prev, str) => 
-        prev < str.length ? str.length : prev, 0) * 6 + this.width + 'px'
+        prev < str.length ? str.length : prev, 0) * 6 + this.localWidth + 'px'
     },
     computeWidthInput() {
-      return this.computeEnter.toString().length * 6 + this.width + "px";
+      return this.computeEnter.toString().length * 6 + this.localWidth + "px";
     },
     computeWidthSpan() {
-      return this.computeSpan.toString().length * 6 + this.width + "px";
+      return this.computeSpan.toString().length * 6 + this.localWidth + "px";
     },
     computeEnter() {
-      if (this.canvas && this.canvas.activeLayer && this.canvas.activeLayer.type === this.tool) {
-        if (this.type === "select") {
-          return this.options.find(option => option.value === this.canvas.activeLayer.object[this.setting]);
-        }
-        return this.canvas.activeLayer.object[this.setting];
-      }
-
-      if (this.type === "select") return this.options.find(option => option.value === this.storeTool[this.setting]);
-      return this.storeTool[this.setting];
+      return this.getCanvasProp(this.setting, this.tool, this.onlyGlobal, this.onlyGroup)
     },
     computeSpan() {
       let lines = this.computeEnter.split('\n');
@@ -90,7 +82,8 @@ export default {
     storeTool() {
       return this.$store.state[this.tool];
     },
-    ...Vuex.mapState(['canvas'])
+    ...Vuex.mapState(['canvas', 'activeTool']),
+    ...Vuex.mapGetters(['getCanvasProp'])
   },
   methods: {
     enterUpdate(newValue) {
@@ -100,19 +93,10 @@ export default {
         type: "propUpdate",
         tool: this.tool,
         setting: this.setting,
+        onlyGlobal: this.onlyGlobal,
+        onlyGroup: this.onlyGroup,
         newValue
       });
-    },
-    enterSelectUpdate(event) {
-      let span;
-
-      this.$nextTick(() => {
-        $('input[type="search"]', this.$el).css("width", 100);
-        if ((span = $('input[type="search"]', this.$el).prev("span")).length && event)
-          span.text((index, value) => (event.label.length > 8 ? event.label.slice(0, 8) + "..." : event.label));
-      });
-
-      event ? this.enterUpdate(event.value) : void 0;
     },
     slider(event) {
       if (event.target.tagName !== "INPUT" && this.number) {
@@ -138,14 +122,14 @@ export default {
   },
   data () {
     return {
-      width: 15,
-      height: 15
+      localWidth: 15,
+      localHeight: 15
     }
   }
 };
 </script>
 
-<style lang="sass" scoped>
+<style lang="sass" >
 @import 'config-style'
 
 .input-wrapper
@@ -155,6 +139,7 @@ export default {
   input	
     @extend %input
     margin-left: 8px
+    padding-top: 2px
     text-align: center
   textarea
     @extend %input

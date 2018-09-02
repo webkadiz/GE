@@ -53,9 +53,5 @@ module.exports = {
   },
   plugins: [new webpack.NoEmitOnErrorsPlugin(), new VueLoaderPlugin()],
   devtool: "eval",
-  mode: "development",
-  watch: true,
-  watchOptions: {
-    aggregateTimeout: 100
-  }
+  mode: "development"
 };

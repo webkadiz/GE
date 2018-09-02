@@ -15,7 +15,8 @@ export default {
     CanvasCoords: () => import("./canvas-coords.vue")
   },
   computed: {
-    ...Vuex.mapState(["canvas"])
+    ...Vuex.mapState(["canvas"]),
+    ...Vuex.mapGetters(["getCanvasWidth", "getCanvasHeight"])
   },
   methods: {
     width() {
@@ -24,47 +25,103 @@ export default {
     height() {
       if (this.$el) return this.$el.clientHeight - 20;
     },
-    
-    initCanvasBackground() {
-      let rect = new fabric.Rect({
-        left: this.canvas.wrapperWidth / 2 - this.canvas.width / 2,
-        top: this.canvas.wrapperHeight / 2 - this.canvas.height / 2,
+
+    init() {
+      let rectTransparent = new fabric.Rect({
         width: this.canvas.width,
         height: this.canvas.height,
-        fill: this.canvas.backgroundColor  
+        strokeWidth: 0
       });
-      let group = this.canvas.background = new fabric.Group([rect], {
+
+      let transparent = new fabric.StaticCanvas(document.createElement("canvas"), {
+        width: 10,
+        height: 10
+      });
+      //prettier-ignore
+      transparent.add(
+        new fabric.Rect({
+          left: 0, top: 0, width: 5, height: 5, fill: '#e2e2e2', strokeWidth: 0
+        }),
+        new fabric.Rect({
+          left: 5, top: 0, width: 5, height: 5, fill: 'white', strokeWidth: 0
+        }),
+        new fabric.Rect({
+          left: 0, top: 5, width: 5, height: 5, fill: 'white', strokeWidth: 0
+        }),
+        new fabric.Rect({
+          left: 5, top:5, width: 5, height: 5, fill: '#e2e2e2', strokeWidth: 0
+        })     
+      )
+
+      this.canvas.transparent = transparent;
+      rectTransparent.setPatternFill({
+        source: transparent.getElement(),
+        repeat: "repeat"
+      });
+      this.c.add(rectTransparent);
+      rectTransparent.center();
+      rectTransparent.sendToBack();
+      this.c.requestRenderAll();
+
+      let background = new fabric.Rect({
+        width: this.canvas.width,
+        height: this.canvas.height,
+        fill: this.canvas.background
+      });
+      let group = (this.canvas.background = new fabric.Group([background], {
         selectable: false,
         hasControls: false,
         hasBorders: false,
         lockMovementX: true,
         lockMovementY: true,
-        hoverCursor: 'default'
-      });
-      group.type = 'background'
+        hoverCursor: "default",
+        strokeWidth: 0
+      }));
+      group.type = "background";
 
-      this.c.add(group)
+      this.c.add(group);
+      group.center();
+
+      if (this.canvas.file) {
+        let group = new fabric.Group([this.canvas.file]);
+        this.c.add(group);
+        group.center();
+        this.c.requestRenderAll();
+      }
+    },
+    updateSize() {
+      let vpt = this.c.viewportTransform,
+        top,
+        left,
+        bottom,
+        right;
+      let bounds = this.c.item(0).getBoundingRect();
+
+      top = vpt[5] + 200 - bounds.top;
+
+      left = vpt[4] + 200 - bounds.left;
+
+      bottom = top - bounds.height;
+      right = left - bounds.width;
+      this.canvas.bounds = { top, bottom, left, right, width: bounds.width, height: bounds.height };
     }
   },
   mounted() {
+    bus.$on("updateSize", this.updateSize); // app.js setZoom
     let counter = 1; //счетчик слоев
 
-    Object.defineProperty(this.canvas, 'wrapperWidth', {
-      get: () => this.$el.clientWidth - 20     
-    })
-     Object.defineProperty(this.canvas, 'wrapperHeight', {
-      get: () => this.$el.clientHeight - 20  
-    })
-
     this.canvas.c = this.c = new fabric.Canvas(this.$refs.canvas, {
-      width: this.canvas.wrapperWidth,
-      height: this.canvas.wrapperHeight,
+      width: this.getCanvasWidth,
+      height: this.getCanvasHeight,
       skipTargetFind: true,
       selection: false,
       preserveObjectStacking: true,
+      fireRightClick: true,
+      fireMiddleClick: true,
+      centeredKey: "ctrlKey",
+      altSelectionKey: "ctrlKey"
     });
-    this.canvas.wrapper = this.$el
-  
+    this.canvas.wrapper = this.$el;
 
     // this.c.on('object:modified', e => {
     // 	console.log(e);
@@ -72,110 +129,117 @@ export default {
     
 
     this.c.on("selection:created", e => {
-      //console.log(e, 'selection created');
-      console.log(this.canvas.layers.find(layer => layer.group === e.target));
-      this.canvas.activeLayer = this.canvas.layers.find(layer => layer.group === e.target);
+      if(!e.target.unactive) {
+        this.canvas.activeLayer = this.canvas.layers.find(layer => layer.group === e.target);
+        
+      }
     });
     this.c.on("selection:updated", e => {
-      //console.log(e, 'selection updated');
-      this.canvas.activeLayer = this.canvas.layers.find(layer => layer.group === e.target);
+      if(!e.target.unactive) {
+        this.canvas.activeLayer = this.canvas.layers.find(layer => layer.group === e.target);
+      }
     });
 
-    this.c.on("before:selection:cleared", e => {
-      //console.log(e, 'before selection cleared');
-    });
+  
     this.c.on("selection:cleared", e => {
-      //console.log(e, 'selection cleared');
+      console.log(e, 'selection cleared');
       //console.log('cleared');
       //this.canvas.activeLayer = null;
     });
 
     this.c.on("object:added", e => {
       //prettier-ignore
-      let group = e.target,
-					object = group.object,
-					title, layer, type;
+      let target = e.target, flag = false, title, layer;
 
-      if (object) {
-        if (group.type === "background") {
-          type = "background";
-          title = `Фон ${this.canvas.layers.length + 1}`;
-        } else if (object.type === "i-text") {
-          type = "text";
-          title = `Текст ${this.canvas.layers.length + 1}`;
-        } else if (object.type === "rect") {
-          type = "square";
-          title = `Прямоугольник ${this.canvas.layers.length + 1}`;
-        } else if (object.type === "path") {
-          type = "pencil";
-          title = `Карандаш ${this.canvas.layers.length + 1}`;
-        } else if (object.type === "line") {
-          type = "line";
-          title = `Линия ${this.canvas.layers.length + 1}`;
-        }  else {
-          type = "nothing";
-          title = `Слой ${this.canvas.layers.length + 1}`;
-        }
+      if (target.type === "background") {
+        title = `Фон ${this.canvas.layers.length + 1}`;
+        flag = true
+      } else if (target.type === "pencil") {
+        title = `Карандаш ${this.canvas.layers.length + 1}`;
+        flag = true
+      } else if (target.type === "brush") {
+        title = `Карандаш ${this.canvas.layers.length + 1}`;
+        flag = true
+      } else if (target.type === "text") {
+        title = `Текст ${this.canvas.layers.length + 1}`;
+        flag = true
+      } else if (target.type === "square") {
+        title = `Прямоугольник ${this.canvas.layers.length + 1}`;
+        flag = true
+      } else if (target.type === "lines") {
+        title = `Линия ${this.canvas.layers.length + 1}`;
+        flag = true
+      } else if (target.type === "empty") {
+        title = `Пустой ${this.canvas.layers.length + 1}`;
+        flag = true
+      }
 
-        layer = { object, group, type, title, id: counter++, visible: true };
+      if(flag) {
+        layer = { object: target.object, type: target.type, group: target,title, id: counter++, visible: true };
         this.canvas.layers.push(layer);
         this.canvas.activeLayer = layer;
-        return;
+        this.c.setActiveObject(layer.group)
+        this.c.requestRenderAll()
       }
     });
     this.c.on("object:removed", e => {});
 
-    this.initCanvasBackground()
+    //prettier-ignore
+    this.c.on('mouse:down', e => {
+      let move, up, lastPosX, lastPosY;
+      if(e.e.ctrlKey && e.button === 3) {
 
-    //кастомные полосы прокрутки
-    $(this.canvas.c.wrapperEl).css({position:'absolute', left: 20, top: 20 });
-    // $(this.$el).niceScroll('.scroll', {
-    //   cursorcolor: "#535353",
-    //   cursorborder: "1px solid #535353",
-    //   autohidemode: "leave",
-    //   enablecrollonselectionL: false
-    // });
+        lastPosX = e.e.clientX;
+        lastPosY = e.e.clientY;
+
+        this.c.on('mouse:move', move = e => {
+          this.c.viewportTransform[4] += e.e.clientX - lastPosX;
+          this.c.viewportTransform[5] += e.e.clientY - lastPosY;
+          this.c.requestRenderAll();
+          lastPosX = e.e.clientX;
+          lastPosY = e.e.clientY;
+        })
+
+        this.c.on('mouse:up', up = e => {
+          this.c.off('mouse:move', move)
+          this.c.off('mouse:up', up)
+        })
+      }
+    })
+
+    this.init();
+    this.updateSize();
+
+    //$(this.canvas.c.wrapperEl).css({left: 20, top: 20 });
 
     this.ps = this.canvas.ps = new PerfectScrollbar(this.$el);
 
-    this.$el.addEventListener('ps-scroll-x' , () => {
-      this.canvas.c.wrapperEl.style.left = this.$el.scrollLeft + 20 + 'px'
-      this.scrollLeft = this.$el.scrollLeft   
-    })
-    this.$el.addEventListener('ps-scroll-y' , () => {
-      this.canvas.c.wrapperEl.style.top = this.$el.scrollTop + 20 + 'px'
-      this.scrollTop = this.$el.scrollTop    
-    })
-    this.$el.addEventListener('ps-scroll-up' ,  () => {
+    this.$el.addEventListener("ps-scroll-x", () => {
+      let width = this.$el.scrollWidth - this.$el.clientWidth;
+      let perScroll = this.$el.scrollLeft / width;
+      let perCanvas = perScroll * this.canvas.width * this.canvas.zoom;
       let vpt = this.c.viewportTransform;
-      console.log(vpt);
-      console.log(this.canvas.background.top);
-      vpt[5] = -this.$el.scrollTop + -this.canvas.background.top * 2;
-      this.canvas.c.setViewportTransform(vpt)
-      //this.c.setViewportTransform(vpt)
-    })
-    this.$el.addEventListener('ps-scroll-down' ,  () => {
+      vpt[4] = this.canvas.bounds.left - perCanvas;
+      this.canvas.c.setViewportTransform(vpt);
+
+      this.canvas.c.wrapperEl.style.left = this.$el.scrollLeft + COORDS_SIZE + "px";
+      this.scrollLeft = this.$el.scrollLeft;
+    });
+    this.$el.addEventListener("ps-scroll-y", () => {
+      let height = this.$el.scrollHeight - this.$el.clientHeight;
+      let perScroll = this.$el.scrollTop / height;
+      let perCanvas = perScroll * this.canvas.height * this.canvas.zoom;
       let vpt = this.c.viewportTransform;
-      console.log(vpt);
-      vpt[5] = -this.$el.scrollTop + -this.canvas.background.top * 2;
-      this.canvas.c.setViewportTransform(vpt)
-      //this.c.setViewportTransform(vpt)
-    })
-     this.$el.addEventListener('ps-scroll-left' ,  () => {
-      let vpt = this.c.viewportTransform;
-      console.log(vpt);
-      vpt[4] = -this.$el.scrollLeft + -this.canvas.background.left * 2;
-      this.canvas.c.setViewportTransform(vpt)
-    })
-    this.$el.addEventListener('ps-scroll-right' ,  () => {
-      let vpt = this.c.viewportTransform;
-      console.log(vpt);
-      vpt[4] = -this.$el.scrollLeft + -this.canvas.background.left * 2;
-      this.canvas.c.setViewportTransform(vpt)
-    })
+      vpt[5] = this.canvas.bounds.top - perCanvas;
+      this.canvas.c.setViewportTransform(vpt);
+
+      this.canvas.c.wrapperEl.style.top = this.$el.scrollTop + COORDS_SIZE + "px";
+      this.scrollTop = this.$el.scrollTop;
+    });
+
+    this.ps.update();
 
     bus.$emit("toolEventActive"); // обработчик в common-tools
-    bus.$emit('createCoords') // обработчик в canvas-coords
   },
   data() {
     return {
@@ -196,6 +260,10 @@ export default {
   .canvas-wrapper-inner
     position: absolute
     display: inline-block
+
+.canvas-container
+  left: 20px
+  top: 20px
 
 // .lower-canvas
 //   background-image: url(data:image/gif;base64,R0lGODlhCgAKAIAAAOLi4v///yH5BAAHAP8ALAAAAAAKAAoAAAIRhB2ZhxoM3GMSykqd1VltzxQAOw==)

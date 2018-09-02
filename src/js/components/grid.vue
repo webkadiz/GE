@@ -23,7 +23,7 @@ export default {
   },
   computed: {
     grid() {
-      return this.getGrid.flat().concat(this.getGridTools).unique('component');
+      return _.unionBy(_.flatten(this.getGrid), this.getGridTools, 'component')
     },
     computeCols() {
       let cols = "";
@@ -56,8 +56,6 @@ export default {
   data() {
     return {
       activeGridItem: null,
-      level2,
-      level3
     }
   }
 };
