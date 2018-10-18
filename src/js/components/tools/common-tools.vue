@@ -16,7 +16,7 @@
 export default {
   components: {
     Casing: () => import("../casing.vue"),
-    Icon: () => import("../icon.vue")
+    Icon  : () => import("../icon.vue")
   },
   computed: {
     canvas() {
@@ -32,12 +32,12 @@ export default {
 
     let spectrum = {
       preferredFormat: "name",
-      showInput: true,
-      showButtons: false,
-      showAlpha: true
+      showInput      : true,
+      showButtons    : false,
+      showAlpha      : true
     };
     $(this.$refs.foreground).spectrum({
-      color: "black",
+      color            : "black",
       replacerClassName: "common-tools__foreground-replacer common-tools__colorpicker-replacer",
       ...spectrum
     });
@@ -46,7 +46,7 @@ export default {
     })
 
     $(this.$refs.background).spectrum({
-      color: "white",
+      color            : "white",
       replacerClassName: "common-tools__background-replacer common-tools__colorpicker-replacer",
       ...spectrum
     });
@@ -68,16 +68,16 @@ export default {
       }
     },
     updateColor(color) {
-      let tool =  this.activeTool, mode;
+      let tool = this.activeTool, mode;
 
       if (tool === "pencil" || tool === "brush" || tool === "line") {
-        mode = "stroke";
-      } else mode = "fill";
+                                                                                                          mode      = "stroke";
+                                                                                                        } else mode = "fill";
       this.$store.commit({
-        type: "propUpdate",
-        tool: "global",
-        setting: mode,
-        newValue: tinycolor(color).toRgbString(),
+        type      : "propUpdate",
+        tool      : "global",
+        setting   : mode,
+        newValue  : tinycolor(color).toRgbString(),
         onlyGlobal: true
       });
     },
@@ -93,7 +93,7 @@ export default {
       if(this.canvas.activeLayer && this.canvas.activeLayer.type === 'empty') {
         this.canvas.activeLayer.group.addWithUpdate(object)
         this.canvas.activeLayer.object = object
-        this.canvas.activeLayer.type = type
+        this.canvas.activeLayer.type   = type
         this.c.remove(object)
         return;
       }
@@ -103,14 +103,14 @@ export default {
 
       })
       group.layer = true;
-      group.type = type
+      group.type  = type
       this.c.add(group)
       this.c.remove(object)
     },
     move: function*() {
       let self = this.canvas;
 
-      self.c.selection = true;
+      self.c.selection      = true;
       self.c.skipTargetFind = false;
 
       self.c.setActiveObject(self.activeLayer.group);
@@ -118,9 +118,9 @@ export default {
       self.c.forEachObject(object => {
         object.hasControls = true
         object.set({
-          cornerStrokeColor: 'white',
-          cornerStyle: 'circle',
-          cornerSize: 5,
+          cornerStrokeColor : 'white',
+          cornerStyle       : 'circle',
+          cornerSize        : 5,
           transparentCorners: false
         })
       })
@@ -129,7 +129,7 @@ export default {
 
       yield;
       self.c.skipTargetFind = true;
-      self.c.selection = false;
+      self.c.selection      = false;
 
       self.c.forEachObject(object => {
         object.hasControls = false
@@ -147,24 +147,24 @@ export default {
 
       moveCursor = e => {
         let { x: left, y: top } = self.c.getPointer();
-        let { x, y } = self.c.getPointer(null, true);
+        let { x, y }            = self.c.getPointer(null, true);
         let width, height, color, imageData;
         width = height = this.$store.state.pencil.strokeWidth;
 
         imageData = self.c.getContext().getImageData(x + width / 2, y + height / 2, 1, 1);
 
         if (imageData.data[0] < 50 && imageData.data[1] < 50 && imageData.data[2] < 50) {
-          color = "white";
-        } else color = "black";
+                                                                                                            color      = "white";
+                                                                                                          } else color = "black";
 
         self.c.remove(cursor);
         cursor = new fabric.Rect({
-          left: left - 1,
-          top: top - 1,
-          width: width + 1,
-          height: height + 1,
-          fill: "transparent",
-          stroke: color,
+          left       : left - 1,
+          top        : top - 1,
+          width      : width + 1,
+          height     : height + 1,
+          fill       : "transparent",
+          stroke     : color,
           strokeWidth: 1
           //shadow: 'rgba(0,0,0,.3) 0 0 3px'
         });
@@ -183,7 +183,7 @@ export default {
         let {x, y} = self.c.getPointer(), counter = 0;
 
         path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.global , this.$store.state.pencil, {
-          strokeLineCap: 'square',
+          strokeLineCap : 'square',
           strokeLineJoin: 'bevil'
         }));	
 
@@ -202,7 +202,7 @@ export default {
           path.path.push(['L', x , y])
       
           path = new fabric.Path(path.path, Object.assign({}, this.$store.state.global, this.$store.state.pencil, {
-            strokeLineCap: 'square',
+            strokeLineCap : 'square',
             strokeLineJoin: 'bevil',
           }))
 
@@ -238,13 +238,13 @@ export default {
 
         self.c.remove(cursor);
         cursor = new fabric.Circle({
-          left: left - 1,
-          top: top - 1,
-          radius: this.$store.state.pencil.strokeWidth / 2 + 0.5,
-          fill: "transparent",
-          stroke: "black",
+          left       : left - 1,
+          top        : top - 1,
+          radius     : this.$store.state.pencil.strokeWidth / 2 + 0.5,
+          fill       : "transparent",
+          stroke     : "black",
           strokeWidth: 1,
-          shadow: 'rgba(255,255,255,1) 0 0 1px'
+          shadow     : 'rgba(255,255,255,1) 0 0 1px'
         });
 
         self.c.add(cursor);
@@ -261,7 +261,7 @@ export default {
         let {x, y} = self.c.getPointer(), counter = 0;
 
         path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.global, this.$store.state.pencil, {
-          strokeLineCap: 'round',
+          strokeLineCap : 'round',
           strokeLineJoin: 'round'
         }));	
 
@@ -281,7 +281,7 @@ export default {
           path.path.push(['L', x , y])
       
           path = new fabric.Path(path.path, Object.assign({}, this.$store.state.global, this.$store.state.pencil, {
-            strokeLineCap: 'round',
+            strokeLineCap : 'round',
             strokeLineJoin: 'round'
           }))
 
@@ -305,10 +305,40 @@ export default {
       self.c.off("mouse:move", moveCursor);
       self.c.defaultCursor = "default";
     },
+    path: function*(){
+      let path, down, group, self = this.canvas;
+
+      self.c.on('mouse:down', down = e => {
+        let { x, y } = self.c.getPointer();
+        
+        if(!path) {
+          path = new fabric.Path(`M ${x} ${y}`, {
+            strokeWidth: 20,
+            stroke     : 'black',
+            fill       : 'transparent'
+          })
+        }
+
+        self.c.remove(path);
+
+        path.path.push(["L", x, y])
+        
+        path = new fabric.Path(path.path, {
+          strokeWidth: 20,
+          stroke     : 'black',
+          fill       : 'transparent'
+        })
+     
+        self.c.add(path)
+        console.log(path);
+        //self.c.requestRenderAll()
+      })
+
+      yield;
+    },
     text: function*() {
-      //prettier-ignore
       let text, up, group, self = this.canvas;
-      //prettier-ignore
+
       self.c.on("mouse:up",up = e => {
         let { x, y } = self.c.getPointer();
 
@@ -316,10 +346,10 @@ export default {
 
         Object.assign(this.$store.state.text, {
           left: x,
-          top: y
+          top : y
         });
 
-        text = new fabric.IText("", this.$store.state.text);
+        text  = new fabric.IText("", this.$store.state.text);
         group = new fabric.Group([text])
 
         text.on('changed', () => group.addWithUpdate());
@@ -340,19 +370,19 @@ export default {
       //prettier-ignore
       self.c.on('mouse:up', up = e => {
         if(e.button === 1 || e.button === 3) {
-          let {x, y} = self.c.getPointer(), colorClick,  colorFill, whereClick, fill, stroke;
-          colorFill = e.button === 1 
+          let {x, y}    = self.c.getPointer(), colorClick, colorFill, whereClick, fill, stroke;
+              colorFill = e.button === 1
             ? $(this.$refs.foreground).spectrum('get').toRgbString()
-            : $(this.$refs.background).spectrum('get').toRgbString()
+            :                                                  $(this.$refs.background).spectrum('get').toRgbString()
   
           for(let object of self.c.getObjects().slice().reverse()) {
             if(object.containsPoint({x, y}) && !self.c.isTargetTransparent(object, x, y)) {
               colorClick = self.c.getPixel();
               fill       = tinycolor(object.object.fill).toRgb();
               stroke     = tinycolor(object.object.stroke).toRgb();
-              whereClick = _.isEqual(colorClick, fill) 
+              whereClick = _.isEqual(colorClick, fill)
                 ? 'fill' 
-                : _.isEqual(colorClick,stroke) ? 'stroke' : fill.a === 0 ? 'stroke' : 'fill'
+                :                                                  _.isEqual(colorClick,stroke) ? 'stroke': fill.a === 0 ? 'stroke': 'fill'
   
               
               object.object.set(whereClick, colorFill)
@@ -381,7 +411,7 @@ export default {
           left,
           top,
           radius: this.$store.state.pencil.strokeWidth / 2,
-          fill: "transparent",
+          fill  : "transparent",
           stroke: "grey"
         });
 
@@ -399,8 +429,8 @@ export default {
         let {x, y} = self.c.getPointer(), counter = 0;
 
         path = new fabric.Path(`M ${x} ${y} L ${x + 0.1} ${y}`, Object.assign({}, this.$store.state.pencil, {
-          fill: 'transparent',
-          stroke: 'black',
+          fill                    : 'transparent',
+          stroke                  : 'black',
           globalCompositeOperation: 'destination-out'
         }));	
 
@@ -421,8 +451,8 @@ export default {
           path.path.push(['L', x , y])
       
           path = new fabric.Path(path.path, Object.assign({}, this.$store.state.pencil, {
-            fill: 'transparent',
-            stroke: 'black',
+            fill                    : 'transparent',
+            stroke                  : 'black',
             globalCompositeOperation: 'destination-out'
           }))
 
@@ -508,7 +538,7 @@ export default {
 
         line = new fabric.Line([x, y, x, y], Object.assign({}, this.$store.state.global, {
           strokeWidth: 1,
-          stroke: 'black'
+          stroke     : 'black'
         }));
 
         self.c.add(line)
@@ -571,6 +601,7 @@ export default {
         'move',
         'pencil',
         'brush',
+        'path',
         'text',
         'pouring',
         'eraser',
@@ -589,25 +620,25 @@ export default {
 @import 'config-style'
 
 .tools-wrapper
-  flex-shrink: 0
-  z-index: 1000
-  background: var(--main-color)
-  display: flex
-  flex-wrap: wrap
+  flex-shrink    : 0
+  z-index        : 1000
+  background     : var(--main-color)
+  display        : flex
+  flex-wrap      : wrap
   justify-content: center
-  align-content: flex-start
-  width: 40px
-  transition: opacity .8s
+  align-content  : flex-start
+  width          : 40px
+  transition     : opacity .8s
 
 .tool
-  width: 100%
-  height: 40px
-  display: flex
-  align-items: center
+  width          : 100%
+  height         : 40px
+  display        : flex
+  align-items    : center
   justify-content: center
-  cursor: pointer
+  cursor         : pointer
   svg
-    width: 19px
+    width : 19px
     height: 19px
 .tool.active 
   background: var(--bg-color)
@@ -615,15 +646,15 @@ export default {
 .swap-color
   position: relative
   &__icon  
-    width: 10px
-    height: 10px
-    position: absolute
-    right: 10%
-    top: 10%
-    display: flex
+    width    : 10px
+    height   : 10px
+    position : absolute
+    right    : 10%
+    top      : 10%
+    display  : flex
     transform: rotate(90deg)
     svg
-      width: 100%
+      width : 100%
       height: 100%
 
 </style>
