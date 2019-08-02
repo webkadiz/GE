@@ -71,8 +71,8 @@ export default {
       let tool = this.activeTool, mode;
 
       if (tool === "pencil" || tool === "brush" || tool === "line") {
-                                                                                                          mode      = "stroke";
-                                                                                                        } else mode = "fill";
+                                                                                                                                                                                mode      = "stroke";
+                                                                                                                                                                              } else mode = "fill";
       this.$store.commit({
         type      : "propUpdate",
         tool      : "global",
@@ -154,8 +154,8 @@ export default {
         imageData = self.c.getContext().getImageData(x + width / 2, y + height / 2, 1, 1);
 
         if (imageData.data[0] < 50 && imageData.data[1] < 50 && imageData.data[2] < 50) {
-                                                                                                            color      = "white";
-                                                                                                          } else color = "black";
+                                                                                                                                                                                  color      = "white";
+                                                                                                                                                                                } else color = "black";
 
         self.c.remove(cursor);
         cursor = new fabric.Rect({
@@ -306,10 +306,26 @@ export default {
       self.c.defaultCursor = "default";
     },
     path: function*(){
-      let path, down, group, self = this.canvas;
+      let path, reX, reY, down, move, up, group, self = this.canvas;
 
       self.c.on('mouse:down', down = e => {
+        if(e.e.ctrlKey) {
+          self.c.remove(path);
+          path.path.pop();
+
+          self.c.add(new fabric.Path(path.path, {
+          strokeWidth: 20,
+          stroke     : 'black',
+          fill       : 'transparent'
+          }))
+          
+          path = undefined;
+          self.c.off("mouse:move", move);
+          return
+        }
+        self.c.off("mouse:move", move);
         let { x, y } = self.c.getPointer();
+            reX      = x; reY = y;
         
         if(!path) {
           path = new fabric.Path(`M ${x} ${y}`, {
@@ -321,7 +337,7 @@ export default {
 
         self.c.remove(path);
 
-        path.path.push(["L", x, y])
+        path.path.push(["Q", x, y, x, y])
         
         path = new fabric.Path(path.path, {
           strokeWidth: 20,
@@ -331,10 +347,47 @@ export default {
      
         self.c.add(path)
         console.log(path);
-        //self.c.requestRenderAll()
+        
+        self.c.on('mouse:move', move = e => {
+          console.log('move');
+          let { x, y } = self.c.getPointer();
+          self.c.remove(path);
+
+          path.path[path.path.length - 2][1] = x
+          path.path[path.path.length - 2][2] = y
+          
+          path = new fabric.Path(path.path, {
+            strokeWidth: 20,
+            stroke     : 'black',
+            fill       : 'transparent'
+          })
+
+          self.c.add(path)
+        })
+        self.c.on('mouse:up', up = e => {
+          self.c.off("mouse:move", move);
+          self.c.off("mouse:up", up);
+          self.c.on('mouse:move', move = e => {
+            let { x, y } = self.c.getPointer();
+            self.c.remove(path);
+
+            _.last(path.path)[3] = x;
+            _.last(path.path)[4] = y;
+            
+            path = new fabric.Path(path.path, {
+              strokeWidth: 20,
+              stroke     : 'black',
+              fill       : 'transparent'
+            })
+        
+            self.c.add(path)
+          })
+        })
       })
 
       yield;
+
+      self.c.off("mouse:down", down);
     },
     text: function*() {
       let text, up, group, self = this.canvas;
@@ -373,7 +426,7 @@ export default {
           let {x, y}    = self.c.getPointer(), colorClick, colorFill, whereClick, fill, stroke;
               colorFill = e.button === 1
             ? $(this.$refs.foreground).spectrum('get').toRgbString()
-            :                                                  $(this.$refs.background).spectrum('get').toRgbString()
+            :                                                                                     $(this.$refs.background).spectrum('get').toRgbString()
   
           for(let object of self.c.getObjects().slice().reverse()) {
             if(object.containsPoint({x, y}) && !self.c.isTargetTransparent(object, x, y)) {
@@ -382,7 +435,7 @@ export default {
               stroke     = tinycolor(object.object.stroke).toRgb();
               whereClick = _.isEqual(colorClick, fill)
                 ? 'fill' 
-                :                                                  _.isEqual(colorClick,stroke) ? 'stroke': fill.a === 0 ? 'stroke': 'fill'
+                :                                                                                     _.isEqual(colorClick,stroke) ? 'stroke': fill.a === 0 ? 'stroke': 'fill'
   
               
               object.object.set(whereClick, colorFill)

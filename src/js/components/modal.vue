@@ -1,33 +1,31 @@
 <template>
+  <transition @enter="enter" @before-leave="leave">
+    <div class="modal">
+      <div
+        @keyup.enter="apply() , $store.commit('closeModal')"
+        class="modal-item animated"
+        ref="modal"
+      >
+        <button @click.stop="$store.commit('closeModal')" class="close"></button>
 
-<transition
-@enter="enter"
-@before-leave="leave" >
-<div class="modal" >
-    <div  
-      @keyup.enter="apply() , $store.commit('closeModal')"  
-      class="modal-item animated"
-      ref="modal">  
-      <button @click.stop="$store.commit('closeModal')" class="close"></button>
-      
-      <form>
-        <EnterPropMenu 
-          v-bind="setting"         
-          v-for="(setting, index) in settings[modal]" :key="index"
-          @change="enterUpdate($event, setting)">   
-        </EnterPropMenu>
-      </form>
-      
-      <div @click="apply() , $store.commit('closeModal')" class="apply glitch-btn">
-        <div class="text">Применить</div>
-        <div class="mask">
-          <span>Применить</span>
+        <form>
+          <EnterPropMenu
+            v-bind="setting"
+            v-for="(setting, index) in settings[modal]"
+            :key="index"
+            @change="enterUpdate($event, setting)"
+          ></EnterPropMenu>
+        </form>
+
+        <div @click="apply() , $store.commit('closeModal')" class="apply glitch-btn">
+          <div class="text">Применить</div>
+          <div class="mask">
+            <span>Применить</span>
+          </div>
         </div>
       </div>
     </div>
-</div>
-</transition>
-
+  </transition>
 </template>
 
 <script>
@@ -50,8 +48,7 @@ export default {
         ..._.mapValues(this.settings[this.modal], object => object.value)
       });
     },
-    enterUpdate : (newValue, setting) => setting.value = newValue
-    
+    enterUpdate: (newValue, setting) => (setting.value = newValue)
   },
   data() {
     return {
@@ -74,7 +71,7 @@ export default {
           height: { title: "Высота", value: null, type: "input" }
         },
         newTheme: {
-          theme: { title: "Название темы",  value: null, type: "input" },
+          theme: { title: "Название темы", value: null, type: "input" },
           textColor: { title: "Цвет текста", value: null, type: "color" },
           labelColor: { title: "Цвет подписей и иконок", value: null, type: "color" },
           bgBody: { title: "Задний фон", value: null, type: "color" },
@@ -171,7 +168,7 @@ export default {
   $value: 45
   @for $i from 0 to 100
     #{$i}%
-      background: radial-gradient(circle, transparent $value + %, var(--main-color) 45%)
+      background: radial-gradient(circle, transparent #{$value + '%'}, var(--main-color) 45%)
     @if $value > 100
       $value: 100
     @else
@@ -181,7 +178,7 @@ export default {
   $value: 100
   @for $i from 0 to 100
     #{$i}%
-      background: radial-gradient(circle, transparent $value + %, var(--main-color) 45%)
+      background: radial-gradient(circle, transparent #{$value + '%'}, var(--main-color) 45%)
     @if $value < 45
       $value: 45
     @else

@@ -16,6 +16,7 @@ import "./config"; // файл конфигурации
 import Navbar from "./components/navbar";
 import Toolbar from "./components/toolbar";
 import Grid from "./components/grid";
+import MenuHeaderDropdownItem from "./components/menu-header-dropdown-item";
 
 // глобальное хранилище
 let store;
@@ -437,10 +438,10 @@ window.store = store = new Vuex.Store({
      */
     isThemeInvert: state => () => state.themes.invert,
 
-    /* 
-    * генераторы
-    * геттеры, которые генерируют динамические списки в меню - navbar
-    */
+    /*
+     * генераторы
+     * геттеры, которые генерируют динамические списки в меню - navbar
+     */
 
     // генерирует список рабочих мест
     genGrids: state => {
@@ -486,7 +487,8 @@ new Vue({
     Navbar,
     Toolbar,
     Grid,
-    Modal: () => import("./components/modal")
+    Modal: () => import("./components/modal"),
+    MenuHeaderDropdownItem
   },
   computed: Vuex.mapState(["headerDropdownItem", "themes", "modal"]),
   methods: {},

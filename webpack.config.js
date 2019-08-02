@@ -1,19 +1,21 @@
 const webpack = require("webpack");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const NODE_ENV = process.env.NODE_ENV || "development";
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-module.exports = {
+module.exports = env => ({
   entry: ["./src/js/app.js"],
   output: {
-    path: __dirname + "/build/js",
-    filename: "build.js",
-    publicPath: "/build/js/"
+    path: __dirname + "/build/",
+    filename: "js/build.js",
+    publicPath: ""
   },
   module: {
     rules: [
       {
         test: /\.js$/,
-        use: "babel-loader"
+        use: "babel-loader",
+        exclude: /node_modules/
       },
       {
         test: /\.vue$/,
@@ -39,6 +41,10 @@ module.exports = {
       {
         test: /\.(png|svg|jpg|gif)$/,
         use: ["file-loader"]
+      },
+      {
+        test: /\.html/,
+        use: "html-loader"
       }
     ]
   },
@@ -51,7 +57,10 @@ module.exports = {
   devServer: {
     overlay: true
   },
-  plugins: [new webpack.NoEmitOnErrorsPlugin(), new VueLoaderPlugin()],
-  devtool: "eval",
-  mode: "development"
-};
+  plugins: [
+    new webpack.NoEmitOnErrorsPlugin(),
+    new VueLoaderPlugin(),
+    new HtmlWebpackPlugin({ template: "src/index.html" })
+  ],
+  devtool: "source-map",
+});

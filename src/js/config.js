@@ -131,6 +131,8 @@ Object.defineProperty(Array.prototype, "remove", {
   }
 });
 
+
+
 /**
  * метод массивов removeIndex, удаляет элемент из массива по индексу
  * @param {Number} индекс элемента, который нужно удалить

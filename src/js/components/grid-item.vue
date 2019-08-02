@@ -1,41 +1,42 @@
 <template>
-	<div 
-		:style="{'grid-row': computeRow}" 
-		:class="['grid-item', {'in-grid': inGrid, 'in-fold': isFold}]" 
-		:data-component="component" 
-    @mousedown="$emit('mousedown')">
-
-    <GridArrow v-if=" component !== 'CanvasWrapper' 
+  <div
+    :style="{'grid-row': computeRow}"
+    :class="['grid-item', {'in-grid': inGrid, 'in-fold': isFold}]"
+    :data-component="component"
+    @mousedown="$emit('mousedown')"
+  >
+    <GridArrow
+      v-if=" component !== 'CanvasWrapper' 
                       && inGrid 
                       && getGrid.find(col => col[0].component === component)"
-               @switcherArrowInGrid="switcherArrowInGrid"
-               :class="{fold: isFold }" :component="component">
-    </GridArrow>
+      @switcherArrowInGrid="switcherArrowInGrid"
+      :class="{fold: isFold }"
+      :component="component"
+    ></GridArrow>
 
-    <DragTools @closeComponent="$emit('closeComponent')" @switchArrow="switchArrow" 
-               v-if="component !== 'CanvasWrapper' && !inGrid"
-               :class="{fold: isFold}">
-    </DragTools>
+    <DragTools
+      @closeComponent="$emit('closeComponent')"
+      @switchArrow="switchArrow"
+      v-if="component !== 'CanvasWrapper' && !inGrid"
+      :class="{fold: isFold}"
+    ></DragTools>
 
-		<keep-alive>
-        <component v-scroll
-            ref="component"
-            :class="[{'component-fold': isFold}, {tools: component !== 'CanvasWrapper'}]" 
-            :style="computePosition()"
-            :is="component"
-            v-show="computeDisplayComponent">
-        </component>
-		</keep-alive>
+    <keep-alive>
+      <component
+        v-scroll
+        ref="component"
+        :class="[{'component-fold': isFold}, {tools: component !== 'CanvasWrapper'}]"
+        :style="computePosition()"
+        :is="component"
+        v-show="computeDisplayComponent"
+      ></component>
+    </keep-alive>
 
-    <FoldTools @switcher="switcher = !switcher" 
-               v-if="isFold" 
-               :title="title" 
-               :active="switcher">
-    </FoldTools>
+    <FoldTools @switcher="switcher = !switcher" v-if="isFold" :title="title" :active="switcher"></FoldTools>
 
-		<Casing v-if="component !== 'CanvasWrapper'"></Casing>
-		<Casing v-else-if="component === 'CanvasWrapper'" BottomNot="true" TopNot="true"></Casing>
-	</div>
+    <Casing v-if="component !== 'CanvasWrapper'"></Casing>
+    <Casing v-else-if="component === 'CanvasWrapper'" BottomNot="true" TopNot="true"></Casing>
+  </div>
 </template>
 
 <script>
@@ -49,7 +50,7 @@ export default {
     GridArrow: () => import("./grid-arrow.vue"),
     DragTools: () => import("./tools/drag-tools.vue"),
     FoldTools: () => import("./tools/fold-tools.vue"),
-    TransformTools: () => import('./tools/transfrom-tools'),
+    TransformTools: () => import("./tools/transfrom-tools"),
     CommonTools: () => import("./tools/common-tools.vue"),
     TextTools: () => import("./tools/text-tools.vue"),
     LayerTools: () => import("./tools/layer-tools.vue"),
@@ -61,89 +62,86 @@ export default {
     bus.$on("switchArrow", this.switchArrow); // вызывавший здесь же
     if (this.component !== "CanvasWrapper") {
       Interact(this.$el).draggable({
-          max: Infinity,
-          maxPerElement: Infinity,
-          allowFrom: ".drag, .in-grid, .fold-wrapper",
-          inertia: {
-            smoothEndDuration: 1000
-          },
-          restrict: {
-            restriction: 'parent',
-          },
-          onmove(e) {
-            //prettier-ignore
-            let el = e.target,
+        max: Infinity,
+        maxPerElement: Infinity,
+        allowFrom: ".drag, .in-grid, .fold-wrapper",
+        inertia: {
+          smoothEndDuration: 1000
+        },
+        restrict: {
+          restriction: "parent"
+        },
+        onmove(e) {
+          //prettier-ignore
+          let el = e.target,
               x  = (parseFloat(el.getAttribute("data-x")) || 0) + e.dx,
               y  = (parseFloat(el.getAttribute("data-y")) || 0) + e.dy;
 
-            el.style.webkitTransform = el.style.transform = `translate(${x}px, ${y}px)`;
+          el.style.webkitTransform = el.style.transform = `translate(${x}px, ${y}px)`;
 
-            el.setAttribute("data-x", x);
-            el.setAttribute("data-y", y);
+          el.setAttribute("data-x", x);
+          el.setAttribute("data-y", y);
+        },
+        onstart: event => {
+          let el = event.target;
 
-          },
-          onstart: event => {
-            let el = event.target;
+          if (el.classList.contains("in-grid")) {
+            let gridRow,
+              component = el.getAttribute("data-component");
+            this.getGrid.forEach(gridCol => {
+              if ((gridRow = gridCol.find(row => row.component === component))) {
+                gridCol.length !== 1 ? gridCol.remove(gridRow) : this.getGrid.remove(gridCol);
+                setLocalStorageField("grids", this.$store.state.grids);
+              }
+            });
 
-            if (el.classList.contains("in-grid")) {
-              let gridRow, component = el.getAttribute("data-component");
-              this.getGrid.forEach(gridCol => {
-                if ((gridRow = gridCol.find(row => row.component === component))) {
-                  gridCol.length !== 1 ? gridCol.remove(gridRow) : this.getGrid.remove(gridCol);
-                  setLocalStorageField("grids", this.$store.state.grids);
-                }
-              });
-
-              el.setAttribute("data-x", el.getBoundingClientRect().left);
-              el.setAttribute("data-y", el.getBoundingClientRect().top);
-            }
-            el.style.pointerEvents = "none";
-            $(".casing").css("z-index", 1000000000);
-          },
-          onend: e => {
-            e.target.style.pointerEvents = "auto";
-            $(".casing").css("z-index", -100);
+            el.setAttribute("data-x", el.getBoundingClientRect().left);
+            el.setAttribute("data-y", el.getBoundingClientRect().top);
           }
-        })
+          el.style.pointerEvents = "none";
+          $(".casing").css("z-index", 1000000000);
+        },
+        onend: e => {
+          e.target.style.pointerEvents = "auto";
+          $(".casing").css("z-index", -100);
+        }
+      });
 
-        // .resizable({
-        //   enabled: false,
-        //   edges: { bottom: true, top: true },
+      // .resizable({
+      //   enabled: false,
+      //   edges: { bottom: true, top: true },
 
-        //   // minimum size
-        //   restrictSize: {
-        //     min: { width: 100, height: 50 }
-        //   },
+      //   // minimum size
+      //   restrictSize: {
+      //     min: { width: 100, height: 50 }
+      //   },
 
-        //   inertia: true,
-        //   onmove: event => {
-        //     let target = event.target,
-        //       y = parseFloat(target.getAttribute("data-y")) || 0;
+      //   inertia: true,
+      //   onmove: event => {
+      //     let target = event.target,
+      //       y = parseFloat(target.getAttribute("data-y")) || 0;
 
-        //     target.style.height = event.rect.height + "px";
-        //     y += event.deltaRect.top;
+      //     target.style.height = event.rect.height + "px";
+      //     y += event.deltaRect.top;
 
-        //     target.setAttribute("data-y", y);
+      //     target.setAttribute("data-y", y);
 
-        //     $(this.$refs.component.$el).getNiceScroll().resize();
-        //   }
-        // });
-
-             
+      //     $(this.$refs.component.$el).getNiceScroll().resize();
+      //   }
+      // });
     }
   },
   computed: {
     inGrid() {
-      for (let gridCol of this.getGrid)
-        if (~_.findIndex(gridCol, {component: this.component})) return true;
-        
+      for (let gridCol of this.getGrid) if (~_.findIndex(gridCol, { component: this.component })) return true;
+
       return false;
     },
     computeRow() {
       for (let gridCol of this.getGrid) {
         let k = this.rowsAmount / gridCol.length;
         let index;
-        if (~(index = _.findIndex(gridCol, {component: this.component}))) {
+        if (~(index = _.findIndex(gridCol, { component: this.component }))) {
           return `${index * k + 1} / ${index * k + k + 1}`;
         }
       }
@@ -152,7 +150,7 @@ export default {
       if (!this.isFold) return true;
       return this.switcher;
     },
-    ...Vuex.mapGetters(['getGrid'])
+    ...Vuex.mapGetters(["getGrid"])
   },
   methods: {
     computePosition() {
@@ -162,6 +160,7 @@ export default {
           right: this.$el.getBoundingClientRect().left > $("html").width() / 2 ? "103%" : ""
         };
     },
+
     switchArrow(col) {
       if (col && !col.find(row => row.component === this.component)) return;
       this.switcher = this.isFold ? true : false;
