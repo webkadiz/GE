@@ -1,6 +1,5 @@
 const webpack = require("webpack");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
-const NODE_ENV = process.env.NODE_ENV || "development";
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = env => ({
