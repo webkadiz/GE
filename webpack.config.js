@@ -62,5 +62,5 @@ module.exports = env => ({
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({ template: "src/index.html" })
   ],
-  devtool: "source-map",
+  devtool: env === 'dev' ? "source-map" : undefined,
 });
