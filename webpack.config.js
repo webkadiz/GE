@@ -7,7 +7,7 @@ module.exports = env => ({
   output: {
     path: __dirname + "/build/",
     filename: "js/build.js",
-    publicPath: ""
+    publicPath: "/"
   },
   module: {
     rules: [
