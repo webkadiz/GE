@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Paint Online</title>
+    <link href="https://fonts.googleapis.com/css?family=Exo+2" rel="stylesheet" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" />
+  </head>
+
+  <body>
+    <div id="app" :class="{invert: themes.invert, modal}">
+      <header>
+        <navbar></navbar>
+        <toolbar></toolbar>
+      </header>
+
+      <grid></grid>
+
+      <modal v-if="modal"></modal>
+    </div>
+  <script type="text/javascript" src="js/build.js"></script></body>
+</html>
