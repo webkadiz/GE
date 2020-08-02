@@ -331,16 +331,24 @@ window.config = {
       name: "Начальная"
     },
     currentGrid: {
-      grid: [[{ component: "CanvasWrapper", id: 0, isFold: false, isActive: true, title: "canvas" }]],
-      gridTools: [
-        { component: "TransformTools", id: 1, isFold: false, isActive: false, title: "трансформация" },
-        { component: "CommonTools", id: 2, isFold: false, isActive: false, title: "инструменты" },
-        { component: "TextTools", id: 3, isFold: false, isActive: false, title: "Текст" },
-        { component: "LayerTools", id: 4, isFold: false, isActive: false, title: "Слои" },
-        { component: "PencilTools", id: 5, isFold: false, isActive: false, title: "Мелок" },
-        { component: "FillTools", id: 6, isFold: false, isActive: false, title: "Заливка", class: "fill-tools" }
+      grid: [
+        [{ component: "CommonTools", id: 2, isFold: false, isActive: true, title: "инструменты" }],
+        [{ component: "CanvasWrapper", id: 0, isFold: false, isActive: true, title: "canvas" }],
+        [
+          { component: "TransformTools", id: 1, isFold: true, isActive: true, title: "трансформация" },
+          { component: "FillTools", id: 6, isFold: true, isActive: true, title: "Заливка", class: "fill-tools" },
+          { component: "LayerTools", id: 4, isFold: true, isActive: true, title: "Слои" }
+        ]
       ],
-      name: "Начальная"
+      gridTools: [
+        { component: "TransformTools", id: 1, isFold: true, isActive: true, title: "трансформация" },
+        { component: "CommonTools", id: 2, isFold: true, isActive: true, title: "инструменты" },
+        { component: "TextTools", id: 3, isFold: false, isActive: false, title: "Текст" },
+        { component: "LayerTools", id: 4, isFold: true, isActive: true, title: "Слои" },
+        { component: "PencilTools", id: 5, isFold: false, isActive: false, title: "Мелок" },
+        { component: "FillTools", id: 6, isFold: true, isActive: true, title: "Заливка", class: "fill-tools" }
+      ],
+      name: "Основная"
     }
   },
   themes: {
